@@ -14,8 +14,8 @@ const PricingPage: React.FC = () => {
       price: '$0',
       period: 'forever',
       features: [
-        'Up to 10 short links per month',
-        'Basic QR code generation',
+        '5 short links per month',
+        '3 QR code generations',
         'Click tracking for 30 days',
         'Standard link analytics',
         'No custom branding'
