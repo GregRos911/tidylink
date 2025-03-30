@@ -18,7 +18,7 @@ const PricingPage: React.FC = () => {
         '5 QR code generations',
         'QR Code customizations',
         'Standard link analytics',
-        '5 custom back-havles',
+        '5 custom back-halves',
         'QR code customizations'
       ],
       buttonText: 'Get Started',
