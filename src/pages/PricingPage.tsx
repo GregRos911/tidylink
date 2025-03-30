@@ -18,7 +18,7 @@ const PricingPage: React.FC = () => {
         '5 QR code generations',
         'QR Code customizations',
         'Standard link analytics',
-        '5 custom back-havles'
+        '5 custom back-havles',
         'QR code customizations'
       ],
       buttonText: 'Get Started',
@@ -35,7 +35,7 @@ const PricingPage: React.FC = () => {
         '10 QR code generations',
         '60 days of scan & click data',
         'An advanced UTM builder',
-        'Link & QR code redirects'
+        'Link & QR code redirects',
         'advanced QR code customizations'
       ],
       buttonText: 'Start a free trial',
