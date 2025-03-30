@@ -1,0 +1,93 @@
+
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { urlServices } from '@/lib/urlServices';
+import { toast } from 'sonner';
+
+const RedirectPage: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const [countdown, setCountdown] = useState(3);
+  const [originalUrl, setOriginalUrl] = useState<string | null>(null);
+  
+  useEffect(() => {
+    if (!id) {
+      navigate('/');
+      return;
+    }
+    
+    const fetchLink = async () => {
+      try {
+        const link = await urlServices.getLink(id);
+        
+        if (link) {
+          setOriginalUrl(link.originalUrl);
+          // Increment click count
+          await urlServices.incrementClickCount(id);
+          
+          // Start countdown for redirect
+          const timer = setInterval(() => {
+            setCountdown(prev => {
+              if (prev <= 1) {
+                clearInterval(timer);
+                window.location.href = link.originalUrl;
+                return 0;
+              }
+              return prev - 1;
+            });
+          }, 1000);
+          
+          return () => clearInterval(timer);
+        } else {
+          toast.error('Link not found');
+          navigate('/');
+        }
+      } catch (error) {
+        console.error('Error fetching link:', error);
+        toast.error('Link not found or has expired');
+        navigate('/');
+      }
+    };
+    
+    fetchLink();
+  }, [id, navigate]);
+  
+  if (!originalUrl) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center">
+          <div className="animate-pulse-slow h-20 w-20 mx-auto rounded-full bg-primary mb-4"></div>
+          <h1 className="text-2xl font-bold mb-2">Looking for your link...</h1>
+          <p className="text-muted-foreground">Please wait while we find your destination.</p>
+        </div>
+      </div>
+    );
+  }
+  
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="max-w-md w-full p-6 bg-card shadow-lg rounded-lg text-center">
+        <h1 className="text-2xl font-bold mb-4">Redirecting you...</h1>
+        <p className="mb-6 text-muted-foreground">
+          You'll be redirected to {originalUrl} in {countdown} seconds.
+        </p>
+        <div className="w-full bg-muted rounded-full h-2 mb-6">
+          <div
+            className="bg-primary h-2 rounded-full transition-all duration-1000"
+            style={{ width: `${((3 - countdown) / 3) * 100}%` }}
+          ></div>
+        </div>
+        <div className="flex justify-center">
+          <a
+            href={originalUrl}
+            className="text-primary hover:underline"
+          >
+            Click here if you're not redirected automatically
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default RedirectPage;
