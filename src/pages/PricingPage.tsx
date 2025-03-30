@@ -27,7 +27,7 @@ const PricingPage: React.FC = () => {
     },
     {
       name: 'STARTER',
-      description: 'Everything you need to start shortening.',
+      description: 'Everything you need to start creating your own short links.',
       price: '$5',
       period: 'per month',
       features: [
