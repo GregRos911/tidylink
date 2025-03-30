@@ -2,6 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Link as LinkIcon } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const Nav: React.FC = () => {
   return (
@@ -14,9 +15,16 @@ const Nav: React.FC = () => {
         
         <div className="flex flex-1 items-center justify-end space-x-4">
           <nav className="flex items-center space-x-1">
-            <Link to="/" className="px-3 py-2 font-medium text-muted-foreground hover:text-primary">Home</Link>
             <Link to="/pricing" className="px-3 py-2 font-medium text-muted-foreground hover:text-primary">Pricing</Link>
             <Link to="/history" className="px-3 py-2 font-medium text-muted-foreground hover:text-primary">History</Link>
+            <Link to="/pricing">
+              <Button 
+                className="ml-2 bg-gradient-to-r from-brand-blue via-brand-purple to-brand-pink hover:opacity-90 transition-opacity"
+                size="sm"
+              >
+                Start for Free
+              </Button>
+            </Link>
           </nav>
         </div>
       </div>
