@@ -15,6 +15,7 @@ const Nav: React.FC = () => {
         <div className="flex flex-1 items-center justify-end space-x-4">
           <nav className="flex items-center space-x-1">
             <Link to="/" className="px-3 py-2 font-medium text-muted-foreground hover:text-primary">Home</Link>
+            <Link to="/pricing" className="px-3 py-2 font-medium text-muted-foreground hover:text-primary">Pricing</Link>
             <Link to="/history" className="px-3 py-2 font-medium text-muted-foreground hover:text-primary">History</Link>
           </nav>
         </div>

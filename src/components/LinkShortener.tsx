@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { Copy, Check, Link2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { urlServices } from '@/lib/urlServices';
+import { useNavigate } from 'react-router-dom';
 
 const LinkShortener: React.FC = () => {
   const [url, setUrl] = useState('');
@@ -13,10 +14,12 @@ const LinkShortener: React.FC = () => {
   const [shortenedUrl, setShortenedUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const navigate = useNavigate();
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // For free users, proceed with URL shortening
     if (!url) {
       toast.error('Please enter a URL to shorten');
       return;
@@ -27,19 +30,8 @@ const LinkShortener: React.FC = () => {
       return;
     }
     
-    setLoading(true);
-    
-    try {
-      const result = await urlServices.shortenUrl(url, customAlias);
-      setShortenedUrl(result);
-      
-      toast.success('URL shortened successfully!');
-    } catch (error) {
-      console.error('Error shortening URL:', error);
-      toast.error('Failed to shorten URL. Please try again.');
-    } finally {
-      setLoading(false);
-    }
+    // Navigate to pricing page
+    navigate('/pricing');
   };
   
   const copyToClipboard = async () => {
