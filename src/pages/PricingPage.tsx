@@ -36,7 +36,7 @@ const PricingPage: React.FC = () => {
         '60 days of scan & click data',
         'An advanced UTM builder',
         'Link & QR code redirects',
-        'advanced QR code customizations'
+        'Advanced QR code customizations'
       ],
       buttonText: 'Start a free trial',
       color: 'from-blue-100 to-blue-200',
@@ -48,11 +48,12 @@ const PricingPage: React.FC = () => {
       price: '$49',
       period: 'per month',
       features: [
-        'Up to 10,000 short links per month',
+        'Up to 700 short links per month',
+        '20 QR codes per month',
         'Premium QR codes with analytics',
         'Unlimited click history tracking',
         'Team collaboration features',
-        'API access for custom integrations'
+        'Branded links'
       ],
       buttonText: 'Start a free trial',
       color: 'from-purple-100 to-purple-200',
