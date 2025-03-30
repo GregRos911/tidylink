@@ -103,7 +103,7 @@ const LinkShortener: React.FC = () => {
             className="w-full bg-gradient-to-r from-brand-blue via-brand-purple to-brand-pink hover:opacity-90 transition-opacity"
             disabled={loading}
           >
-            {loading ? 'Shortening...' : 'Shorten URL'}
+            {loading ? 'Shortening...' : 'Create a secure short link for free'}
           </Button>
           
           {shortenedUrl && (

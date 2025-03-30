@@ -9,7 +9,7 @@ const Nav: React.FC = () => {
       <div className="container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0">
         <div className="flex gap-3 items-center">
           <LinkIcon className="h-7 w-7 text-brand-blue" />
-          <span className="font-bold text-2xl bg-clip-text text-transparent bg-hero-gradient">Linky</span>
+          <span className="font-bold text-2xl bg-clip-text text-transparent bg-hero-gradient">Tidylink</span>
         </div>
         
         <div className="flex flex-1 items-center justify-end space-x-4">

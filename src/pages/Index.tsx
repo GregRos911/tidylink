@@ -35,7 +35,7 @@ const Index: React.FC = () => {
         {/* Features Section */}
         <section className="bg-muted py-16">
           <div className="container">
-            <h2 className="text-2xl md:text-3xl font-bold text-center mb-8">Why Choose Linky?</h2>
+            <h2 className="text-2xl md:text-3xl font-bold text-center mb-8">Why Choose Tidylink?</h2>
             
             <div className="grid md:grid-cols-3 gap-8">
               <div className="bg-background rounded-lg p-6 shadow-sm">
@@ -70,10 +70,10 @@ const Index: React.FC = () => {
         <div className="container flex flex-col md:flex-row justify-between items-center">
           <div className="flex items-center gap-2">
             <LinkIcon className="h-5 w-5 text-brand-blue" />
-            <span className="font-bold bg-clip-text text-transparent bg-hero-gradient">Linky</span>
+            <span className="font-bold bg-clip-text text-transparent bg-hero-gradient">Tidylink</span>
           </div>
           <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} Linky. All rights reserved.
+            © {new Date().getFullYear()} Tidylink. All rights reserved.
           </p>
         </div>
       </footer>

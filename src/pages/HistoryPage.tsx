@@ -18,10 +18,10 @@ const HistoryPage: React.FC = () => {
         <div className="container flex flex-col md:flex-row justify-between items-center">
           <div className="flex items-center gap-2">
             <LinkIcon className="h-5 w-5 text-brand-blue" />
-            <span className="font-bold bg-clip-text text-transparent bg-hero-gradient">Linky</span>
+            <span className="font-bold bg-clip-text text-transparent bg-hero-gradient">Tidylink</span>
           </div>
           <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} Linky. All rights reserved.
+            © {new Date().getFullYear()} Tidylink. All rights reserved.
           </p>
         </div>
       </footer>
