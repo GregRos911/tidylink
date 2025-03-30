@@ -1,23 +1,17 @@
-
 import React, { useState } from 'react';
 import Nav from '@/components/Nav';
 import LinkShortener from '@/components/LinkShortener';
 import QRCodeGenerator from '@/components/QRCodeGenerator';
 import { Link as LinkIcon, QrCode, BarChart } from "lucide-react";
-
 const Index: React.FC = () => {
   const [shortenedUrl, setShortenedUrl] = useState('');
-  
-  return (
-    <div className="min-h-screen flex flex-col bg-background">
+  return <div className="min-h-screen flex flex-col bg-background">
       <Nav />
       
       <main className="flex-1">
         <section className="container py-12 md:py-20">
           <div className="text-center mb-12">
-            <h1 className="text-3xl md:text-5xl font-bold tracking-tight mb-4">
-              Simple URL Shortening & QR Codes
-            </h1>
+            <h1 className="text-3xl md:text-5xl font-bold tracking-tight mb-4">Create Secure URL Short links & QR Codes</h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
               Create short links, QR codes, and secure sharing links with just a few clicks.
             </p>
@@ -77,8 +71,6 @@ const Index: React.FC = () => {
           </p>
         </div>
       </footer>
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
