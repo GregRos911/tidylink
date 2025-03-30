@@ -14,11 +14,11 @@ const PricingPage: React.FC = () => {
       price: '$0',
       period: 'forever',
       features: [
-        '5 short links per month',
-        '3 QR code generations',
-        'Click tracking for 30 days',
-        'Standard link analytics',
-        'No custom branding'
+        '7 short links per month',
+        '5 QR code generations',
+        'QR Code customizations',
+        'Unlimited Clicks and QR scans',
+        'No '
       ],
       buttonText: 'Get Started',
       color: 'from-yellow-100 to-yellow-200',
@@ -30,8 +30,8 @@ const PricingPage: React.FC = () => {
       price: '$5',
       period: 'per month',
       features: [
-        'Up to 1,000 short links per month',
-        'Custom QR codes with your logo',
+        'Up to 200 short links per month',
+        '10 QR code generations',
         'Click tracking for 1 year',
         'Advanced link analytics',
         'Basic link retargeting'
