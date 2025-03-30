@@ -17,8 +17,9 @@ const PricingPage: React.FC = () => {
         '7 short links per month',
         '5 QR code generations',
         'QR Code customizations',
-        'Unlimited Clicks and QR scans',
-        'No '
+        'Standard link analytics',
+        '5 custom back-havles'
+        'QR code customizations'
       ],
       buttonText: 'Get Started',
       color: 'from-yellow-100 to-yellow-200',
@@ -32,9 +33,10 @@ const PricingPage: React.FC = () => {
       features: [
         'Up to 200 short links per month',
         '10 QR code generations',
-        'Click tracking for 1 year',
-        'Advanced link analytics',
-        'Basic link retargeting'
+        '60 days of scan & click data',
+        'An advanced UTM builder',
+        'Link & QR code redirects'
+        'advanced QR code customizations'
       ],
       buttonText: 'Start a free trial',
       color: 'from-blue-100 to-blue-200',
