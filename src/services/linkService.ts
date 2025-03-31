@@ -11,6 +11,7 @@ export interface LinkData {
   original_url: string;
   short_url: string;
   custom_backhalf?: string;
+  title?: string;
   clicks: number;
   created_at: string;
 }
@@ -34,10 +35,12 @@ export const useCreateLink = () => {
   return useMutation({
     mutationFn: async ({ 
       originalUrl, 
-      customBackhalf 
+      customBackhalf,
+      title
     }: { 
       originalUrl: string; 
-      customBackhalf?: string 
+      customBackhalf?: string;
+      title?: string;
     }) => {
       if (!user?.id) throw new Error('User not authenticated');
       
@@ -74,6 +77,7 @@ export const useCreateLink = () => {
             original_url: originalUrl,
             short_url: shortUrl,
             custom_backhalf: customBackhalf || null,
+            title: title || null,
           }])
           .select()
           .single();
