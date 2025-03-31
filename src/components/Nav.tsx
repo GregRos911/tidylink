@@ -67,9 +67,9 @@ const Nav: React.FC = () => {
                     </div>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild className="cursor-pointer">
-                      <Link to="/profile" className="flex w-full items-center">
+                      <Link to="/dashboard" className="flex w-full items-center">
                         <User className="mr-2 h-4 w-4" />
-                        Profile
+                        Dashboard
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild className="cursor-pointer">
