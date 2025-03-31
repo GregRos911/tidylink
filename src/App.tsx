@@ -11,7 +11,6 @@ import DashboardPage from "./pages/DashboardPage";
 import ProfilePage from "./pages/ProfilePage";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
-import CreateLink from "./pages/CreateLink";
 import RedirectPage from "./components/RedirectPage";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -29,11 +28,6 @@ const App = () => (
           <Route path="/sign-in" element={<SignIn />} />
           <Route path="/sign-up" element={<SignUp />} />
           <Route path="/pricing" element={<PricingPage />} />
-          <Route path="/create-link" element={
-            <ProtectedRoute>
-              <CreateLink />
-            </ProtectedRoute>
-          } />
           <Route path="/profile" element={
             <ProtectedRoute>
               <ProfilePage />

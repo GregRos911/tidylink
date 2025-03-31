@@ -77,15 +77,6 @@ const LinkShortener: React.FC = () => {
     navigate('/pricing');
   };
   
-  const navigateToCreateLink = () => {
-    if (isSignedIn) {
-      navigate('/create-link');
-    } else {
-      toast.error('You need to sign in to create a short link');
-      navigate('/sign-in');
-    }
-  };
-  
   const customAliasesUsed = usageData?.custom_backhalves_used || 0;
   const customAliasesTotal = FREE_PLAN_LIMITS.customBackHalves;
   
@@ -129,25 +120,6 @@ const LinkShortener: React.FC = () => {
             <p className="text-xs text-muted-foreground">
               Free plan: {customAliasesUsed}/{customAliasesTotal} custom aliases used this month
             </p>
-          </div>
-          
-          <div className="flex gap-2">
-            <Button 
-              type="submit" 
-              className="flex-1 bg-primary hover:bg-primary/90"
-              disabled={createLink.isPending}
-            >
-              {createLink.isPending ? 'Shortening...' : 'Shorten URL'}
-            </Button>
-            
-            <Button 
-              type="button" 
-              variant="outline"
-              className="flex-1"
-              onClick={navigateToCreateLink}
-            >
-              Create New Link
-            </Button>
           </div>
           
           <Button 
@@ -200,3 +172,4 @@ const LinkShortener: React.FC = () => {
 };
 
 export default LinkShortener;
+
