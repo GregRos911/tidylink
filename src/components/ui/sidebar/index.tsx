@@ -93,9 +93,7 @@ const EnhancedSidebarProvider = React.forwardRef<
         )}
         {...props}
       >
-        <TooltipProvider delayDuration={0}>
-          {children}
-        </TooltipProvider>
+        {children}
       </OriginalSidebarProvider>
     )
   }

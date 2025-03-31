@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 const DashboardSidebar: React.FC = () => {
   const location = useLocation();
@@ -41,46 +41,44 @@ const DashboardSidebar: React.FC = () => {
       </div>
       
       <nav className="flex-1 px-2">
-        <TooltipProvider>
-          <ul className="space-y-1">
-            {menuItems.map((item) => (
-              <li key={item.label}>
-                {item.locked ? (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div 
-                        className={cn(
-                          "flex items-center gap-3 px-3 py-2 rounded-md text-gray-500 cursor-not-allowed",
-                          "hover:bg-gray-100"
-                        )}
-                      >
-                        <item.icon className="h-5 w-5" />
-                        <span>{item.label}</span>
-                        <Lock className="h-4 w-4 ml-auto" />
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Upgrade to access {item.label}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                ) : (
-                  <Link 
-                    to={item.href}
-                    className={cn(
-                      "flex items-center gap-3 px-3 py-2 rounded-md",
-                      isActive(item.href) 
-                        ? "bg-gray-100 text-gray-900 font-medium" 
-                        : "text-gray-700 hover:bg-gray-100"
-                    )}
-                  >
-                    <item.icon className="h-5 w-5" />
-                    <span>{item.label}</span>
-                  </Link>
-                )}
-              </li>
-            ))}
-          </ul>
-        </TooltipProvider>
+        <ul className="space-y-1">
+          {menuItems.map((item) => (
+            <li key={item.label}>
+              {item.locked ? (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div 
+                      className={cn(
+                        "flex items-center gap-3 px-3 py-2 rounded-md text-gray-500 cursor-not-allowed",
+                        "hover:bg-gray-100"
+                      )}
+                    >
+                      <item.icon className="h-5 w-5" />
+                      <span>{item.label}</span>
+                      <Lock className="h-4 w-4 ml-auto" />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Upgrade to access {item.label}</p>
+                  </TooltipContent>
+                </Tooltip>
+              ) : (
+                <Link 
+                  to={item.href}
+                  className={cn(
+                    "flex items-center gap-3 px-3 py-2 rounded-md",
+                    isActive(item.href) 
+                      ? "bg-gray-100 text-gray-900 font-medium" 
+                      : "text-gray-700 hover:bg-gray-100"
+                  )}
+                >
+                  <item.icon className="h-5 w-5" />
+                  <span>{item.label}</span>
+                </Link>
+              )}
+            </li>
+          ))}
+        </ul>
       </nav>
       
       <div className="p-4 mt-auto">
