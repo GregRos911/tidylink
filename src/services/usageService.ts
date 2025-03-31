@@ -119,9 +119,7 @@ export const useIncrementUsage = () => {
       }
       
       // Update usage
-      const updates: Record<string, any> = {
-        last_reset: new Date().toISOString()
-      };
+      const updates: Record<string, any> = {};
       
       if (type === 'link') updates.links_used = currentUsage.links_used + 1;
       if (type === 'qrCode') updates.qr_codes_used = currentUsage.qr_codes_used + 1;
