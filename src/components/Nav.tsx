@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Link as LinkIcon, User, Settings, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SignInButton, SignUpButton, UserButton, useAuth, useUser } from "@clerk/clerk-react";
@@ -25,6 +25,10 @@ const Nav: React.FC = () => {
   const { isSignedIn } = useAuth();
   const { user } = useUser();
   const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Check if we're on the dashboard page
+  const isDashboard = location.pathname === '/dashboard';
   
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background">
@@ -72,6 +76,14 @@ const Nav: React.FC = () => {
                         Dashboard
                       </Link>
                     </DropdownMenuItem>
+                    {isDashboard && (
+                      <DropdownMenuItem asChild className="cursor-pointer">
+                        <Link to="/profile" className="flex w-full items-center">
+                          <User className="mr-2 h-4 w-4" />
+                          Profile
+                        </Link>
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuItem asChild className="cursor-pointer">
                       <Link to="/settings" className="flex w-full items-center">
                         <Settings className="mr-2 h-4 w-4" />
