@@ -3,17 +3,15 @@ import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Link as LinkIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { SignInButton, SignUpButton, UserButton, useAuth, useUser } from "@clerk/clerk-react";
+import { SignInButton, SignUpButton, UserButton, useAuth } from "@clerk/clerk-react";
 
 const Nav: React.FC = () => {
   const { isSignedIn } = useAuth();
-  const { user } = useUser();
   const navigate = useNavigate();
   const location = useLocation();
   
   // Check if we're on the dashboard page
   const isDashboard = location.pathname === '/dashboard';
-  const isPricing = location.pathname === '/pricing';
   
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background">
@@ -25,10 +23,6 @@ const Nav: React.FC = () => {
         
         <div className="flex flex-1 items-center justify-end space-x-4">
           <nav className="flex items-center space-x-1">
-            {!isPricing && (
-              <Link to="/pricing" className="px-3 py-2 font-medium text-muted-foreground hover:text-primary">Pricing</Link>
-            )}
-            
             {isSignedIn ? (
               <div className="ml-4">
                 <UserButton afterSignOutUrl="/" />
@@ -46,7 +40,7 @@ const Nav: React.FC = () => {
                     size="sm"
                     onClick={() => navigate('/pricing')}
                   >
-                    Start for Free
+                    Sign Up for Free
                   </Button>
                 </SignUpButton>
               </>
