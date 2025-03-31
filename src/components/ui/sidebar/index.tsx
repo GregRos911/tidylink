@@ -73,6 +73,9 @@ const EnhancedSidebarProvider = React.forwardRef<
     },
     ref
   ) => {
+    // Import the original provider directly to avoid reference issues
+    const { OriginalSidebarProvider } = require("./sidebar-context");
+    
     return (
       <OriginalSidebarProvider
         defaultOpen={defaultOpen}
