@@ -5,9 +5,12 @@ import { cn } from "@/lib/utils"
 
 // Re-export everything from the context
 export { 
-  useSidebar, 
-  SidebarProvider 
+  useSidebar,
+  SidebarContext
 } from "./sidebar-context"
+
+// Re-export the original SidebarProvider from context file
+export { SidebarProvider as OriginalSidebarProvider } from "./sidebar-context"
 
 // Re-export from layout components
 export { 
@@ -51,8 +54,8 @@ export {
   SidebarMenuSubButton 
 } from "./sidebar-submenu"
 
-// Add the SidebarProvider wrapper with TooltipProvider
-const WrapperComponent = React.forwardRef<
+// Create the enhanced SidebarProvider wrapper with TooltipProvider
+const EnhancedSidebarProvider = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<"div"> & {
     defaultOpen?: boolean
@@ -73,7 +76,7 @@ const WrapperComponent = React.forwardRef<
     ref
   ) => {
     return (
-      <SidebarProvider
+      <OriginalSidebarProvider
         defaultOpen={defaultOpen}
         open={open}
         onOpenChange={onOpenChange}
@@ -94,11 +97,11 @@ const WrapperComponent = React.forwardRef<
         <TooltipProvider delayDuration={0}>
           {children}
         </TooltipProvider>
-      </SidebarProvider>
+      </OriginalSidebarProvider>
     )
   }
 )
-WrapperComponent.displayName = "SidebarProvider"
+EnhancedSidebarProvider.displayName = "SidebarProvider"
 
-// Override the exported SidebarProvider with the wrapper
-export { WrapperComponent as SidebarProvider }
+// Export the enhanced wrapper as SidebarProvider
+export { EnhancedSidebarProvider as SidebarProvider }
