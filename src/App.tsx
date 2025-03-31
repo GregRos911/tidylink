@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import HistoryPage from "./pages/HistoryPage";
 import PricingPage from "./pages/PricingPage";
 import DashboardPage from "./pages/DashboardPage";
+import ProfilePage from "./pages/ProfilePage";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import RedirectPage from "./components/RedirectPage";
@@ -27,6 +28,11 @@ const App = () => (
           <Route path="/sign-in" element={<SignIn />} />
           <Route path="/sign-up" element={<SignUp />} />
           <Route path="/pricing" element={<PricingPage />} />
+          <Route path="/profile" element={
+            <ProtectedRoute>
+              <ProfilePage />
+            </ProtectedRoute>
+          } />
           <Route path="/history" element={
             <ProtectedRoute>
               <HistoryPage />

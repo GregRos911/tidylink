@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Link as LinkIcon } from 'lucide-react';
+import { Link as LinkIcon, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SignInButton, SignUpButton, UserButton, useAuth } from "@clerk/clerk-react";
 import {
@@ -12,6 +12,12 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
 
 const Nav: React.FC = () => {
   const { isSignedIn } = useAuth();
@@ -36,7 +42,20 @@ const Nav: React.FC = () => {
             
             {isSignedIn ? (
               <div className="ml-4">
-                <UserButton afterSignOutUrl="/" />
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <div>
+                      <UserButton afterSignOutUrl="/" />
+                    </div>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem asChild>
+                      <Link to="/profile" className="cursor-pointer">
+                        Profile
+                      </Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             ) : (
               <>
