@@ -73,6 +73,10 @@ const LinkShortener: React.FC = () => {
     }
   };
   
+  const navigateToPricing = () => {
+    navigate('/pricing');
+  };
+  
   const customAliasesUsed = usageData?.custom_backhalves_used || 0;
   const customAliasesTotal = FREE_PLAN_LIMITS.customBackHalves;
   
@@ -119,11 +123,11 @@ const LinkShortener: React.FC = () => {
           </div>
           
           <Button 
-            type="submit" 
+            type="button" 
             className="w-full bg-gradient-to-r from-brand-blue via-brand-purple to-brand-pink hover:opacity-90 transition-opacity"
-            disabled={createLink.isPending}
+            onClick={navigateToPricing}
           >
-            {createLink.isPending ? 'Shortening...' : 'Create a secure short link'}
+            Create a secure short link
           </Button>
           
           {shortenedUrl && (
@@ -168,3 +172,4 @@ const LinkShortener: React.FC = () => {
 };
 
 export default LinkShortener;
+
