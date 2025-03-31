@@ -7,8 +7,10 @@ import { Button } from '@/components/ui/button';
 import { useUserUsage, FREE_PLAN_LIMITS, useResetUsage } from '@/services/usageService';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
+import { UsageStatsProps } from './types';
 
-const UsageStats: React.FC = () => {
+// Modified component to accept props based on the interface
+const UsageStats: React.FC<UsageStatsProps> = ({ usageStats }) => {
   const { data: usageData, isLoading, error } = useUserUsage();
   const resetUsage = useResetUsage();
   
@@ -26,6 +28,7 @@ const UsageStats: React.FC = () => {
     }
   };
   
+  // If we're loading data from the hook, show loading state
   if (isLoading) {
     return (
       <Card className="p-6 mb-6">
@@ -36,6 +39,7 @@ const UsageStats: React.FC = () => {
     );
   }
   
+  // If there's an error from the hook, show error state
   if (error || !usageData) {
     return (
       <Card className="p-6 mb-6">
@@ -45,15 +49,16 @@ const UsageStats: React.FC = () => {
     );
   }
   
-  // Format usage data for display
-  const usageStats = {
+  // If we have data from the hook, use it instead of props
+  // This allows the component to work both with props and with data from the hook
+  const displayStats = usageData ? {
     links: { used: usageData.links_used || 0, total: FREE_PLAN_LIMITS.links },
     qrCodes: { used: usageData.qr_codes_used || 0, total: FREE_PLAN_LIMITS.qrCodes },
     customBackHalves: { used: usageData.custom_backhalves_used || 0, total: FREE_PLAN_LIMITS.customBackHalves }
-  };
+  } : usageStats;
   
   // Format last reset date
-  const lastReset = new Date(usageData.last_reset);
+  const lastReset = usageData ? new Date(usageData.last_reset) : new Date();
   const nextReset = new Date(lastReset);
   nextReset.setDate(lastReset.getDate() + 30);
   
@@ -80,11 +85,11 @@ const UsageStats: React.FC = () => {
           <div className="flex justify-between mb-1">
             <span className="text-sm font-medium">Short Links</span>
             <span className="text-sm text-gray-500">
-              {usageStats.links.used} / {usageStats.links.total}
+              {displayStats.links.used} / {displayStats.links.total}
             </span>
           </div>
           <Progress 
-            value={calculatePercentage(usageStats.links.used, usageStats.links.total)} 
+            value={calculatePercentage(displayStats.links.used, displayStats.links.total)} 
             className="h-2"
           />
         </div>
@@ -93,11 +98,11 @@ const UsageStats: React.FC = () => {
           <div className="flex justify-between mb-1">
             <span className="text-sm font-medium">QR Codes</span>
             <span className="text-sm text-gray-500">
-              {usageStats.qrCodes.used} / {usageStats.qrCodes.total}
+              {displayStats.qrCodes.used} / {displayStats.qrCodes.total}
             </span>
           </div>
           <Progress 
-            value={calculatePercentage(usageStats.qrCodes.used, usageStats.qrCodes.total)} 
+            value={calculatePercentage(displayStats.qrCodes.used, displayStats.qrCodes.total)} 
             className="h-2"
           />
         </div>
@@ -106,11 +111,11 @@ const UsageStats: React.FC = () => {
           <div className="flex justify-between mb-1">
             <span className="text-sm font-medium">Custom Back-Halves</span>
             <span className="text-sm text-gray-500">
-              {usageStats.customBackHalves.used} / {usageStats.customBackHalves.total}
+              {displayStats.customBackHalves.used} / {displayStats.customBackHalves.total}
             </span>
           </div>
           <Progress 
-            value={calculatePercentage(usageStats.customBackHalves.used, usageStats.customBackHalves.total)} 
+            value={calculatePercentage(displayStats.customBackHalves.used, displayStats.customBackHalves.total)} 
             className="h-2"
           />
         </div>
