@@ -3,6 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Link as LinkIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { SignInButton, SignUpButton, UserButton, useAuth } from "@clerk/clerk-react";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -13,6 +14,8 @@ import {
 } from "@/components/ui/navigation-menu";
 
 const Nav: React.FC = () => {
+  const { isSignedIn } = useAuth();
+  
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background">
       <div className="container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0">
@@ -24,16 +27,34 @@ const Nav: React.FC = () => {
         <div className="flex flex-1 items-center justify-end space-x-4">
           <nav className="flex items-center space-x-1">
             <Link to="/pricing" className="px-3 py-2 font-medium text-muted-foreground hover:text-primary">Pricing</Link>
-            <Link to="/history" className="px-3 py-2 font-medium text-muted-foreground hover:text-primary">History</Link>
-            <Link to="/dashboard" className="px-3 py-2 font-medium text-muted-foreground hover:text-primary">Dashboard</Link>
-            <Link to="/pricing">
-              <Button 
-                className="ml-2 bg-gradient-to-r from-brand-blue via-brand-purple to-brand-pink hover:opacity-90 transition-opacity"
-                size="sm"
-              >
-                Start for Free
-              </Button>
-            </Link>
+            {isSignedIn && (
+              <>
+                <Link to="/history" className="px-3 py-2 font-medium text-muted-foreground hover:text-primary">History</Link>
+                <Link to="/dashboard" className="px-3 py-2 font-medium text-muted-foreground hover:text-primary">Dashboard</Link>
+              </>
+            )}
+            
+            {isSignedIn ? (
+              <div className="ml-4">
+                <UserButton afterSignOutUrl="/" />
+              </div>
+            ) : (
+              <>
+                <SignInButton mode="modal">
+                  <Button variant="ghost" size="sm">
+                    Sign In
+                  </Button>
+                </SignInButton>
+                <SignUpButton mode="modal">
+                  <Button 
+                    className="ml-2 bg-gradient-to-r from-brand-blue via-brand-purple to-brand-pink hover:opacity-90 transition-opacity"
+                    size="sm"
+                  >
+                    Start for Free
+                  </Button>
+                </SignUpButton>
+              </>
+            )}
           </nav>
         </div>
       </div>

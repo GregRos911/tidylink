@@ -8,8 +8,11 @@ import Index from "./pages/Index";
 import HistoryPage from "./pages/HistoryPage";
 import PricingPage from "./pages/PricingPage";
 import DashboardPage from "./pages/DashboardPage";
+import SignIn from "./pages/SignIn";
+import SignUp from "./pages/SignUp";
 import RedirectPage from "./components/RedirectPage";
 import NotFound from "./pages/NotFound";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -21,13 +24,39 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/history" element={<HistoryPage />} />
+          <Route path="/sign-in" element={<SignIn />} />
+          <Route path="/sign-up" element={<SignUp />} />
           <Route path="/pricing" element={<PricingPage />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/links" element={<DashboardPage />} />
-          <Route path="/qr-codes" element={<DashboardPage />} />
-          <Route path="/settings" element={<DashboardPage />} />
-          <Route path="/custom-links" element={<DashboardPage />} />
+          <Route path="/history" element={
+            <ProtectedRoute>
+              <HistoryPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/dashboard" element={
+            <ProtectedRoute>
+              <DashboardPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/links" element={
+            <ProtectedRoute>
+              <DashboardPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/qr-codes" element={
+            <ProtectedRoute>
+              <DashboardPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/settings" element={
+            <ProtectedRoute>
+              <DashboardPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/custom-links" element={
+            <ProtectedRoute>
+              <DashboardPage />
+            </ProtectedRoute>
+          } />
           <Route path="/r/:id" element={<RedirectPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
