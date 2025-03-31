@@ -9,9 +9,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
 import QuickActionCard from '@/components/dashboard/QuickActionCard';
 import GettingStartedItem from '@/components/dashboard/GettingStartedItem';
@@ -70,10 +69,6 @@ const DashboardPage: React.FC = () => {
                 Upgrade
               </Button>
             </Link>
-            <Avatar>
-              <AvatarImage src="https://github.com/shadcn.png" />
-              <AvatarFallback>US</AvatarFallback>
-            </Avatar>
           </div>
         </header>
         
