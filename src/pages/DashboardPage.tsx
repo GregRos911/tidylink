@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { 
@@ -16,7 +17,6 @@ import QuickActionCard from '@/components/dashboard/QuickActionCard';
 import GettingStartedItem from '@/components/dashboard/GettingStartedItem';
 import UsageStats from '@/components/dashboard/UsageStats';
 import MobileSidebar from '@/components/dashboard/MobileSidebar';
-import UserProfile from '@/components/dashboard/UserProfile';
 
 const DashboardPage: React.FC = () => {
   const usageStats = {
@@ -64,9 +64,14 @@ const DashboardPage: React.FC = () => {
           </div>
           
           <div className="flex items-center gap-2 md:gap-4">
+            <Link to="/sign-in">
+              <Button variant="ghost" className="hidden sm:inline-flex">
+                Log In
+              </Button>
+            </Link>
             <Link to="/pricing">
               <Button className="bg-brand-blue hover:bg-brand-blue/90 hidden sm:inline-flex">
-                Upgrade
+                Sign Up for Free
               </Button>
             </Link>
           </div>
@@ -148,9 +153,6 @@ const DashboardPage: React.FC = () => {
             
             {/* Right Sidebar */}
             <div className="lg:w-80">
-              {/* User Profile */}
-              <UserProfile />
-              
               {/* Usage Stats */}
               <div className="mt-6">
                 <UsageStats usageStats={usageStats} />
