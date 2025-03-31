@@ -11,7 +11,7 @@ import { UsageStatsProps } from './types';
 
 // Modified component to accept props based on the interface
 const UsageStats: React.FC<UsageStatsProps> = ({ usageStats }) => {
-  const { data: usageData, isLoading, error } = useUserUsage();
+  const { data: usageData, isLoading, error, refetch } = useUserUsage();
   const resetUsage = useResetUsage();
   
   const calculatePercentage = (used: number, total: number) => {
@@ -27,6 +27,15 @@ const UsageStats: React.FC<UsageStatsProps> = ({ usageStats }) => {
       console.error('Error resetting usage:', error);
     }
   };
+
+  const handleRefresh = async () => {
+    try {
+      await refetch();
+      toast.success('Usage data refreshed');
+    } catch (error: any) {
+      toast.error('Failed to refresh usage data');
+    }
+  };
   
   // If we're loading data from the hook, show loading state
   if (isLoading) {
@@ -39,12 +48,15 @@ const UsageStats: React.FC<UsageStatsProps> = ({ usageStats }) => {
     );
   }
   
-  // If there's an error from the hook, show error state
-  if (error || !usageData) {
+  // If there's an error from the hook, show error state with retry button
+  if (error) {
     return (
       <Card className="p-6 mb-6">
         <h3 className="text-lg font-semibold mb-4">Your Usage</h3>
-        <p className="text-sm text-red-500">Error loading usage data. Please try again.</p>
+        <p className="text-sm text-red-500 mb-4">Error loading usage data. Please try again.</p>
+        <Button variant="outline" size="sm" onClick={handleRefresh}>
+          Refresh Data
+        </Button>
       </Card>
     );
   }
