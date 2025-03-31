@@ -121,3 +121,6 @@ export const SidebarProvider = React.forwardRef<
   }
 )
 SidebarProvider.displayName = "SidebarProvider"
+
+// Export the SidebarProvider as OriginalSidebarProvider for reference in index.tsx
+export { SidebarProvider as OriginalSidebarProvider }

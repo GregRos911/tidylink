@@ -2,6 +2,7 @@
 import * as React from "react"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
+import { SidebarProvider as OriginalSidebarProvider } from "./sidebar-context"
 
 // Re-export everything from the context
 export { 
@@ -73,9 +74,6 @@ const EnhancedSidebarProvider = React.forwardRef<
     },
     ref
   ) => {
-    // Import the original provider directly to avoid reference issues
-    const { OriginalSidebarProvider } = require("./sidebar-context");
-    
     return (
       <OriginalSidebarProvider
         defaultOpen={defaultOpen}
