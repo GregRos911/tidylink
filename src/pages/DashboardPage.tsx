@@ -1,11 +1,11 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   BarChart2, ExternalLink, 
   Globe, Home, Link as LinkIcon, 
   Lock, QrCode, Search, Settings, 
-  UserCircle, X, Menu 
+  UserCircle, X, Menu, Plus
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -18,8 +18,11 @@ import GettingStartedItem from '@/components/dashboard/GettingStartedItem';
 import UsageStats from '@/components/dashboard/UsageStats';
 import MobileSidebar from '@/components/dashboard/MobileSidebar';
 import UserProfile from '@/components/dashboard/UserProfile';
+import CreateLinkCard from '@/components/dashboard/CreateLinkCard';
 
 const DashboardPage: React.FC = () => {
+  const [showCreateLinkCard, setShowCreateLinkCard] = useState(false);
+  
   const usageStats = {
     links: { used: 3, total: 7 },
     qrCodes: { used: 2, total: 5 },
@@ -27,14 +30,14 @@ const DashboardPage: React.FC = () => {
   };
 
   const quickActions = [
-    { title: "Make it short", description: "Create a short link for any URL", icon: <LinkIcon className="h-8 w-8 text-brand-blue" />, href: "/links", cta: "Go to links" },
+    { title: "Make it short", description: "Create a short link for any URL", icon: <LinkIcon className="h-8 w-8 text-brand-blue" />, href: "#", cta: "Create Link", onClick: () => setShowCreateLinkCard(true) },
     { title: "Make it scannable", description: "Generate QR codes for your content", icon: <QrCode className="h-8 w-8 text-brand-purple" />, href: "/qr-codes", cta: "Go to Codes" },
     { title: "Customize your link", description: "Create memorable custom links", icon: <ExternalLink className="h-8 w-8 text-brand-pink" />, href: "/custom-links", cta: "Customize" },
     { title: "Make a page", description: "Build landing pages for your links", icon: <Globe className="h-8 w-8 text-gray-400" />, href: "#", cta: "Go to Pages", disabled: true }
   ];
 
   const gettingStartedItems = [
-    { title: "Make a TidyLink", icon: <LinkIcon className="h-5 w-5" />, cta: "Create a link", href: "/links", complete: true },
+    { title: "Make a TidyLink", icon: <LinkIcon className="h-5 w-5" />, cta: "Create a link", href: "#", complete: true, onClick: () => setShowCreateLinkCard(true) },
     { title: "Make a TidyLink Code", icon: <QrCode className="h-5 w-5" />, cta: "Create a QR Code", href: "/qr-codes", complete: false },
     { title: "Click it, scan it, or share it", icon: <ExternalLink className="h-5 w-5" />, cta1: "View your links", cta2: "View your QR Codes", href1: "/links", href2: "/qr-codes", complete: false },
     { title: "Connect your apps with TidyLink", icon: <Globe className="h-5 w-5" />, appIcons: true, complete: false }
@@ -65,6 +68,13 @@ const DashboardPage: React.FC = () => {
           </div>
           
           <div className="flex items-center gap-2 md:gap-4">
+            <Button 
+              className="bg-brand-blue hover:bg-brand-blue/90 hidden sm:inline-flex"
+              onClick={() => setShowCreateLinkCard(true)}
+            >
+              <Plus className="mr-2 h-4 w-4" /> Create Link
+            </Button>
+            
             <Link to="/pricing">
               <Button className="bg-brand-blue hover:bg-brand-blue/90 hidden sm:inline-flex">
                 Upgrade
@@ -78,73 +88,93 @@ const DashboardPage: React.FC = () => {
           <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-6">
             {/* Main Column */}
             <div className="flex-1">
-              <h1 className="text-2xl font-bold mb-2">Welcome to TidyLink</h1>
-              <p className="text-gray-500 mb-6">Your link management dashboard</p>
-              
-              {/* Quick Actions */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
-                {quickActions.map((action, index) => (
-                  <QuickActionCard
-                    key={index}
-                    title={action.title}
-                    description={action.description}
-                    icon={action.icon}
-                    href={action.href}
-                    cta={action.cta}
-                    disabled={action.disabled}
-                  />
-                ))}
-              </div>
-              
-              {/* Notification Banner */}
-              <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-8 flex items-start gap-3">
-                <div className="bg-orange-100 rounded-full p-2 mt-1">
-                  <svg className="h-5 w-5 text-orange-500" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20Z" fill="currentColor" />
-                    <path d="M12 6C11.45 6 11 6.45 11 7V13C11 13.55 11.45 14 12 14C12.55 14 13 13.55 13 13V7C13 6.45 12.55 6 12 6Z" fill="currentColor" />
-                    <path d="M12 16C11.45 16 11 16.45 11 17C11 17.55 11.45 18 12 18C12.55 18 13 17.55 13 17C13 16.45 12.55 16 12 16Z" fill="currentColor" />
-                  </svg>
-                </div>
-                <div className="flex-1">
-                  <div className="flex justify-between">
-                    <h3 className="font-medium">Bring people to your content</h3>
-                    <button className="text-gray-500 hover:text-gray-700">
-                      <X className="h-5 w-5" />
-                    </button>
+              {showCreateLinkCard ? (
+                <>
+                  <div className="flex justify-between items-center mb-4">
+                    <h1 className="text-2xl font-bold">Create a new link</h1>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => setShowCreateLinkCard(false)}
+                    >
+                      <X className="h-4 w-4 mr-1" /> Close
+                    </Button>
                   </div>
-                  <p className="text-sm text-gray-600">Create and share unique links and QR Codes to attract attention, connect with more followers, and drive traffic to your content.</p>
-                </div>
-              </div>
-              
-              {/* Getting Started Section */}
-              <div className="bg-white border rounded-lg mb-8">
-                <div className="p-6 border-b">
-                  <div className="flex justify-between items-center">
-                    <h2 className="text-xl font-semibold">Getting started with TidyLink</h2>
-                    <div className="flex items-center">
-                      <span className="text-sm text-gray-500 mr-2">0%</span>
-                      <Progress value={0} className="w-24 h-2" />
+                  <CreateLinkCard />
+                </>
+              ) : (
+                <>
+                  <h1 className="text-2xl font-bold mb-2">Welcome to TidyLink</h1>
+                  <p className="text-gray-500 mb-6">Your link management dashboard</p>
+                  
+                  {/* Quick Actions */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
+                    {quickActions.map((action, index) => (
+                      <QuickActionCard
+                        key={index}
+                        title={action.title}
+                        description={action.description}
+                        icon={action.icon}
+                        href={action.href}
+                        cta={action.cta}
+                        disabled={action.disabled}
+                        onClick={action.onClick}
+                      />
+                    ))}
+                  </div>
+                  
+                  {/* Notification Banner */}
+                  <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-8 flex items-start gap-3">
+                    <div className="bg-orange-100 rounded-full p-2 mt-1">
+                      <svg className="h-5 w-5 text-orange-500" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20Z" fill="currentColor" />
+                        <path d="M12 6C11.45 6 11 6.45 11 7V13C11 13.55 11.45 14 12 14C12.55 14 13 13.55 13 13V7C13 6.45 12.55 6 12 6Z" fill="currentColor" />
+                        <path d="M12 16C11.45 16 11 16.45 11 17C11 17.55 11.45 18 12 18C12.55 18 13 17.55 13 17C13 16.45 12.55 16 12 16Z" fill="currentColor" />
+                      </svg>
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex justify-between">
+                        <h3 className="font-medium">Bring people to your content</h3>
+                        <button className="text-gray-500 hover:text-gray-700">
+                          <X className="h-5 w-5" />
+                        </button>
+                      </div>
+                      <p className="text-sm text-gray-600">Create and share unique links and QR Codes to attract attention, connect with more followers, and drive traffic to your content.</p>
                     </div>
                   </div>
-                </div>
-                <div className="divide-y">
-                  {gettingStartedItems.map((item, index) => (
-                    <GettingStartedItem
-                      key={index}
-                      title={item.title}
-                      icon={item.icon}
-                      cta={item.cta}
-                      cta1={item.cta1}
-                      cta2={item.cta2}
-                      href={item.href}
-                      href1={item.href1}
-                      href2={item.href2}
-                      complete={item.complete}
-                      appIcons={item.appIcons}
-                    />
-                  ))}
-                </div>
-              </div>
+                  
+                  {/* Getting Started Section */}
+                  <div className="bg-white border rounded-lg mb-8">
+                    <div className="p-6 border-b">
+                      <div className="flex justify-between items-center">
+                        <h2 className="text-xl font-semibold">Getting started with TidyLink</h2>
+                        <div className="flex items-center">
+                          <span className="text-sm text-gray-500 mr-2">0%</span>
+                          <Progress value={0} className="w-24 h-2" />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="divide-y">
+                      {gettingStartedItems.map((item, index) => (
+                        <GettingStartedItem
+                          key={index}
+                          title={item.title}
+                          icon={item.icon}
+                          cta={item.cta}
+                          cta1={item.cta1}
+                          cta2={item.cta2}
+                          href={item.href}
+                          href1={item.href1}
+                          href2={item.href2}
+                          complete={item.complete}
+                          appIcons={item.appIcons}
+                          onClick={item.onClick}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
             
             {/* Right Sidebar */}

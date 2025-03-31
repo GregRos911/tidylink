@@ -12,6 +12,7 @@ interface QuickActionCardProps {
   href: string;
   cta: string;
   disabled?: boolean;
+  onClick?: () => void;
 }
 
 const QuickActionCard: React.FC<QuickActionCardProps> = ({
@@ -20,7 +21,8 @@ const QuickActionCard: React.FC<QuickActionCardProps> = ({
   icon,
   href,
   cta,
-  disabled = false
+  disabled = false,
+  onClick
 }) => {
   const content = (
     <Card className={cn(
@@ -36,6 +38,7 @@ const QuickActionCard: React.FC<QuickActionCardProps> = ({
           size="sm" 
           className="w-full"
           disabled={disabled}
+          onClick={onClick}
         >
           {cta}
         </Button>
@@ -45,6 +48,14 @@ const QuickActionCard: React.FC<QuickActionCardProps> = ({
 
   if (disabled) {
     return content;
+  }
+  
+  if (onClick) {
+    return (
+      <div className="block h-full" onClick={onClick}>
+        {content}
+      </div>
+    );
   }
 
   return (

@@ -1,9 +1,8 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import { Check } from 'lucide-react';
+import { Check, ChevronRight } from 'lucide-react';
+import { Button } from '../ui/button';
 
 interface GettingStartedItemProps {
   title: string;
@@ -14,8 +13,9 @@ interface GettingStartedItemProps {
   href?: string;
   href1?: string;
   href2?: string;
-  complete?: boolean;
+  complete: boolean;
   appIcons?: boolean;
+  onClick?: () => void;
 }
 
 const GettingStartedItem: React.FC<GettingStartedItemProps> = ({
@@ -27,59 +27,65 @@ const GettingStartedItem: React.FC<GettingStartedItemProps> = ({
   href,
   href1,
   href2,
-  complete = false,
-  appIcons = false
+  complete,
+  appIcons,
+  onClick
 }) => {
   return (
-    <div className="p-6 flex">
-      <div className="mr-4">
-        <div className={cn(
-          "w-8 h-8 rounded-full flex items-center justify-center",
-          complete 
-            ? "bg-green-100 text-green-600" 
-            : "bg-gray-100 text-gray-500"
-        )}>
-          {complete ? <Check className="h-5 w-5" /> : icon}
-        </div>
+    <div className="p-6 flex items-start gap-4">
+      <div className={`flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full ${complete ? 'bg-green-100' : 'bg-gray-100'}`}>
+        {complete ? (
+          <Check className="h-6 w-6 text-green-600" />
+        ) : (
+          <div className="text-gray-500">{icon}</div>
+        )}
       </div>
+      
       <div className="flex-1">
-        <h3 className="font-medium mb-3">{title}</h3>
+        <h3 className="font-medium mb-1">{title}</h3>
         
-        {appIcons ? (
-          <div className="mb-4">
-            <div className="flex gap-3">
-              {/* Placeholder app icons */}
-              {['bg-blue-500', 'bg-orange-500', 'bg-green-500', 'bg-purple-500'].map((color, i) => (
-                <div key={i} className={`${color} w-10 h-10 rounded-full opacity-60`}></div>
-              ))}
-            </div>
-            <p className="text-sm text-gray-500 mt-2">
-              Find the tools that TidyLink integrates with, learn about use cases and connect them with TidyLink today.
-            </p>
-            <Button variant="outline" size="sm" className="mt-3">
-              Explore the Apps and Integrations Marketplace
-            </Button>
+        {/* Action buttons */}
+        {cta && href && (
+          <div className="mt-2">
+            {onClick ? (
+              <Button variant="outline" size="sm" onClick={onClick} className="mr-1">
+                {cta} <ChevronRight className="h-4 w-4 ml-1" />
+              </Button>
+            ) : (
+              <Link to={href}>
+                <Button variant="outline" size="sm" className="mr-1">
+                  {cta} <ChevronRight className="h-4 w-4 ml-1" />
+                </Button>
+              </Link>
+            )}
           </div>
-        ) : cta1 && cta2 ? (
-          <div className="flex flex-wrap gap-2">
-            <Link to={href1 || "#"}>
+        )}
+        
+        {/* Dual action buttons */}
+        {cta1 && cta2 && href1 && href2 && (
+          <div className="mt-2 flex flex-wrap gap-2">
+            <Link to={href1}>
               <Button variant="outline" size="sm">
-                {cta1}
+                {cta1} <ChevronRight className="h-4 w-4 ml-1" />
               </Button>
             </Link>
-            <Link to={href2 || "#"}>
+            <Link to={href2}>
               <Button variant="outline" size="sm">
-                {cta2}
+                {cta2} <ChevronRight className="h-4 w-4 ml-1" />
               </Button>
             </Link>
           </div>
-        ) : cta && href ? (
-          <Link to={href}>
-            <Button variant="outline" size="sm">
-              {cta}
-            </Button>
-          </Link>
-        ) : null}
+        )}
+        
+        {/* App icons */}
+        {appIcons && (
+          <div className="mt-2 flex gap-2">
+            <div className="h-6 w-6 rounded bg-gray-200"></div>
+            <div className="h-6 w-6 rounded bg-gray-200"></div>
+            <div className="h-6 w-6 rounded bg-gray-200"></div>
+            <div className="h-6 w-6 rounded bg-gray-200"></div>
+          </div>
+        )}
       </div>
     </div>
   );
