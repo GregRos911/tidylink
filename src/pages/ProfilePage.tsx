@@ -8,14 +8,50 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { format } from 'date-fns';
 import Nav from '@/components/Nav';
+import { useToast } from '@/components/ui/use-toast';
 
 const ProfilePage: React.FC = () => {
   const { user, isLoaded } = useUser();
+  const { toast } = useToast();
+
+  React.useEffect(() => {
+    if (isLoaded && !user) {
+      toast({
+        title: "Authentication Error",
+        description: "Unable to load user profile data. Please sign in again.",
+        variant: "destructive",
+      });
+    }
+    
+    // Log user data to help with debugging
+    if (isLoaded && user) {
+      console.log("User data loaded:", user);
+    }
+  }, [isLoaded, user, toast]);
 
   if (!isLoaded) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="h-8 w-8 animate-spin text-brand-blue" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex flex-col bg-background">
+        <Nav />
+        <main className="flex-1 container py-8 flex items-center justify-center">
+          <Card className="p-6 max-w-md mx-auto text-center">
+            <h2 className="text-xl font-semibold mb-4">User Not Found</h2>
+            <p className="text-muted-foreground mb-4">
+              We couldn't load your profile information. Please try signing in again.
+            </p>
+            <Button asChild>
+              <a href="/sign-in">Return to Sign In</a>
+            </Button>
+          </Card>
+        </main>
       </div>
     );
   }
@@ -32,15 +68,15 @@ const ProfilePage: React.FC = () => {
           <Card className="p-6">
             <div className="flex flex-col items-center text-center">
               <Avatar className="h-24 w-24 mb-4">
-                <AvatarImage src={user?.imageUrl} alt={user?.fullName || 'User'} />
+                <AvatarImage src={user.imageUrl} alt={user.fullName || 'User'} />
                 <AvatarFallback className="text-lg">
-                  {user?.firstName?.charAt(0) || ''}
-                  {user?.lastName?.charAt(0) || ''}
+                  {user.firstName?.charAt(0) || ''}
+                  {user.lastName?.charAt(0) || ''}
                 </AvatarFallback>
               </Avatar>
               
-              <h2 className="text-xl font-semibold">{user?.fullName || 'User'}</h2>
-              <p className="text-muted-foreground">{user?.primaryEmailAddress?.emailAddress}</p>
+              <h2 className="text-xl font-semibold">{user.fullName || 'User'}</h2>
+              <p className="text-muted-foreground">{user.primaryEmailAddress?.emailAddress}</p>
               
               <div className="mt-6 w-full">
                 <Button variant="outline" className="w-full" asChild>
@@ -61,7 +97,7 @@ const ProfilePage: React.FC = () => {
                 <UserRound className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div>
                   <p className="text-sm text-muted-foreground">Full Name</p>
-                  <p className="font-medium">{user?.fullName || 'Not provided'}</p>
+                  <p className="font-medium">{user.fullName || 'Not provided'}</p>
                 </div>
               </div>
               
@@ -69,7 +105,7 @@ const ProfilePage: React.FC = () => {
                 <Mail className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div>
                   <p className="text-sm text-muted-foreground">Email Address</p>
-                  <p className="font-medium">{user?.primaryEmailAddress?.emailAddress || 'Not provided'}</p>
+                  <p className="font-medium">{user.primaryEmailAddress?.emailAddress || 'Not provided'}</p>
                 </div>
               </div>
               
@@ -77,7 +113,7 @@ const ProfilePage: React.FC = () => {
                 <AtSign className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div>
                   <p className="text-sm text-muted-foreground">Username</p>
-                  <p className="font-medium">{user?.username || 'Not set'}</p>
+                  <p className="font-medium">{user.username || 'Not set'}</p>
                 </div>
               </div>
               
@@ -86,7 +122,7 @@ const ProfilePage: React.FC = () => {
                 <div>
                   <p className="text-sm text-muted-foreground">Member Since</p>
                   <p className="font-medium">
-                    {user?.createdAt ? format(new Date(user.createdAt), 'MMMM d, yyyy') : 'Unknown'}
+                    {user.createdAt ? format(new Date(user.createdAt), 'MMMM d, yyyy') : 'Unknown'}
                   </p>
                 </div>
               </div>
