@@ -3,6 +3,14 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Link as LinkIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu";
 
 const Nav: React.FC = () => {
   return (
@@ -17,6 +25,7 @@ const Nav: React.FC = () => {
           <nav className="flex items-center space-x-1">
             <Link to="/pricing" className="px-3 py-2 font-medium text-muted-foreground hover:text-primary">Pricing</Link>
             <Link to="/history" className="px-3 py-2 font-medium text-muted-foreground hover:text-primary">History</Link>
+            <Link to="/dashboard" className="px-3 py-2 font-medium text-muted-foreground hover:text-primary">Dashboard</Link>
             <Link to="/pricing">
               <Button 
                 className="ml-2 bg-gradient-to-r from-brand-blue via-brand-purple to-brand-pink hover:opacity-90 transition-opacity"

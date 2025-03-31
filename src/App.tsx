@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import HistoryPage from "./pages/HistoryPage";
 import PricingPage from "./pages/PricingPage";
+import DashboardPage from "./pages/DashboardPage";
 import RedirectPage from "./components/RedirectPage";
 import NotFound from "./pages/NotFound";
 
@@ -22,6 +23,11 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/history" element={<HistoryPage />} />
           <Route path="/pricing" element={<PricingPage />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/links" element={<DashboardPage />} />
+          <Route path="/qr-codes" element={<DashboardPage />} />
+          <Route path="/settings" element={<DashboardPage />} />
+          <Route path="/custom-links" element={<DashboardPage />} />
           <Route path="/r/:id" element={<RedirectPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
