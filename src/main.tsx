@@ -16,9 +16,9 @@ createRoot(document.getElementById("root")!).render(
     signInUrl="/sign-in"
     signUpUrl="/sign-up"
     signInFallbackRedirectUrl="/dashboard"
-    signUpFallbackRedirectUrl="/"
+    signUpFallbackRedirectUrl="/sign-in"
     signInForceRedirectUrl="/dashboard"
-    signUpForceRedirectUrl="/"
+    signUpForceRedirectUrl="/sign-in"
     afterSignOutUrl="/"
   >
     <App />

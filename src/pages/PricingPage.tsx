@@ -4,9 +4,23 @@ import Nav from '@/components/Nav';
 import { Link as LinkIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '@clerk/clerk-react';
 
 const PricingPage: React.FC = () => {
+  const navigate = useNavigate();
+  const { isSignedIn } = useAuth();
+
+  const handlePlanSelection = (plan: string) => {
+    if (isSignedIn) {
+      // If already signed in, navigate to dashboard
+      navigate('/dashboard');
+    } else {
+      // If not signed in, navigate to sign up
+      navigate('/sign-up');
+    }
+  };
+
   const pricingPlans = [
     {
       name: 'FREE',
@@ -113,6 +127,7 @@ const PricingPage: React.FC = () => {
                     <Button 
                       className={`w-full mb-6 ${plan.highlighted ? 'bg-gradient-to-r from-brand-blue via-brand-purple to-brand-pink hover:opacity-90 transition-opacity' : ''}`}
                       variant={plan.highlighted ? 'default' : 'outline'}
+                      onClick={() => handlePlanSelection(plan.name)}
                     >
                       {plan.buttonText}
                     </Button>
