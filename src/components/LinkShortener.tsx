@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useCreateLink } from '@/services/linkService';
 import { useUser } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
+import { useUserUsage, FREE_PLAN_LIMITS } from '@/services/usageService';
 
 const LinkShortener: React.FC = () => {
   const [url, setUrl] = useState('');
@@ -18,6 +19,7 @@ const LinkShortener: React.FC = () => {
   const navigate = useNavigate();
   
   const createLink = useCreateLink();
+  const { data: usageData } = useUserUsage();
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,6 +73,9 @@ const LinkShortener: React.FC = () => {
     }
   };
   
+  const customAliasesUsed = usageData?.custom_backhalves_used || 0;
+  const customAliasesTotal = FREE_PLAN_LIMITS.customBackHalves;
+  
   return (
     <Card className="w-full max-w-3xl mx-auto shadow-md">
       <CardHeader>
@@ -109,7 +114,7 @@ const LinkShortener: React.FC = () => {
               className="w-full"
             />
             <p className="text-xs text-muted-foreground">
-              Free plan: {customAlias ? '1' : '0'}/5 custom aliases used this month
+              Free plan: {customAliasesUsed}/{customAliasesTotal} custom aliases used this month
             </p>
           </div>
           

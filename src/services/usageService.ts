@@ -46,7 +46,13 @@ export const useUserUsage = () => {
       if (!data) {
         const { data: newUsage, error: insertError } = await supabase
           .from('usage')
-          .insert([{ user_id: user.id }])
+          .insert([{ 
+            user_id: user.id,
+            links_used: 0,
+            qr_codes_used: 0,
+            custom_backhalves_used: 0,
+            last_reset: new Date().toISOString()
+          }])
           .select('*')
           .single();
         
@@ -95,7 +101,8 @@ export const useIncrementUsage = () => {
               user_id: user.id,
               links_used: type === 'link' ? 1 : 0,
               qr_codes_used: type === 'qrCode' ? 1 : 0,
-              custom_backhalves_used: customBackHalf ? 1 : 0
+              custom_backhalves_used: customBackHalf ? 1 : 0,
+              last_reset: new Date().toISOString()
             }
           ])
           .select()
@@ -121,9 +128,9 @@ export const useIncrementUsage = () => {
       // Update usage
       const updates: Record<string, any> = {};
       
-      if (type === 'link') updates.links_used = currentUsage.links_used + 1;
-      if (type === 'qrCode') updates.qr_codes_used = currentUsage.qr_codes_used + 1;
-      if (customBackHalf) updates.custom_backhalves_used = currentUsage.custom_backhalves_used + 1;
+      if (type === 'link') updates.links_used = (currentUsage.links_used || 0) + 1;
+      if (type === 'qrCode') updates.qr_codes_used = (currentUsage.qr_codes_used || 0) + 1;
+      if (customBackHalf) updates.custom_backhalves_used = (currentUsage.custom_backhalves_used || 0) + 1;
       
       const { data, error } = await supabase
         .from('usage')
