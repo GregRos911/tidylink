@@ -6,11 +6,9 @@ import { cn } from "@/lib/utils"
 // Re-export everything from the context
 export { 
   useSidebar,
-  SidebarContext
+  SidebarContext,
+  SidebarProvider as OriginalSidebarProvider
 } from "./sidebar-context"
-
-// Re-export the original SidebarProvider from context file
-export { SidebarProvider as OriginalSidebarProvider } from "./sidebar-context"
 
 // Re-export from layout components
 export { 
