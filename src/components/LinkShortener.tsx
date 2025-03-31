@@ -19,7 +19,6 @@ const LinkShortener: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // For free users, proceed with URL shortening
     if (!url) {
       toast.error('Please enter a URL to shorten');
       return;

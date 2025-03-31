@@ -1,11 +1,15 @@
+
 import React, { useState } from 'react';
 import Nav from '@/components/Nav';
 import LinkShortener from '@/components/LinkShortener';
 import QRCodeGenerator from '@/components/QRCodeGenerator';
 import { Link as LinkIcon, QrCode, BarChart } from "lucide-react";
+
 const Index: React.FC = () => {
   const [shortenedUrl, setShortenedUrl] = useState('');
-  return <div className="min-h-screen flex flex-col bg-background">
+  
+  return (
+    <div className="min-h-screen flex flex-col bg-background">
       <Nav />
       
       <main className="flex-1">
@@ -71,6 +75,8 @@ const Index: React.FC = () => {
           </p>
         </div>
       </footer>
-    </div>;
+    </div>
+  );
 };
+
 export default Index;
