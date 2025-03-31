@@ -5,16 +5,19 @@ import { Input } from "@/components/ui/input";
 import { toast } from 'sonner';
 import { Copy, Check, Link2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { urlServices } from '@/lib/urlServices';
+import { useCreateLink } from '@/services/linkService';
+import { useUser } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
 
 const LinkShortener: React.FC = () => {
   const [url, setUrl] = useState('');
   const [customAlias, setCustomAlias] = useState('');
   const [shortenedUrl, setShortenedUrl] = useState('');
-  const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const { isSignedIn, isLoaded } = useUser();
   const navigate = useNavigate();
+  
+  const createLink = useCreateLink();
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,8 +32,29 @@ const LinkShortener: React.FC = () => {
       return;
     }
     
-    // Navigate to pricing page
-    navigate('/pricing');
+    // Check if user is signed in
+    if (!isLoaded) {
+      return; // Still loading auth state
+    }
+    
+    if (!isSignedIn) {
+      toast.error('You need to sign in to create a short link');
+      navigate('/sign-in');
+      return;
+    }
+    
+    try {
+      const newLink = await createLink.mutateAsync({
+        originalUrl: url,
+        customBackhalf: customAlias || undefined
+      });
+      
+      setShortenedUrl(newLink.short_url);
+      toast.success('Link shortened successfully!');
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to create link');
+      console.error('Error creating link:', error);
+    }
   };
   
   const copyToClipboard = async () => {
@@ -85,16 +109,16 @@ const LinkShortener: React.FC = () => {
               className="w-full"
             />
             <p className="text-xs text-muted-foreground">
-              Leave empty for random alias
+              Free plan: {customAlias ? '1' : '0'}/5 custom aliases used this month
             </p>
           </div>
           
           <Button 
             type="submit" 
             className="w-full bg-gradient-to-r from-brand-blue via-brand-purple to-brand-pink hover:opacity-90 transition-opacity"
-            disabled={loading}
+            disabled={createLink.isPending}
           >
-            {loading ? 'Shortening...' : 'Create a secure short link for free'}
+            {createLink.isPending ? 'Shortening...' : 'Create a secure short link'}
           </Button>
           
           {shortenedUrl && (

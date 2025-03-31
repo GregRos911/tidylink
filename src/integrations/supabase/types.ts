@@ -9,7 +9,66 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      links: {
+        Row: {
+          clicks: number | null
+          created_at: string | null
+          custom_backhalf: string | null
+          id: string
+          original_url: string
+          short_url: string
+          user_id: string
+        }
+        Insert: {
+          clicks?: number | null
+          created_at?: string | null
+          custom_backhalf?: string | null
+          id?: string
+          original_url: string
+          short_url: string
+          user_id: string
+        }
+        Update: {
+          clicks?: number | null
+          created_at?: string | null
+          custom_backhalf?: string | null
+          id?: string
+          original_url?: string
+          short_url?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      usage: {
+        Row: {
+          created_at: string | null
+          custom_backhalves_used: number | null
+          id: string
+          last_reset: string | null
+          links_used: number | null
+          qr_codes_used: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          custom_backhalves_used?: number | null
+          id?: string
+          last_reset?: string | null
+          links_used?: number | null
+          qr_codes_used?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          custom_backhalves_used?: number | null
+          id?: string
+          last_reset?: string | null
+          links_used?: number | null
+          qr_codes_used?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

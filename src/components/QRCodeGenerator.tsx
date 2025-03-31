@@ -3,7 +3,9 @@ import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from 'sonner';
-import { Download, QrCode } from 'lucide-react';
+import { Download, QrCode, Loader2 } from 'lucide-react';
+import { useIncrementUsage } from '@/services/usageService';
+import { useUser } from '@clerk/clerk-react';
 
 interface QRCodeGeneratorProps {
   url: string;
@@ -12,6 +14,8 @@ interface QRCodeGeneratorProps {
 const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ url }) => {
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
   const [loading, setLoading] = useState(false);
+  const incrementUsage = useIncrementUsage();
+  const { isSignedIn } = useUser();
   
   useEffect(() => {
     if (url) {
@@ -25,16 +29,24 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ url }) => {
       return;
     }
     
+    if (!isSignedIn) {
+      toast.error('You need to sign in to generate QR codes');
+      return;
+    }
+    
     setLoading(true);
     
     try {
+      // First increment usage counter and check limits
+      await incrementUsage.mutateAsync({ type: 'qrCode' });
+      
       // Generate QR code using an API
       const encodedUrl = encodeURIComponent(url);
       const qrCodeApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodedUrl}`;
       setQrCodeUrl(qrCodeApiUrl);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error generating QR code:', error);
-      toast.error('Failed to generate QR code');
+      toast.error(error.message || 'Failed to generate QR code');
     } finally {
       setLoading(false);
     }
@@ -78,7 +90,7 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ url }) => {
       <CardContent className="flex flex-col items-center">
         {loading ? (
           <div className="h-[200px] w-[200px] bg-muted rounded-md flex items-center justify-center">
-            Loading...
+            <Loader2 className="h-12 w-12 animate-spin text-brand-blue" />
           </div>
         ) : qrCodeUrl ? (
           <div className="flex flex-col items-center gap-4">
@@ -97,7 +109,13 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ url }) => {
           </div>
         ) : (
           <div className="h-[200px] w-[200px] bg-muted rounded-md flex items-center justify-center">
-            No QR code available
+            <Button 
+              onClick={generateQRCode}
+              className="flex items-center gap-2"
+            >
+              <QrCode className="h-4 w-4" />
+              Generate QR Code
+            </Button>
           </div>
         )}
       </CardContent>

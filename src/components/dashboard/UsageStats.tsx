@@ -3,23 +3,77 @@ import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { useUserUsage, FREE_PLAN_LIMITS, useResetUsage } from '@/services/usageService';
+import { toast } from 'sonner';
+import { Loader2 } from 'lucide-react';
 
-interface UsageStatsProps {
-  usageStats: {
-    links: { used: number; total: number };
-    qrCodes: { used: number; total: number };
-    customBackHalves: { used: number; total: number };
-  };
-}
-
-const UsageStats: React.FC<UsageStatsProps> = ({ usageStats }) => {
+const UsageStats: React.FC = () => {
+  const { data: usageData, isLoading, error } = useUserUsage();
+  const resetUsage = useResetUsage();
+  
   const calculatePercentage = (used: number, total: number) => {
     return (used / total) * 100;
   };
-
+  
+  const handleResetUsage = async () => {
+    try {
+      await resetUsage.mutateAsync();
+      toast.success('Usage stats reset successfully!');
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to reset usage stats');
+      console.error('Error resetting usage:', error);
+    }
+  };
+  
+  if (isLoading) {
+    return (
+      <Card className="p-6 mb-6">
+        <div className="flex justify-center items-center h-40">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </div>
+      </Card>
+    );
+  }
+  
+  if (error || !usageData) {
+    return (
+      <Card className="p-6 mb-6">
+        <h3 className="text-lg font-semibold mb-4">Your Usage</h3>
+        <p className="text-sm text-red-500">Error loading usage data. Please try again.</p>
+      </Card>
+    );
+  }
+  
+  // Format usage data for display
+  const usageStats = {
+    links: { used: usageData.links_used || 0, total: FREE_PLAN_LIMITS.links },
+    qrCodes: { used: usageData.qr_codes_used || 0, total: FREE_PLAN_LIMITS.qrCodes },
+    customBackHalves: { used: usageData.custom_backhalves_used || 0, total: FREE_PLAN_LIMITS.customBackHalves }
+  };
+  
+  // Format last reset date
+  const lastReset = new Date(usageData.last_reset);
+  const nextReset = new Date(lastReset);
+  nextReset.setDate(lastReset.getDate() + 30);
+  
   return (
     <Card className="p-6 mb-6">
-      <h3 className="text-lg font-semibold mb-4">Your Usage</h3>
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-lg font-semibold">Your Usage</h3>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={handleResetUsage}
+          disabled={resetUsage.isPending}
+        >
+          {resetUsage.isPending ? (
+            <><Loader2 className="h-3 w-3 mr-1 animate-spin" /> Resetting...</>
+          ) : (
+            'Reset Usage'
+          )}
+        </Button>
+      </div>
       
       <div className="space-y-4">
         <div>
@@ -63,6 +117,7 @@ const UsageStats: React.FC<UsageStatsProps> = ({ usageStats }) => {
       </div>
       
       <div className="mt-4 border-t pt-4">
+        <p className="text-xs text-gray-500 mb-1">Next reset: {nextReset.toLocaleDateString()}</p>
         <p className="text-sm text-gray-500 mb-3">Need more? Upgrade to get access to unlimited links and QR codes.</p>
         <Link to="/pricing" className="text-sm font-medium text-brand-blue hover:underline">
           View pricing plans →

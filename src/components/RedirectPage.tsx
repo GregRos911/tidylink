@@ -1,14 +1,16 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { urlServices } from '@/lib/urlServices';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
+import { Loader2 } from 'lucide-react';
 
 const RedirectPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [countdown, setCountdown] = useState(3);
   const [originalUrl, setOriginalUrl] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   
   useEffect(() => {
     if (!id) {
@@ -18,19 +20,43 @@ const RedirectPage: React.FC = () => {
     
     const fetchLink = async () => {
       try {
-        const link = await urlServices.getLink(id);
+        setIsLoading(true);
+        const baseUrl = window.location.origin;
+        const shortUrl = `${baseUrl}/r/${id}`;
+        
+        // First try to find by short_url
+        let { data: link } = await supabase
+          .from('links')
+          .select('*')
+          .eq('short_url', shortUrl)
+          .maybeSingle();
+        
+        // If not found, try to find by custom_backhalf
+        if (!link) {
+          const { data: customLink } = await supabase
+            .from('links')
+            .select('*')
+            .eq('custom_backhalf', id)
+            .maybeSingle();
+          
+          link = customLink;
+        }
         
         if (link) {
-          setOriginalUrl(link.originalUrl);
+          setOriginalUrl(link.original_url);
+          
           // Increment click count
-          await urlServices.incrementClickCount(id);
+          await supabase
+            .from('links')
+            .update({ clicks: (link.clicks || 0) + 1 })
+            .eq('id', link.id);
           
           // Start countdown for redirect
           const timer = setInterval(() => {
             setCountdown(prev => {
               if (prev <= 1) {
                 clearInterval(timer);
-                window.location.href = link.originalUrl;
+                window.location.href = link.original_url;
                 return 0;
               }
               return prev - 1;
@@ -46,19 +72,38 @@ const RedirectPage: React.FC = () => {
         console.error('Error fetching link:', error);
         toast.error('Link not found or has expired');
         navigate('/');
+      } finally {
+        setIsLoading(false);
       }
     };
     
     fetchLink();
   }, [id, navigate]);
   
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center">
+          <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-brand-blue" />
+          <h1 className="text-2xl font-bold mb-2">Looking for your link...</h1>
+          <p className="text-muted-foreground">Please wait while we find your destination.</p>
+        </div>
+      </div>
+    );
+  }
+  
   if (!originalUrl) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
-          <div className="animate-pulse-slow h-20 w-20 mx-auto rounded-full bg-primary mb-4"></div>
-          <h1 className="text-2xl font-bold mb-2">Looking for your link...</h1>
-          <p className="text-muted-foreground">Please wait while we find your destination.</p>
+          <h1 className="text-2xl font-bold mb-2">Link not found</h1>
+          <p className="text-muted-foreground mb-4">The requested link does not exist or has expired.</p>
+          <button 
+            onClick={() => navigate('/')}
+            className="px-4 py-2 bg-brand-blue text-white rounded-md hover:bg-brand-blue/90"
+          >
+            Go Home
+          </button>
         </div>
       </div>
     );
