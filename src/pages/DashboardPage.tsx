@@ -17,9 +17,9 @@ import QuickActionCard from '@/components/dashboard/QuickActionCard';
 import GettingStartedItem from '@/components/dashboard/GettingStartedItem';
 import UsageStats from '@/components/dashboard/UsageStats';
 import MobileSidebar from '@/components/dashboard/MobileSidebar';
+import UserProfile from '@/components/dashboard/UserProfile';
 
 const DashboardPage: React.FC = () => {
-  // Placeholder data
   const usageStats = {
     links: { used: 3, total: 7 },
     qrCodes: { used: 2, total: 5 },
@@ -153,11 +153,16 @@ const DashboardPage: React.FC = () => {
             
             {/* Right Sidebar */}
             <div className="lg:w-80">
+              {/* User Profile */}
+              <UserProfile />
+              
               {/* Usage Stats */}
-              <UsageStats usageStats={usageStats} />
+              <div className="mt-6">
+                <UsageStats usageStats={usageStats} />
+              </div>
               
               {/* Premium Promo */}
-              <Card className="p-6 mb-6">
+              <Card className="p-6 mt-6">
                 <div className="mb-4">
                   <h3 className="text-lg font-semibold mb-2">Replace "tidy.ly" with your brand</h3>
                   <p className="text-sm text-gray-600">Click it, scan it, or share it.</p>
