@@ -2,7 +2,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { useUser } from "@clerk/clerk-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useIncrementUsage } from "./usageService";
+import { useIncrementUsage } from "./usage";
 
 // Use the LinkItem type from the new location
 import { LinkItem } from "@/lib/types/linkTypes";
