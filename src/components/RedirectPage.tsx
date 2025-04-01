@@ -24,32 +24,54 @@ const RedirectPage: React.FC = () => {
         const baseUrl = window.location.origin;
         const shortUrl = `${baseUrl}/r/${id}`;
         
+        console.log('Looking for link with short_url:', shortUrl);
+        
         // First try to find by short_url
-        let { data: link } = await supabase
+        let { data: link, error } = await supabase
           .from('links')
           .select('*')
           .eq('short_url', shortUrl)
           .maybeSingle();
         
+        if (error) {
+          console.error('Error when searching by short_url:', error);
+        }
+        
         // If not found, try to find by custom_backhalf
         if (!link) {
-          const { data: customLink } = await supabase
+          console.log('Link not found by short_url, trying custom_backhalf:', id);
+          const { data: customLink, error: customError } = await supabase
             .from('links')
             .select('*')
             .eq('custom_backhalf', id)
             .maybeSingle();
           
+          if (customError) {
+            console.error('Error when searching by custom_backhalf:', customError);
+          }
+          
           link = customLink;
         }
         
         if (link) {
+          console.log('Link found:', link);
           setOriginalUrl(link.original_url);
           
           // Increment click count
-          await supabase
-            .from('links')
-            .update({ clicks: (link.clicks || 0) + 1 })
-            .eq('id', link.id);
+          try {
+            console.log('Incrementing click count for link ID:', link.id);
+            const { error: updateError } = await supabase
+              .from('links')
+              .update({ clicks: (link.clicks || 0) + 1 })
+              .eq('id', link.id);
+            
+            if (updateError) {
+              console.error('Error incrementing click count:', updateError);
+            }
+          } catch (updateError) {
+            console.error('Exception when incrementing click count:', updateError);
+            // Continue with redirect even if click count update fails
+          }
           
           // Start countdown for redirect
           const timer = setInterval(() => {
@@ -65,6 +87,7 @@ const RedirectPage: React.FC = () => {
           
           return () => clearInterval(timer);
         } else {
+          console.log('Link not found for ID:', id);
           toast.error('Link not found');
           navigate('/');
         }
