@@ -6,4 +6,5 @@ export interface LinkItem {
   createdAt: string;
   clicks: number;
   isQrCodeGenerated?: boolean;
+  title?: string | null;
 }

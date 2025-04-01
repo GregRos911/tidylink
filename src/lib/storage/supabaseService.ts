@@ -34,7 +34,8 @@ export const getLinkFromSupabase = async (id: string): Promise<LinkItem | null> 
         shortUrl: data.short_url,
         createdAt: data.created_at,
         clicks: data.clicks || 0,
-        isQrCodeGenerated: data.is_qr_code_generated || false
+        isQrCodeGenerated: data.is_qr_code_generated || false,
+        title: data.title || null
       };
     }
     return null;
@@ -79,7 +80,8 @@ export const getLinksFromSupabase = async (): Promise<LinkItem[]> => {
         shortUrl: item.short_url,
         createdAt: item.created_at,
         clicks: item.clicks || 0,
-        isQrCodeGenerated: item.is_qr_code_generated || false
+        isQrCodeGenerated: item.is_qr_code_generated || false,
+        title: item.title || null
       }));
     }
     return [];
