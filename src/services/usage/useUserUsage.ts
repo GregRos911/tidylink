@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useUser } from "@clerk/clerk-react";
 import { useQuery } from "@tanstack/react-query";
 import { UsageData } from "./types";
+import { setupSupabaseSession } from "../clerkSupabaseAuth";
 
 // Hook to get current user usage
 export const useUserUsage = () => {
@@ -14,19 +15,8 @@ export const useUserUsage = () => {
       if (!user?.id) return null;
       
       try {
-        // Get JWT token from Clerk correctly
-        const token = await user.getToken();
-        
-        // Set the auth token for this request
-        const { error: sessionError } = await supabase.auth.setSession({
-          access_token: token,
-          refresh_token: token, // Using the same token for simplicity
-        });
-        
-        if (sessionError) {
-          console.error('Error setting session:', sessionError);
-          throw sessionError;
-        }
+        // Use our utility function
+        await setupSupabaseSession(user);
         
         // Try to get existing usage record
         const { data, error } = await supabase

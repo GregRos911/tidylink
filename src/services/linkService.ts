@@ -1,8 +1,8 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { useUser } from "@clerk/clerk-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useIncrementUsage } from "./usage";
+import { setupSupabaseSession } from "./clerkSupabaseAuth";
 
 // Use the LinkItem type from the new location
 import { LinkItem } from "@/lib/types/linkTypes";
@@ -51,19 +51,8 @@ export const useCreateLink = () => {
       if (!user?.id) throw new Error('User not authenticated');
       
       try {
-        // Get JWT token from Clerk correctly
-        const token = await user.getToken();
-        
-        // Set the auth token for this request
-        const { error: sessionError } = await supabase.auth.setSession({
-          access_token: token,
-          refresh_token: token, // Using the same token for simplicity
-        });
-        
-        if (sessionError) {
-          console.error('Error setting session:', sessionError);
-          throw sessionError;
-        }
+        // Use our utility function
+        await setupSupabaseSession(user);
         
         // First increment usage counters and check limits
         await incrementUsage.mutateAsync({ 
@@ -138,19 +127,8 @@ export const useUserLinks = () => {
       if (!user?.id) return [];
       
       try {
-        // Get JWT token from Clerk correctly
-        const token = await user.getToken();
-        
-        // Set the auth token for this request
-        const { error: sessionError } = await supabase.auth.setSession({
-          access_token: token,
-          refresh_token: token, // Using the same token for simplicity
-        });
-        
-        if (sessionError) {
-          console.error('Error setting session:', sessionError);
-          throw sessionError;
-        }
+        // Use our utility function
+        await setupSupabaseSession(user);
         
         const { data, error } = await supabase
           .from('links')
@@ -179,19 +157,8 @@ export const useIncrementLinkClicks = () => {
       if (!user?.id) throw new Error('User not authenticated');
       
       try {
-        // Get JWT token from Clerk correctly
-        const token = await user.getToken();
-        
-        // Set the auth token for this request
-        const { error: sessionError } = await supabase.auth.setSession({
-          access_token: token,
-          refresh_token: token, // Using the same token for simplicity
-        });
-        
-        if (sessionError) {
-          console.error('Error setting session:', sessionError);
-          throw sessionError;
-        }
+        // Use our utility function
+        await setupSupabaseSession(user);
         
         const { data, error } = await supabase
           .from('links')
