@@ -55,10 +55,11 @@ export const useSupabaseAuth = () => {
 };
 
 // A component to wrap your app with Supabase authentication
-export const withSupabaseAuth = <P extends object>(
+// Using function declaration instead of arrow function to avoid TypeScript generics syntax issues
+export function withSupabaseAuth<P extends object>(
   Component: React.ComponentType<P>
-): React.FC<P> => {
-  return (props: P) => {
+): React.FC<P> {
+  const WithSupabaseAuthComponent: React.FC<P> = (props) => {
     const { isSupabaseAuthenticated, isLoading, error } = useSupabaseAuth();
     
     // You can handle loading and error states as needed
@@ -66,4 +67,6 @@ export const withSupabaseAuth = <P extends object>(
     
     return <Component {...props} />;
   };
-};
+  
+  return WithSupabaseAuthComponent;
+}
