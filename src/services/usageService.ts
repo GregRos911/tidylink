@@ -32,6 +32,8 @@ export const useUserUsage = () => {
       if (!user?.id) return null;
       
       try {
+        console.log('Fetching usage for user ID:', user.id);
+        
         // Try to get existing usage record
         const { data, error } = await supabase
           .from('usage')
@@ -46,7 +48,7 @@ export const useUserUsage = () => {
         
         // If no usage record exists, create one
         if (!data) {
-          console.log('No usage record found, creating one...');
+          console.log('No usage record found, creating one for user ID:', user.id);
           const { data: newUsage, error: insertError } = await supabase
             .from('usage')
             .insert([{ 
@@ -115,7 +117,7 @@ export const useIncrementUsage = () => {
       try {
         console.log(`Incrementing ${type} usage for user ${user.id}`);
         
-        // Get current usage
+        // Get current usage - using maybeSingle to avoid errors if no record exists
         const { data: currentUsage, error: usageError } = await supabase
           .from('usage')
           .select('*')
@@ -123,7 +125,6 @@ export const useIncrementUsage = () => {
           .maybeSingle();
         
         console.log('Current usage:', currentUsage);
-        console.log('Usage error:', usageError);
         
         if (usageError) {
           console.error('Error fetching usage:', usageError);
@@ -132,7 +133,7 @@ export const useIncrementUsage = () => {
         
         if (!currentUsage) {
           // Create new usage record if it doesn't exist
-          console.log('Creating new usage record');
+          console.log('Creating new usage record for user ID:', user.id);
           const { data, error } = await supabase
             .from('usage')
             .insert([
@@ -212,6 +213,8 @@ export const useResetUsage = () => {
       if (!user?.id) throw new Error('User not authenticated');
       
       try {
+        console.log('Resetting usage for user ID:', user.id);
+        
         const { data, error } = await supabase
           .from('usage')
           .update({
@@ -224,7 +227,10 @@ export const useResetUsage = () => {
           .select()
           .single();
         
-        if (error) throw error;
+        if (error) {
+          console.error('Error resetting usage:', error);
+          throw error;
+        }
         return data;
       } catch (error: any) {
         console.error('Error resetting usage:', error);

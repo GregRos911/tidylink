@@ -19,7 +19,7 @@ const LinkShortener: React.FC = () => {
   const navigate = useNavigate();
   
   const createLink = useCreateLink();
-  const { data: usageData } = useUserUsage();
+  const { data: usageData, isLoading: isUsageLoading } = useUserUsage();
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,6 +46,7 @@ const LinkShortener: React.FC = () => {
     }
     
     try {
+      console.log('User ID:', user?.id);
       console.log('Creating link with:', { originalUrl: url, customBackhalf: customAlias });
       
       const newLink = await createLink.mutateAsync({
@@ -128,6 +129,7 @@ const LinkShortener: React.FC = () => {
           <Button 
             type="submit" 
             className="w-full bg-gradient-to-r from-brand-blue via-brand-purple to-brand-pink hover:opacity-90 transition-opacity"
+            disabled={createLink.isPending}
           >
             {createLink.isPending ? (
               <>Creating...</>

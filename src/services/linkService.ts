@@ -44,6 +44,8 @@ export const useCreateLink = () => {
       if (!user?.id) throw new Error('User not authenticated');
       
       try {
+        console.log('Creating link with user ID:', user.id);
+        
         // First increment usage counters and check limits
         await incrementUsage.mutateAsync({ 
           type: 'link', 
@@ -88,7 +90,12 @@ export const useCreateLink = () => {
           .select()
           .single();
         
-        if (error) throw error;
+        if (error) {
+          console.error('Error creating link:', error);
+          throw error;
+        }
+        
+        console.log('Link created successfully:', data);
         return data;
       } catch (error) {
         // If there's an error after incrementing usage, we should revert the usage increment
@@ -111,13 +118,19 @@ export const useUserLinks = () => {
     queryFn: async (): Promise<LinkData[]> => {
       if (!user?.id) return [];
       
+      console.log('Fetching links for user ID:', user.id);
+      
       const { data, error } = await supabase
         .from('links')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching links:', error);
+        throw error;
+      }
+      
       return data || [];
     },
     enabled: !!user?.id,
