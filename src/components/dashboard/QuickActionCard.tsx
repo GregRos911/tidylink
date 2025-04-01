@@ -24,6 +24,13 @@ const QuickActionCard: React.FC<QuickActionCardProps> = ({
   disabled = false,
   onClick
 }) => {
+  const handleClick = (e: React.MouseEvent) => {
+    if (onClick) {
+      e.preventDefault();
+      onClick();
+    }
+  };
+
   const content = (
     <Card className={cn(
       "p-4 h-full flex flex-col", 
@@ -38,7 +45,7 @@ const QuickActionCard: React.FC<QuickActionCardProps> = ({
           size="sm" 
           className="w-full"
           disabled={disabled}
-          onClick={onClick}
+          onClick={handleClick}
         >
           {cta}
         </Button>
@@ -50,16 +57,8 @@ const QuickActionCard: React.FC<QuickActionCardProps> = ({
     return content;
   }
   
-  if (onClick) {
-    return (
-      <div className="block h-full" onClick={onClick}>
-        {content}
-      </div>
-    );
-  }
-
   return (
-    <Link to={href} className="block h-full">
+    <Link to={href} className="block h-full" onClick={handleClick}>
       {content}
     </Link>
   );

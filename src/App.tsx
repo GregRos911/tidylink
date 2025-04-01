@@ -14,6 +14,7 @@ import SignUp from "./pages/SignUp";
 import RedirectPage from "./components/RedirectPage";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
+import MyLinksPage from "./pages/MyLinksPage";
 
 const queryClient = new QueryClient();
 
@@ -45,7 +46,7 @@ const App = () => (
           } />
           <Route path="/links" element={
             <ProtectedRoute>
-              <DashboardPage />
+              <MyLinksPage />
             </ProtectedRoute>
           } />
           <Route path="/qr-codes" element={
