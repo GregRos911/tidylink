@@ -37,10 +37,15 @@ export const setupSupabaseSession = async (user) => {
   const token = await getClerkToken(user);
   
   try {
+    // Generate a valid email format that Supabase will accept
+    // We'll use a random element to avoid conflicts
+    const randomId = Math.random().toString(36).substring(2, 10);
+    const validEmail = `user_${randomId}@example.com`;
+    
     // For development purposes, we'll use a custom auth approach
     // This is a simplified demo implementation
     const { data, error } = await supabase.auth.signInWithPassword({
-      email: `user-${user.id.slice(0, 8)}@example.com`, // Using a valid email format
+      email: validEmail,
       password: user.id,
     });
     
@@ -49,7 +54,7 @@ export const setupSupabaseSession = async (user) => {
       if (error.message.includes('Invalid login credentials')) {
         // Create a user in Supabase
         const { error: signUpError } = await supabase.auth.signUp({
-          email: `user-${user.id.slice(0, 8)}@example.com`, // Using a valid email format
+          email: validEmail,
           password: user.id,
         });
         
@@ -60,7 +65,7 @@ export const setupSupabaseSession = async (user) => {
         
         // Try signing in again
         const { error: retryError } = await supabase.auth.signInWithPassword({
-          email: `user-${user.id.slice(0, 8)}@example.com`, // Using a valid email format
+          email: validEmail,
           password: user.id,
         });
         
