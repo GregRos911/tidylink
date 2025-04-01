@@ -1,7 +1,8 @@
 
+import React from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useUser } from "@clerk/clerk-react";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 // This function gets a JWT token from Clerk and sets it in Supabase
 export const useSupabaseAuth = () => {
@@ -16,8 +17,8 @@ export const useSupabaseAuth = () => {
         setIsLoading(true);
         try {
           if (isSignedIn && user) {
-            // Get JWT token from Clerk - using the correct method
-            const token = await user.sessionIds[0];
+            // Get JWT token from Clerk correctly
+            const token = await user.getToken();
             
             // Set the token in Supabase
             const { error } = await supabase.auth.setSession({

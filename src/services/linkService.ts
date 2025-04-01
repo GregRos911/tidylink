@@ -51,8 +51,8 @@ export const useCreateLink = () => {
       if (!user?.id) throw new Error('User not authenticated');
       
       try {
-        // Get JWT token from Clerk
-        const token = await user.sessionIds[0];
+        // Get JWT token from Clerk correctly
+        const token = await user.getToken();
         
         // Set the auth token for this request
         const { error: sessionError } = await supabase.auth.setSession({
@@ -138,8 +138,8 @@ export const useUserLinks = () => {
       if (!user?.id) return [];
       
       try {
-        // Get JWT token from Clerk
-        const token = await user.sessionIds[0];
+        // Get JWT token from Clerk correctly
+        const token = await user.getToken();
         
         // Set the auth token for this request
         const { error: sessionError } = await supabase.auth.setSession({
@@ -179,8 +179,8 @@ export const useIncrementLinkClicks = () => {
       if (!user?.id) throw new Error('User not authenticated');
       
       try {
-        // Get JWT token from Clerk
-        const token = await user.sessionIds[0];
+        // Get JWT token from Clerk correctly
+        const token = await user.getToken();
         
         // Set the auth token for this request
         const { error: sessionError } = await supabase.auth.setSession({
