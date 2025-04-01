@@ -1,8 +1,7 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { useUser } from "@clerk/clerk-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useIncrementUsage } from "./usageService";
+import { useIncrementUsage } from "./usage";
 
 // Types
 export interface LinkData {

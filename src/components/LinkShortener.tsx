@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useCreateLink } from '@/services/linkService';
 import { useUser } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
-import { useUserUsage, FREE_PLAN_LIMITS } from '@/services/usageService';
+import { useUserUsage, FREE_PLAN_LIMITS } from '@/services/usage';
 
 const LinkShortener: React.FC = () => {
   const [url, setUrl] = useState('');
