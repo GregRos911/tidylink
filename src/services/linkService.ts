@@ -93,7 +93,11 @@ export const useCreateLink = () => {
           .select()
           .single();
         
-        if (error) throw error;
+        if (error) {
+          console.error('Error creating link:', error);
+          throw error;
+        }
+        
         return data;
       } catch (error) {
         // If there's an error after incrementing usage, we should revert the usage increment

@@ -123,9 +123,8 @@ const LinkShortener: React.FC = () => {
           </div>
           
           <Button 
-            type="button" 
+            type="submit" 
             className="w-full bg-gradient-to-r from-brand-blue via-brand-purple to-brand-pink hover:opacity-90 transition-opacity"
-            onClick={navigateToPricing}
           >
             Create a secure short link
           </Button>
@@ -172,4 +171,3 @@ const LinkShortener: React.FC = () => {
 };
 
 export default LinkShortener;
-

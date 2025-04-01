@@ -113,11 +113,16 @@ export const useIncrementUsage = () => {
       
       try {
         // Get current usage
-        const { data: currentUsage } = await supabase
+        const { data: currentUsage, error: usageError } = await supabase
           .from('usage')
           .select('*')
           .eq('user_id', user.id)
           .maybeSingle();
+        
+        if (usageError) {
+          console.error('Error getting usage:', usageError);
+          throw usageError;
+        }
         
         if (!currentUsage) {
           // Create new usage record if it doesn't exist
@@ -135,7 +140,10 @@ export const useIncrementUsage = () => {
             .select()
             .single();
           
-          if (error) throw error;
+          if (error) {
+            console.error('Error creating usage record:', error);
+            throw error;
+          }
           return data;
         }
         
@@ -166,7 +174,10 @@ export const useIncrementUsage = () => {
           .select()
           .single();
         
-        if (error) throw error;
+        if (error) {
+          console.error('Error updating usage:', error);
+          throw error;
+        }
         return data;
       } catch (error: any) {
         console.error('Error updating usage:', error);
