@@ -15,10 +15,8 @@ export type Database = {
           created_at: string | null
           custom_backhalf: string | null
           id: string
-          is_qr_code_generated: boolean | null
           original_url: string
           short_url: string
-          title: string | null
           user_id: string
         }
         Insert: {
@@ -26,10 +24,8 @@ export type Database = {
           created_at?: string | null
           custom_backhalf?: string | null
           id?: string
-          is_qr_code_generated?: boolean | null
           original_url: string
           short_url: string
-          title?: string | null
           user_id: string
         }
         Update: {
@@ -37,10 +33,8 @@ export type Database = {
           created_at?: string | null
           custom_backhalf?: string | null
           id?: string
-          is_qr_code_generated?: boolean | null
           original_url?: string
           short_url?: string
-          title?: string | null
           user_id?: string
         }
         Relationships: []

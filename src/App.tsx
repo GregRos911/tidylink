@@ -15,11 +15,10 @@ import RedirectPage from "./components/RedirectPage";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import MyLinksPage from "./pages/MyLinksPage";
-import { withSupabaseAuth } from "./services/authService";
 
 const queryClient = new QueryClient();
 
-const AppContent = () => (
+const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
@@ -73,8 +72,5 @@ const AppContent = () => (
     </TooltipProvider>
   </QueryClientProvider>
 );
-
-// Wrap the entire app with the Supabase authentication
-const App = withSupabaseAuth(AppContent);
 
 export default App;

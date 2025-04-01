@@ -3,21 +3,18 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from 'sonner';
-import { Copy, Check, Link2, QrCode } from 'lucide-react';
+import { Copy, Check, Link2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useCreateLink } from '@/services/linkService';
 import { useUser } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
-import { useUserUsage, FREE_PLAN_LIMITS } from '@/services/usage';
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
+import { useUserUsage, FREE_PLAN_LIMITS } from '@/services/usageService';
 
 const LinkShortener: React.FC = () => {
   const [url, setUrl] = useState('');
   const [customAlias, setCustomAlias] = useState('');
   const [shortenedUrl, setShortenedUrl] = useState('');
   const [copied, setCopied] = useState(false);
-  const [generateQrCode, setGenerateQrCode] = useState(false);
   const { isSignedIn, isLoaded } = useUser();
   const navigate = useNavigate();
   
@@ -51,17 +48,11 @@ const LinkShortener: React.FC = () => {
     try {
       const newLink = await createLink.mutateAsync({
         originalUrl: url,
-        customBackhalf: customAlias || undefined,
-        generateQrCode: generateQrCode
+        customBackhalf: customAlias || undefined
       });
       
       setShortenedUrl(newLink.short_url);
       toast.success('Link shortened successfully!');
-      
-      // Navigate to the QR code page if the user opted to generate one
-      if (generateQrCode) {
-        navigate(`/links?id=${newLink.id}`);
-      }
     } catch (error: any) {
       toast.error(error.message || 'Failed to create link');
       console.error('Error creating link:', error);
@@ -88,8 +79,6 @@ const LinkShortener: React.FC = () => {
   
   const customAliasesUsed = usageData?.custom_backhalves_used || 0;
   const customAliasesTotal = FREE_PLAN_LIMITS.customBackHalves;
-  const qrCodesUsed = usageData?.qr_codes_used || 0;
-  const qrCodesTotal = FREE_PLAN_LIMITS.qrCodes;
   
   return (
     <Card className="w-full max-w-3xl mx-auto shadow-md">
@@ -133,30 +122,12 @@ const LinkShortener: React.FC = () => {
             </p>
           </div>
           
-          <div className="flex items-center space-x-2">
-            <Checkbox 
-              id="generate-qr"
-              checked={generateQrCode}
-              onCheckedChange={(checked) => setGenerateQrCode(checked as boolean)}
-            />
-            <Label 
-              htmlFor="generate-qr" 
-              className="text-sm font-medium cursor-pointer flex items-center"
-            >
-              <QrCode className="h-4 w-4 mr-1" /> 
-              Generate QR Code
-            </Label>
-            <p className="text-xs text-muted-foreground ml-auto">
-              {qrCodesUsed}/{qrCodesTotal} QR codes used this month
-            </p>
-          </div>
-          
           <Button 
-            type="submit" 
+            type="button" 
             className="w-full bg-gradient-to-r from-brand-blue via-brand-purple to-brand-pink hover:opacity-90 transition-opacity"
-            disabled={createLink.isPending}
+            onClick={navigateToPricing}
           >
-            {createLink.isPending ? 'Creating...' : 'Create a secure short link'}
+            Create a secure short link
           </Button>
           
           {shortenedUrl && (
@@ -201,3 +172,4 @@ const LinkShortener: React.FC = () => {
 };
 
 export default LinkShortener;
+

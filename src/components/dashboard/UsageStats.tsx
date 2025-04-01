@@ -4,9 +4,9 @@ import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { useUserUsage, FREE_PLAN_LIMITS, useResetUsage } from '@/services/usage';
+import { useUserUsage, FREE_PLAN_LIMITS, useResetUsage } from '@/services/usageService';
 import { toast } from 'sonner';
-import { Loader2, RotateCcw } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { UsageStatsProps } from './types';
 
 // Modified component to accept props based on the interface
@@ -78,28 +78,18 @@ const UsageStats: React.FC<UsageStatsProps> = ({ usageStats }) => {
     <Card className="p-6 mb-6">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold">Your Usage</h3>
-        <div className="flex gap-2">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={handleResetUsage}
-            disabled={resetUsage.isPending}
-          >
-            {resetUsage.isPending ? (
-              <><Loader2 className="h-3 w-3 mr-1 animate-spin" /> Resetting...</>
-            ) : (
-              <><RotateCcw className="h-3 w-3 mr-1" /> Reset Usage</>
-            )}
-          </Button>
-          <Button 
-            variant="destructive" 
-            size="sm" 
-            onClick={handleResetUsage}
-            disabled={resetUsage.isPending}
-          >
-            RESET
-          </Button>
-        </div>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={handleResetUsage}
+          disabled={resetUsage.isPending}
+        >
+          {resetUsage.isPending ? (
+            <><Loader2 className="h-3 w-3 mr-1 animate-spin" /> Resetting...</>
+          ) : (
+            'Reset Usage'
+          )}
+        </Button>
       </div>
       
       <div className="space-y-4">

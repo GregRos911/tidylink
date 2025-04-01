@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { useUserUsage, FREE_PLAN_LIMITS } from '@/services/usage';
+import { useUserUsage, FREE_PLAN_LIMITS } from '@/services/usageService';
 import { useCreateLink, LinkData } from '@/services/linkService';
 import { Lock } from 'lucide-react';
 import LinkSuccessModal from './LinkSuccessModal';

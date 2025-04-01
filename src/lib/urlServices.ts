@@ -1,31 +1,53 @@
 
 import { v4 as uuidv4 } from 'uuid';
-import { generateRandomAlias, getBaseUrl } from './utils/urlUtils';
-import { LinkItem } from './types/linkTypes';
-import {
-  getLinksFromStorage,
-  saveLinksToStorage,
-  isAliasInUseInStorage,
-  getLinkFromStorage,
-  incrementClickCountInStorage,
-  deleteLinkFromStorage
-} from './storage/localStorageService';
-import {
-  isAliasInUseInSupabase,
-  getLinkFromSupabase,
-  incrementClickCountInSupabase,
-  getLinksFromSupabase,
-  deleteLinkFromSupabase
-} from './storage/supabaseService';
 
-// Check if an alias is already in use (both Supabase and localStorage)
-const isAliasInUse = async (alias: string): Promise<boolean> => {
-  // First check Supabase for authenticated users
-  const inSupabase = await isAliasInUseInSupabase(alias);
-  if (inSupabase) return true;
-  
-  // Then check localStorage for non-authenticated users
-  return isAliasInUseInStorage(alias);
+export interface LinkItem {
+  id: string;
+  originalUrl: string;
+  shortUrl: string;
+  createdAt: string;
+  clicks: number;
+}
+
+// For simplicity, we'll use localStorage to store link data
+const LOCAL_STORAGE_KEY = 'linky_shortened_urls';
+const BASE_URL = window.location.origin;
+
+// Generate a random alphanumeric string for short URLs
+const generateRandomAlias = (length = 6) => {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+};
+
+// Check if an alias is already in use
+const isAliasInUse = (alias: string): boolean => {
+  const links = getLinksFromStorage();
+  return links.some(link => {
+    const path = new URL(link.shortUrl).pathname.slice(1);
+    return path === alias;
+  });
+};
+
+// Get all links from localStorage
+const getLinksFromStorage = (): LinkItem[] => {
+  const storedLinks = localStorage.getItem(LOCAL_STORAGE_KEY);
+  return storedLinks ? JSON.parse(storedLinks) : [];
+};
+
+// Save links to localStorage
+const saveLinksToStorage = (links: LinkItem[]): void => {
+  localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(links));
+};
+
+// Create a redirect page for the short URL
+const createRedirectPage = (originalUrl: string, id: string): string => {
+  // In a real implementation, this would create a server-side redirect
+  // For this demo, we'll use a client-side redirect using the ID as the path
+  return `${BASE_URL}/r/${id}`;
 };
 
 export const urlServices = {
@@ -35,12 +57,12 @@ export const urlServices = {
     const id = customAlias || generateRandomAlias();
     
     // Check if custom alias is already in use
-    if (customAlias && await isAliasInUse(customAlias)) {
+    if (customAlias && isAliasInUse(customAlias)) {
       throw new Error('This custom alias is already in use. Please choose another one.');
     }
     
     // Create the short URL
-    const shortUrl = `${getBaseUrl()}/r/${id}`;
+    const shortUrl = `${BASE_URL}/r/${id}`;
     
     // Create a new link item
     const newLink: LinkItem = {
@@ -66,43 +88,38 @@ export const urlServices = {
   
   // Get a link by its ID
   getLink: async (id: string): Promise<LinkItem | null> => {
-    // First check Supabase for authenticated users
-    const supabaseLink = await getLinkFromSupabase(id);
-    if (supabaseLink) return supabaseLink;
+    const links = getLinksFromStorage();
+    const link = links.find(link => {
+      const path = new URL(link.shortUrl).pathname.slice(3); // Remove '/r/'
+      return path === id;
+    });
     
-    // Then check localStorage for non-authenticated users
-    return getLinkFromStorage(id);
+    return link || null;
   },
   
   // Increment click count for a link
   incrementClickCount: async (id: string): Promise<void> => {
-    // First try to increment in Supabase for authenticated users
-    await incrementClickCountInSupabase(id);
+    const links = getLinksFromStorage();
+    const updatedLinks = links.map(link => {
+      const path = new URL(link.shortUrl).pathname.slice(3); // Remove '/r/'
+      if (path === id) {
+        return { ...link, clicks: link.clicks + 1 };
+      }
+      return link;
+    });
     
-    // Then try to increment in localStorage for non-authenticated users
-    incrementClickCountInStorage(id);
+    saveLinksToStorage(updatedLinks);
   },
   
   // Get all links for history
   getLinkHistory: async (): Promise<LinkItem[]> => {
-    // For authenticated users, merge links from Supabase and localStorage
-    const supabaseLinks = await getLinksFromSupabase();
-    
-    if (supabaseLinks.length > 0) {
-      // Return links from Supabase if available
-      return supabaseLinks;
-    }
-    
-    // Fallback to localStorage for non-authenticated users
     return getLinksFromStorage();
   },
   
   // Delete a link
   deleteLink: async (id: string): Promise<void> => {
-    // First try to delete from Supabase for authenticated users
-    await deleteLinkFromSupabase(id);
-    
-    // Then try to delete from localStorage for non-authenticated users
-    deleteLinkFromStorage(id);
+    const links = getLinksFromStorage();
+    const updatedLinks = links.filter(link => link.id !== id);
+    saveLinksToStorage(updatedLinks);
   }
 };

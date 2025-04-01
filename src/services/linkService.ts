@@ -1,11 +1,8 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { useUser } from "@clerk/clerk-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useIncrementUsage } from "./usage";
-import { setupSupabaseSession } from "./clerkSupabaseAuth";
-
-// Use the LinkItem type from the new location
-import { LinkItem } from "@/lib/types/linkTypes";
+import { useIncrementUsage } from "./usageService";
 
 // Types
 export interface LinkData {
@@ -51,9 +48,6 @@ export const useCreateLink = () => {
       if (!user?.id) throw new Error('User not authenticated');
       
       try {
-        // Use our utility function
-        await setupSupabaseSession(user);
-        
         // First increment usage counters and check limits
         await incrementUsage.mutateAsync({ 
           type: 'link', 
@@ -99,11 +93,7 @@ export const useCreateLink = () => {
           .select()
           .single();
         
-        if (error) {
-          console.error('Error creating link:', error);
-          throw error;
-        }
-        
+        if (error) throw error;
         return data;
       } catch (error) {
         // If there's an error after incrementing usage, we should revert the usage increment
@@ -126,22 +116,14 @@ export const useUserLinks = () => {
     queryFn: async (): Promise<LinkData[]> => {
       if (!user?.id) return [];
       
-      try {
-        // Use our utility function
-        await setupSupabaseSession(user);
-        
-        const { data, error } = await supabase
-          .from('links')
-          .select('*')
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false });
-        
-        if (error) throw error;
-        return data || [];
-      } catch (error) {
-        console.error('Error fetching links:', error);
-        return [];
-      }
+      const { data, error } = await supabase
+        .from('links')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data || [];
     },
     enabled: !!user?.id,
   });
@@ -150,39 +132,28 @@ export const useUserLinks = () => {
 // Hook to increment click count for a link
 export const useIncrementLinkClicks = () => {
   const queryClient = useQueryClient();
-  const { user } = useUser();
   
   return useMutation({
     mutationFn: async (linkId: string) => {
-      if (!user?.id) throw new Error('User not authenticated');
+      const { data, error } = await supabase
+        .from('links')
+        .select('clicks')
+        .eq('id', linkId)
+        .single();
       
-      try {
-        // Use our utility function
-        await setupSupabaseSession(user);
-        
-        const { data, error } = await supabase
-          .from('links')
-          .select('clicks')
-          .eq('id', linkId)
-          .single();
-        
-        if (error) throw error;
-        
-        const newClicks = (data.clicks || 0) + 1;
-        
-        const { data: updatedLink, error: updateError } = await supabase
-          .from('links')
-          .update({ clicks: newClicks })
-          .eq('id', linkId)
-          .select()
-          .single();
-        
-        if (updateError) throw updateError;
-        return updatedLink;
-      } catch (error) {
-        console.error('Error incrementing clicks:', error);
-        throw error;
-      }
+      if (error) throw error;
+      
+      const newClicks = (data.clicks || 0) + 1;
+      
+      const { data: updatedLink, error: updateError } = await supabase
+        .from('links')
+        .update({ clicks: newClicks })
+        .eq('id', linkId)
+        .select()
+        .single();
+      
+      if (updateError) throw updateError;
+      return updatedLink;
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['links'] });

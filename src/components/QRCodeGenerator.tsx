@@ -4,28 +4,24 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from 'sonner';
 import { Download, QrCode, Loader2 } from 'lucide-react';
-import { useIncrementUsage } from '@/services/usage';
+import { useIncrementUsage } from '@/services/usageService';
 import { useUser } from '@clerk/clerk-react';
 
 interface QRCodeGeneratorProps {
   url: string;
-  isQrCodeGenerated?: boolean;
 }
 
-const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ url, isQrCodeGenerated = false }) => {
+const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ url }) => {
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const incrementUsage = useIncrementUsage();
   const { isSignedIn } = useUser();
   
   useEffect(() => {
-    // If QR code was already generated for this link, generate it immediately
-    if (url && isQrCodeGenerated) {
-      const encodedUrl = encodeURIComponent(url);
-      const qrCodeApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodedUrl}`;
-      setQrCodeUrl(qrCodeApiUrl);
+    if (url) {
+      generateQRCode();
     }
-  }, [url, isQrCodeGenerated]);
+  }, [url]);
   
   const generateQRCode = async () => {
     if (!url) {

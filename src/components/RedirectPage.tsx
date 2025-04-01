@@ -2,8 +2,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 import { Loader2 } from 'lucide-react';
-import { urlServices } from '@/lib/urlServices';
 
 const RedirectPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -21,22 +21,42 @@ const RedirectPage: React.FC = () => {
     const fetchLink = async () => {
       try {
         setIsLoading(true);
+        const baseUrl = window.location.origin;
+        const shortUrl = `${baseUrl}/r/${id}`;
         
-        // Try to get the link using urlServices
-        const link = await urlServices.getLink(id);
+        // First try to find by short_url
+        let { data: link } = await supabase
+          .from('links')
+          .select('*')
+          .eq('short_url', shortUrl)
+          .maybeSingle();
+        
+        // If not found, try to find by custom_backhalf
+        if (!link) {
+          const { data: customLink } = await supabase
+            .from('links')
+            .select('*')
+            .eq('custom_backhalf', id)
+            .maybeSingle();
+          
+          link = customLink;
+        }
         
         if (link) {
-          setOriginalUrl(link.originalUrl);
+          setOriginalUrl(link.original_url);
           
           // Increment click count
-          await urlServices.incrementClickCount(id);
+          await supabase
+            .from('links')
+            .update({ clicks: (link.clicks || 0) + 1 })
+            .eq('id', link.id);
           
           // Start countdown for redirect
           const timer = setInterval(() => {
             setCountdown(prev => {
               if (prev <= 1) {
                 clearInterval(timer);
-                window.location.href = link.originalUrl;
+                window.location.href = link.original_url;
                 return 0;
               }
               return prev - 1;
@@ -91,45 +111,26 @@ const RedirectPage: React.FC = () => {
   
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
-      {isLoading ? (
-        <div className="text-center">
-          <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-brand-blue" />
-          <h1 className="text-2xl font-bold mb-2">Looking for your link...</h1>
-          <p className="text-muted-foreground">Please wait while we find your destination.</p>
+      <div className="max-w-md w-full p-6 bg-card shadow-lg rounded-lg text-center">
+        <h1 className="text-2xl font-bold mb-4">Redirecting you...</h1>
+        <p className="mb-6 text-muted-foreground">
+          You'll be redirected to {originalUrl} in {countdown} seconds.
+        </p>
+        <div className="w-full bg-muted rounded-full h-2 mb-6">
+          <div
+            className="bg-primary h-2 rounded-full transition-all duration-1000"
+            style={{ width: `${((3 - countdown) / 3) * 100}%` }}
+          ></div>
         </div>
-      ) : originalUrl ? (
-        <div className="max-w-md w-full p-6 bg-card shadow-lg rounded-lg text-center">
-          <h1 className="text-2xl font-bold mb-4">Redirecting you...</h1>
-          <p className="mb-6 text-muted-foreground">
-            You'll be redirected to {originalUrl} in {countdown} seconds.
-          </p>
-          <div className="w-full bg-muted rounded-full h-2 mb-6">
-            <div
-              className="bg-primary h-2 rounded-full transition-all duration-1000"
-              style={{ width: `${((3 - countdown) / 3) * 100}%` }}
-            ></div>
-          </div>
-          <div className="flex justify-center">
-            <a
-              href={originalUrl}
-              className="text-primary hover:underline"
-            >
-              Click here if you're not redirected automatically
-            </a>
-          </div>
-        </div>
-      ) : (
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-2">Link not found</h1>
-          <p className="text-muted-foreground mb-4">The requested link does not exist or has expired.</p>
-          <button 
-            onClick={() => navigate('/')}
-            className="px-4 py-2 bg-brand-blue text-white rounded-md hover:bg-brand-blue/90"
+        <div className="flex justify-center">
+          <a
+            href={originalUrl}
+            className="text-primary hover:underline"
           >
-            Go Home
-          </button>
+            Click here if you're not redirected automatically
+          </a>
         </div>
-      )}
+      </div>
     </div>
   );
 };
