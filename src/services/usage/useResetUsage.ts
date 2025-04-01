@@ -32,7 +32,7 @@ export const useResetUsage = () => {
         
         if (error) throw error;
         return data;
-      } catch (error: any) {
+      } catch (error) {
         console.error('Error resetting usage:', error);
         toast.error(error.message || 'Failed to reset usage stats');
         throw error;

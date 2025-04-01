@@ -1,9 +1,8 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { useUser } from "@clerk/clerk-react";
 
 // Get JWT token for the current user
-export const getClerkToken = async (user: any) => {
+export const getClerkToken = async (user) => {
   if (!user?.id) {
     throw new Error('User not authenticated');
   }
@@ -30,7 +29,7 @@ export const getClerkToken = async (user: any) => {
 }
 
 // Setup Supabase session with Clerk token
-export const setupSupabaseSession = async (user: any) => {
+export const setupSupabaseSession = async (user) => {
   if (!user?.id) {
     throw new Error('User not authenticated');
   }
@@ -41,7 +40,7 @@ export const setupSupabaseSession = async (user: any) => {
     // For development purposes, we'll use a custom auth approach
     // This is a simplified demo implementation
     const { data, error } = await supabase.auth.signInWithPassword({
-      email: `${user.id}@example.com`,
+      email: `user-${user.id.slice(0, 8)}@example.com`, // Using a valid email format
       password: user.id,
     });
     
@@ -50,7 +49,7 @@ export const setupSupabaseSession = async (user: any) => {
       if (error.message.includes('Invalid login credentials')) {
         // Create a user in Supabase
         const { error: signUpError } = await supabase.auth.signUp({
-          email: `${user.id}@example.com`,
+          email: `user-${user.id.slice(0, 8)}@example.com`, // Using a valid email format
           password: user.id,
         });
         
@@ -61,7 +60,7 @@ export const setupSupabaseSession = async (user: any) => {
         
         // Try signing in again
         const { error: retryError } = await supabase.auth.signInWithPassword({
-          email: `${user.id}@example.com`,
+          email: `user-${user.id.slice(0, 8)}@example.com`, // Using a valid email format
           password: user.id,
         });
         
