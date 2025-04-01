@@ -7,14 +7,27 @@ import LinkTable from './LinkTable';
 import EmptyLinkHistory from './EmptyLinkHistory';
 import LoadingState from './LoadingState';
 import { LinkItem } from '@/lib/types/linkTypes';
+import { Input } from "@/components/ui/input";
+import { Search } from 'lucide-react';
+
+type SortField = 'createdAt' | 'clicks' | null;
+type SortOrder = 'asc' | 'desc';
 
 const LinkHistory: React.FC = () => {
   const [linkHistory, setLinkHistory] = useState<LinkItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortField, setSortField] = useState<SortField>(null);
+  const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
+  const [filteredLinks, setFilteredLinks] = useState<LinkItem[]>([]);
   
   useEffect(() => {
     loadLinkHistory();
   }, []);
+  
+  useEffect(() => {
+    filterAndSortLinks();
+  }, [linkHistory, searchQuery, sortField, sortOrder]);
   
   const loadLinkHistory = async () => {
     try {
@@ -39,6 +52,46 @@ const LinkHistory: React.FC = () => {
     }
   };
   
+  const filterAndSortLinks = () => {
+    let filtered = [...linkHistory];
+    
+    // Apply search filter
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(link => 
+        link.originalUrl.toLowerCase().includes(query) || 
+        link.shortUrl.toLowerCase().includes(query)
+      );
+    }
+    
+    // Apply sorting
+    if (sortField) {
+      filtered.sort((a, b) => {
+        if (sortField === 'createdAt') {
+          const dateA = new Date(a.createdAt).getTime();
+          const dateB = new Date(b.createdAt).getTime();
+          return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+        } else if (sortField === 'clicks') {
+          return sortOrder === 'asc' ? a.clicks - b.clicks : b.clicks - a.clicks;
+        }
+        return 0;
+      });
+    }
+    
+    setFilteredLinks(filtered);
+  };
+  
+  const handleSort = (field: SortField) => {
+    if (field === sortField) {
+      // Toggle sort order if same field is clicked
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      // Set new field and default to descending order
+      setSortField(field);
+      setSortOrder('desc');
+    }
+  };
+  
   if (loading) {
     return <LoadingState />;
   }
@@ -54,9 +107,24 @@ const LinkHistory: React.FC = () => {
         <CardDescription>
           View and manage all your shortened links
         </CardDescription>
+        <div className="relative mt-4">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+          <Input 
+            placeholder="Search links..." 
+            className="pl-10"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
       </CardHeader>
       <CardContent>
-        <LinkTable linkHistory={linkHistory} onDeleteLink={deleteLink} />
+        <LinkTable 
+          linkHistory={filteredLinks} 
+          onDeleteLink={deleteLink}
+          onSort={handleSort}
+          sortField={sortField}
+          sortOrder={sortOrder}
+        />
       </CardContent>
     </Card>
   );
