@@ -15,7 +15,7 @@ const LinkShortener: React.FC = () => {
   const [customAlias, setCustomAlias] = useState('');
   const [shortenedUrl, setShortenedUrl] = useState('');
   const [copied, setCopied] = useState(false);
-  const { isSignedIn, isLoaded } = useUser();
+  const { isSignedIn, isLoaded, user } = useUser();
   const navigate = useNavigate();
   
   const createLink = useCreateLink();
@@ -46,11 +46,14 @@ const LinkShortener: React.FC = () => {
     }
     
     try {
+      console.log('Creating link with:', { originalUrl: url, customBackhalf: customAlias });
+      
       const newLink = await createLink.mutateAsync({
         originalUrl: url,
         customBackhalf: customAlias || undefined
       });
       
+      console.log('Link created:', newLink);
       setShortenedUrl(newLink.short_url);
       toast.success('Link shortened successfully!');
     } catch (error: any) {
@@ -123,11 +126,14 @@ const LinkShortener: React.FC = () => {
           </div>
           
           <Button 
-            type="button" 
+            type="submit" 
             className="w-full bg-gradient-to-r from-brand-blue via-brand-purple to-brand-pink hover:opacity-90 transition-opacity"
-            onClick={navigateToPricing}
           >
-            Create a secure short link
+            {createLink.isPending ? (
+              <>Creating...</>
+            ) : (
+              <>Create a secure short link</>
+            )}
           </Button>
           
           {shortenedUrl && (
@@ -172,4 +178,3 @@ const LinkShortener: React.FC = () => {
 };
 
 export default LinkShortener;
-

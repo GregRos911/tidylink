@@ -46,6 +46,7 @@ export const useUserUsage = () => {
         
         // If no usage record exists, create one
         if (!data) {
+          console.log('No usage record found, creating one...');
           const { data: newUsage, error: insertError } = await supabase
             .from('usage')
             .insert([{ 
@@ -112,15 +113,26 @@ export const useIncrementUsage = () => {
       if (!user?.id) throw new Error('User not authenticated');
       
       try {
+        console.log(`Incrementing ${type} usage for user ${user.id}`);
+        
         // Get current usage
-        const { data: currentUsage } = await supabase
+        const { data: currentUsage, error: usageError } = await supabase
           .from('usage')
           .select('*')
           .eq('user_id', user.id)
           .maybeSingle();
         
+        console.log('Current usage:', currentUsage);
+        console.log('Usage error:', usageError);
+        
+        if (usageError) {
+          console.error('Error fetching usage:', usageError);
+          throw usageError;
+        }
+        
         if (!currentUsage) {
           // Create new usage record if it doesn't exist
+          console.log('Creating new usage record');
           const { data, error } = await supabase
             .from('usage')
             .insert([
@@ -135,7 +147,10 @@ export const useIncrementUsage = () => {
             .select()
             .single();
           
-          if (error) throw error;
+          if (error) {
+            console.error('Error creating usage record:', error);
+            throw error;
+          }
           return data;
         }
         
@@ -159,6 +174,8 @@ export const useIncrementUsage = () => {
         if (type === 'qrCode') updates.qr_codes_used = (currentUsage.qr_codes_used || 0) + 1;
         if (customBackHalf) updates.custom_backhalves_used = (currentUsage.custom_backhalves_used || 0) + 1;
         
+        console.log('Updating usage with:', updates);
+        
         const { data, error } = await supabase
           .from('usage')
           .update(updates)
@@ -166,10 +183,15 @@ export const useIncrementUsage = () => {
           .select()
           .single();
         
-        if (error) throw error;
+        if (error) {
+          console.error('Error updating usage:', error);
+          throw error;
+        }
+        
+        console.log('Updated usage:', data);
         return data;
       } catch (error: any) {
-        console.error('Error updating usage:', error);
+        console.error('Error in incrementUsage:', error);
         toast.error(error.message || 'Failed to update usage limits');
         throw error;
       }
