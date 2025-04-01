@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { User } from "@clerk/clerk-react";
 
 // Get JWT token for the current user
-export const getClerkToken = async (user: User): Promise<string> {
+export const getClerkToken = async (user: User) => {
   if (!user?.id) {
     throw new Error('User not authenticated');
   }
@@ -15,7 +15,7 @@ export const getClerkToken = async (user: User): Promise<string> {
 }
 
 // Setup Supabase session with Clerk token
-export const setupSupabaseSession = async (user: User): Promise<void> {
+export const setupSupabaseSession = async (user: User) => {
   if (!user?.id) {
     throw new Error('User not authenticated');
   }
