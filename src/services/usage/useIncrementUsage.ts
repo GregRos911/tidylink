@@ -22,7 +22,7 @@ export const useIncrementUsage = () => {
       
       try {
         // Get JWT token from Clerk
-        const token = await user.getToken();
+        const token = await user.sessionIds[0];
         
         // Set the auth token for this request
         const { error: sessionError } = await supabase.auth.setSession({

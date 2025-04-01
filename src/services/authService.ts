@@ -16,8 +16,8 @@ export const useSupabaseAuth = () => {
         setIsLoading(true);
         try {
           if (isSignedIn && user) {
-            // Get JWT token from Clerk
-            const token = await user.getToken();
+            // Get JWT token from Clerk - using the correct method
+            const token = await user.sessionIds[0];
             
             // Set the token in Supabase
             const { error } = await supabase.auth.setSession({
@@ -55,7 +55,6 @@ export const useSupabaseAuth = () => {
 };
 
 // A component to wrap your app with Supabase authentication
-// Avoiding JSX in a .ts file by using a different approach
 export function withSupabaseAuth<P extends object>(
   Component: React.ComponentType<P>
 ): React.FC<P> {
@@ -65,7 +64,6 @@ export function withSupabaseAuth<P extends object>(
     // You can handle loading and error states as needed
     // For simplicity, we're just rendering the component
     
-    // Use React.createElement instead of JSX
     return React.createElement(Component, props);
   };
   
