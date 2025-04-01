@@ -9,19 +9,23 @@ import { useUser } from '@clerk/clerk-react';
 
 interface QRCodeGeneratorProps {
   url: string;
+  isQrCodeGenerated?: boolean;
 }
 
-const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ url }) => {
+const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ url, isQrCodeGenerated = false }) => {
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const incrementUsage = useIncrementUsage();
   const { isSignedIn } = useUser();
   
   useEffect(() => {
-    if (url) {
-      generateQRCode();
+    // If QR code was already generated for this link, generate it immediately
+    if (url && isQrCodeGenerated) {
+      const encodedUrl = encodeURIComponent(url);
+      const qrCodeApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodedUrl}`;
+      setQrCodeUrl(qrCodeApiUrl);
     }
-  }, [url]);
+  }, [url, isQrCodeGenerated]);
   
   const generateQRCode = async () => {
     if (!url) {

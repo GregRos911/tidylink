@@ -15,6 +15,7 @@ export type Database = {
           created_at: string | null
           custom_backhalf: string | null
           id: string
+          is_qr_code_generated: boolean | null
           original_url: string
           short_url: string
           user_id: string
@@ -24,6 +25,7 @@ export type Database = {
           created_at?: string | null
           custom_backhalf?: string | null
           id?: string
+          is_qr_code_generated?: boolean | null
           original_url: string
           short_url: string
           user_id: string
@@ -33,6 +35,7 @@ export type Database = {
           created_at?: string | null
           custom_backhalf?: string | null
           id?: string
+          is_qr_code_generated?: boolean | null
           original_url?: string
           short_url?: string
           user_id?: string

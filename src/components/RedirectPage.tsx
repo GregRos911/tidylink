@@ -91,26 +91,45 @@ const RedirectPage: React.FC = () => {
   
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="max-w-md w-full p-6 bg-card shadow-lg rounded-lg text-center">
-        <h1 className="text-2xl font-bold mb-4">Redirecting you...</h1>
-        <p className="mb-6 text-muted-foreground">
-          You'll be redirected to {originalUrl} in {countdown} seconds.
-        </p>
-        <div className="w-full bg-muted rounded-full h-2 mb-6">
-          <div
-            className="bg-primary h-2 rounded-full transition-all duration-1000"
-            style={{ width: `${((3 - countdown) / 3) * 100}%` }}
-          ></div>
+      {isLoading ? (
+        <div className="text-center">
+          <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-brand-blue" />
+          <h1 className="text-2xl font-bold mb-2">Looking for your link...</h1>
+          <p className="text-muted-foreground">Please wait while we find your destination.</p>
         </div>
-        <div className="flex justify-center">
-          <a
-            href={originalUrl}
-            className="text-primary hover:underline"
+      ) : originalUrl ? (
+        <div className="max-w-md w-full p-6 bg-card shadow-lg rounded-lg text-center">
+          <h1 className="text-2xl font-bold mb-4">Redirecting you...</h1>
+          <p className="mb-6 text-muted-foreground">
+            You'll be redirected to {originalUrl} in {countdown} seconds.
+          </p>
+          <div className="w-full bg-muted rounded-full h-2 mb-6">
+            <div
+              className="bg-primary h-2 rounded-full transition-all duration-1000"
+              style={{ width: `${((3 - countdown) / 3) * 100}%` }}
+            ></div>
+          </div>
+          <div className="flex justify-center">
+            <a
+              href={originalUrl}
+              className="text-primary hover:underline"
+            >
+              Click here if you're not redirected automatically
+            </a>
+          </div>
+        </div>
+      ) : (
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-2">Link not found</h1>
+          <p className="text-muted-foreground mb-4">The requested link does not exist or has expired.</p>
+          <button 
+            onClick={() => navigate('/')}
+            className="px-4 py-2 bg-brand-blue text-white rounded-md hover:bg-brand-blue/90"
           >
-            Click here if you're not redirected automatically
-          </a>
+            Go Home
+          </button>
         </div>
-      </div>
+      )}
     </div>
   );
 };

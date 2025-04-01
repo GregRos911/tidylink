@@ -8,6 +8,7 @@ export interface LinkItem {
   shortUrl: string;
   createdAt: string;
   clicks: number;
+  isQrCodeGenerated?: boolean;
 }
 
 // For simplicity, we'll use localStorage to store link data for non-authenticated users
@@ -111,7 +112,8 @@ export const urlServices = {
           originalUrl: data.original_url,
           shortUrl: data.short_url,
           createdAt: data.created_at,
-          clicks: data.clicks || 0
+          clicks: data.clicks || 0,
+          isQrCodeGenerated: data.is_qr_code_generated || false
         };
       }
     } catch (error) {
