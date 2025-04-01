@@ -24,22 +24,16 @@ const RedirectPage: React.FC = () => {
         const baseUrl = window.location.origin;
         const shortUrl = `${baseUrl}/r/${id}`;
         
-        // First try to find by short_url
-        let { data: link } = await supabase
+        // First try to find by short_url or custom_backhalf
+        const { data: link, error } = await supabase
           .from('links')
           .select('*')
-          .eq('short_url', shortUrl)
+          .or(`short_url.eq.${shortUrl},custom_backhalf.eq.${id}`)
           .maybeSingle();
         
-        // If not found, try to find by custom_backhalf
-        if (!link) {
-          const { data: customLink } = await supabase
-            .from('links')
-            .select('*')
-            .eq('custom_backhalf', id)
-            .maybeSingle();
-          
-          link = customLink;
+        if (error) {
+          console.error('Error fetching from Supabase:', error);
+          throw error;
         }
         
         if (link) {
@@ -65,6 +59,45 @@ const RedirectPage: React.FC = () => {
           
           return () => clearInterval(timer);
         } else {
+          // Check localStorage as fallback
+          const storedLinksJson = localStorage.getItem('linky_shortened_urls');
+          if (storedLinksJson) {
+            const storedLinks = JSON.parse(storedLinksJson);
+            const storedLink = storedLinks.find((link: any) => {
+              const linkPath = new URL(link.shortUrl).pathname.slice(3); // Remove '/r/'
+              return linkPath === id;
+            });
+            
+            if (storedLink) {
+              setOriginalUrl(storedLink.originalUrl);
+              
+              // Update click count in localStorage
+              const updatedLinks = storedLinks.map((link: any) => {
+                const linkPath = new URL(link.shortUrl).pathname.slice(3);
+                if (linkPath === id) {
+                  return { ...link, clicks: (link.clicks || 0) + 1 };
+                }
+                return link;
+              });
+              
+              localStorage.setItem('linky_shortened_urls', JSON.stringify(updatedLinks));
+              
+              // Start countdown for redirect
+              const timer = setInterval(() => {
+                setCountdown(prev => {
+                  if (prev <= 1) {
+                    clearInterval(timer);
+                    window.location.href = storedLink.originalUrl;
+                    return 0;
+                  }
+                  return prev - 1;
+                });
+              }, 1000);
+              
+              return () => clearInterval(timer);
+            }
+          }
+          
           toast.error('Link not found');
           navigate('/');
         }
