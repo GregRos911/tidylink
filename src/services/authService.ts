@@ -65,7 +65,7 @@ export function withSupabaseAuth<P extends object>(
     // You can handle loading and error states as needed
     // For simplicity, we're just rendering the component
     
-    return <Component {...props} />;
+    return <Component {...(props as any)} />;
   };
   
   return WithSupabaseAuthComponent;
