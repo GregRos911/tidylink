@@ -11,8 +11,8 @@ export type Database = {
     Tables: {
       links: {
         Row: {
-          clicks: number | null
-          created_at: string | null
+          clicks: number
+          created_at: string
           custom_backhalf: string | null
           id: string
           original_url: string
@@ -20,8 +20,8 @@ export type Database = {
           user_id: string
         }
         Insert: {
-          clicks?: number | null
-          created_at?: string | null
+          clicks?: number
+          created_at?: string
           custom_backhalf?: string | null
           id?: string
           original_url: string
@@ -29,8 +29,8 @@ export type Database = {
           user_id: string
         }
         Update: {
-          clicks?: number | null
-          created_at?: string | null
+          clicks?: number
+          created_at?: string
           custom_backhalf?: string | null
           id?: string
           original_url?: string
@@ -41,30 +41,30 @@ export type Database = {
       }
       usage: {
         Row: {
-          created_at: string | null
-          custom_backhalves_used: number | null
+          created_at: string
+          custom_backhalves_used: number
           id: string
-          last_reset: string | null
-          links_used: number | null
-          qr_codes_used: number | null
+          last_reset: string
+          links_used: number
+          qr_codes_used: number
           user_id: string
         }
         Insert: {
-          created_at?: string | null
-          custom_backhalves_used?: number | null
+          created_at?: string
+          custom_backhalves_used?: number
           id?: string
-          last_reset?: string | null
-          links_used?: number | null
-          qr_codes_used?: number | null
+          last_reset?: string
+          links_used?: number
+          qr_codes_used?: number
           user_id: string
         }
         Update: {
-          created_at?: string | null
-          custom_backhalves_used?: number | null
+          created_at?: string
+          custom_backhalves_used?: number
           id?: string
-          last_reset?: string | null
-          links_used?: number | null
-          qr_codes_used?: number | null
+          last_reset?: string
+          links_used?: number
+          qr_codes_used?: number
           user_id?: string
         }
         Relationships: []

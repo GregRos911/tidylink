@@ -11,10 +11,8 @@ export interface LinkData {
   original_url: string;
   short_url: string;
   custom_backhalf?: string;
-  title?: string;
-  clicks: number;
   created_at: string;
-  is_qr_code_generated?: boolean;
+  clicks: number;
 }
 
 // Generate a random alias for short URLs
@@ -37,12 +35,10 @@ export const useCreateLink = () => {
     mutationFn: async ({ 
       originalUrl, 
       customBackhalf,
-      title,
       generateQrCode = false
     }: { 
       originalUrl: string; 
       customBackhalf?: string;
-      title?: string;
       generateQrCode?: boolean;
     }) => {
       if (!user?.id) throw new Error('User not authenticated');
@@ -87,8 +83,7 @@ export const useCreateLink = () => {
             original_url: originalUrl,
             short_url: shortUrl,
             custom_backhalf: customBackhalf || null,
-            title: title || null,
-            is_qr_code_generated: generateQrCode
+            clicks: 0
           }])
           .select()
           .single();
