@@ -1,5 +1,6 @@
 
 import { v4 as uuidv4 } from 'uuid';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface LinkItem {
   id: string;
@@ -9,7 +10,8 @@ export interface LinkItem {
   clicks: number;
 }
 
-// For simplicity, we'll use localStorage to store link data
+// For simplicity, we'll use localStorage to store link data for non-authenticated users
+// and Supabase for authenticated users
 const LOCAL_STORAGE_KEY = 'linky_shortened_urls';
 const BASE_URL = window.location.origin;
 
@@ -24,7 +26,21 @@ const generateRandomAlias = (length = 6) => {
 };
 
 // Check if an alias is already in use
-const isAliasInUse = (alias: string): boolean => {
+const isAliasInUse = async (alias: string): Promise<boolean> => {
+  // First check Supabase for authenticated users
+  try {
+    const { data } = await supabase
+      .from('links')
+      .select('id')
+      .eq('custom_backhalf', alias)
+      .maybeSingle();
+    
+    if (data) return true;
+  } catch (error) {
+    console.error('Error checking alias in Supabase:', error);
+  }
+  
+  // Then check localStorage for non-authenticated users
   const links = getLinksFromStorage();
   return links.some(link => {
     const path = new URL(link.shortUrl).pathname.slice(1);
@@ -57,7 +73,7 @@ export const urlServices = {
     const id = customAlias || generateRandomAlias();
     
     // Check if custom alias is already in use
-    if (customAlias && isAliasInUse(customAlias)) {
+    if (customAlias && await isAliasInUse(customAlias)) {
       throw new Error('This custom alias is already in use. Please choose another one.');
     }
     
@@ -88,6 +104,28 @@ export const urlServices = {
   
   // Get a link by its ID
   getLink: async (id: string): Promise<LinkItem | null> => {
+    // First check Supabase for authenticated users
+    try {
+      const { data } = await supabase
+        .from('links')
+        .select('*')
+        .or(`short_url.ilike.%/r/${id},custom_backhalf.eq.${id}`)
+        .maybeSingle();
+      
+      if (data) {
+        return {
+          id: data.id,
+          originalUrl: data.original_url,
+          shortUrl: data.short_url,
+          createdAt: data.created_at,
+          clicks: data.clicks || 0
+        };
+      }
+    } catch (error) {
+      console.error('Error getting link from Supabase:', error);
+    }
+    
+    // Then check localStorage for non-authenticated users
     const links = getLinksFromStorage();
     const link = links.find(link => {
       const path = new URL(link.shortUrl).pathname.slice(3); // Remove '/r/'
@@ -99,6 +137,26 @@ export const urlServices = {
   
   // Increment click count for a link
   incrementClickCount: async (id: string): Promise<void> => {
+    // First try to increment in Supabase for authenticated users
+    try {
+      const { data } = await supabase
+        .from('links')
+        .select('id, clicks')
+        .or(`short_url.ilike.%/r/${id},custom_backhalf.eq.${id}`)
+        .maybeSingle();
+      
+      if (data) {
+        await supabase
+          .from('links')
+          .update({ clicks: (data.clicks || 0) + 1 })
+          .eq('id', data.id);
+        return;
+      }
+    } catch (error) {
+      console.error('Error incrementing click count in Supabase:', error);
+    }
+    
+    // Then try to increment in localStorage for non-authenticated users
     const links = getLinksFromStorage();
     const updatedLinks = links.map(link => {
       const path = new URL(link.shortUrl).pathname.slice(3); // Remove '/r/'
@@ -113,11 +171,46 @@ export const urlServices = {
   
   // Get all links for history
   getLinkHistory: async (): Promise<LinkItem[]> => {
+    // For authenticated users, merge links from Supabase and localStorage
+    try {
+      const { data } = await supabase
+        .from('links')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (data && data.length > 0) {
+        const supabaseLinks = data.map(item => ({
+          id: item.id,
+          originalUrl: item.original_url,
+          shortUrl: item.short_url,
+          createdAt: item.created_at,
+          clicks: item.clicks || 0
+        }));
+        
+        // Return links from Supabase if available
+        return supabaseLinks;
+      }
+    } catch (error) {
+      console.error('Error getting links from Supabase:', error);
+    }
+    
+    // Fallback to localStorage for non-authenticated users
     return getLinksFromStorage();
   },
   
   // Delete a link
   deleteLink: async (id: string): Promise<void> => {
+    // First try to delete from Supabase for authenticated users
+    try {
+      await supabase
+        .from('links')
+        .delete()
+        .eq('id', id);
+    } catch (error) {
+      console.error('Error deleting link from Supabase:', error);
+    }
+    
+    // Then try to delete from localStorage for non-authenticated users
     const links = getLinksFromStorage();
     const updatedLinks = links.filter(link => link.id !== id);
     saveLinksToStorage(updatedLinks);
