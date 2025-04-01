@@ -4,6 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2 } from 'lucide-react';
+import { urlServices } from '@/lib/urlServices';
 
 const RedirectPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -21,36 +22,22 @@ const RedirectPage: React.FC = () => {
     const fetchLink = async () => {
       try {
         setIsLoading(true);
-        const baseUrl = window.location.origin;
-        const shortUrl = `${baseUrl}/r/${id}`;
         
-        // First try to find by short_url or custom_backhalf
-        const { data: link, error } = await supabase
-          .from('links')
-          .select('*')
-          .or(`short_url.eq.${shortUrl},custom_backhalf.eq.${id}`)
-          .maybeSingle();
-        
-        if (error) {
-          console.error('Error fetching from Supabase:', error);
-          throw error;
-        }
+        // Try to get the link using urlServices
+        const link = await urlServices.getLink(id);
         
         if (link) {
-          setOriginalUrl(link.original_url);
+          setOriginalUrl(link.originalUrl);
           
           // Increment click count
-          await supabase
-            .from('links')
-            .update({ clicks: (link.clicks || 0) + 1 })
-            .eq('id', link.id);
+          await urlServices.incrementClickCount(id);
           
           // Start countdown for redirect
           const timer = setInterval(() => {
             setCountdown(prev => {
               if (prev <= 1) {
                 clearInterval(timer);
-                window.location.href = link.original_url;
+                window.location.href = link.originalUrl;
                 return 0;
               }
               return prev - 1;
@@ -59,45 +46,6 @@ const RedirectPage: React.FC = () => {
           
           return () => clearInterval(timer);
         } else {
-          // Check localStorage as fallback
-          const storedLinksJson = localStorage.getItem('linky_shortened_urls');
-          if (storedLinksJson) {
-            const storedLinks = JSON.parse(storedLinksJson);
-            const storedLink = storedLinks.find((link: any) => {
-              const linkPath = new URL(link.shortUrl).pathname.slice(3); // Remove '/r/'
-              return linkPath === id;
-            });
-            
-            if (storedLink) {
-              setOriginalUrl(storedLink.originalUrl);
-              
-              // Update click count in localStorage
-              const updatedLinks = storedLinks.map((link: any) => {
-                const linkPath = new URL(link.shortUrl).pathname.slice(3);
-                if (linkPath === id) {
-                  return { ...link, clicks: (link.clicks || 0) + 1 };
-                }
-                return link;
-              });
-              
-              localStorage.setItem('linky_shortened_urls', JSON.stringify(updatedLinks));
-              
-              // Start countdown for redirect
-              const timer = setInterval(() => {
-                setCountdown(prev => {
-                  if (prev <= 1) {
-                    clearInterval(timer);
-                    window.location.href = storedLink.originalUrl;
-                    return 0;
-                  }
-                  return prev - 1;
-                });
-              }, 1000);
-              
-              return () => clearInterval(timer);
-            }
-          }
-          
           toast.error('Link not found');
           navigate('/');
         }

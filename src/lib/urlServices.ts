@@ -59,13 +59,6 @@ const saveLinksToStorage = (links: LinkItem[]): void => {
   localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(links));
 };
 
-// Create a redirect page for the short URL
-const createRedirectPage = (originalUrl: string, id: string): string => {
-  // In a real implementation, this would create a server-side redirect
-  // For this demo, we'll use a client-side redirect using the ID as the path
-  return `${BASE_URL}/r/${id}`;
-};
-
 export const urlServices = {
   // Shorten a URL
   shortenUrl: async (originalUrl: string, customAlias?: string): Promise<string> => {
