@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from 'sonner';
 import { Download, QrCode, Loader2 } from 'lucide-react';
-import { useIncrementUsage } from '@/services/usageService';
+import { useIncrementUsage } from '@/services/usage';
 import { useUser } from '@clerk/clerk-react';
 
 interface QRCodeGeneratorProps {

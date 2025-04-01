@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { useUserUsage, FREE_PLAN_LIMITS, useResetUsage } from '@/services/usageService';
+import { useUserUsage, FREE_PLAN_LIMITS, useResetUsage } from '@/services/usage';
 import { toast } from 'sonner';
 import { Loader2, RotateCcw } from 'lucide-react';
 import { UsageStatsProps } from './types';
