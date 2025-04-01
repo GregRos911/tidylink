@@ -51,6 +51,20 @@ export const useCreateLink = () => {
       if (!user?.id) throw new Error('User not authenticated');
       
       try {
+        // Get JWT token from Clerk
+        const token = await user.getJWTToken();
+        
+        // Set the auth token for this request
+        const { error: sessionError } = await supabase.auth.setSession({
+          access_token: token,
+          refresh_token: token, // Using the same token for simplicity
+        });
+        
+        if (sessionError) {
+          console.error('Error setting session:', sessionError);
+          throw sessionError;
+        }
+        
         // First increment usage counters and check limits
         await incrementUsage.mutateAsync({ 
           type: 'link', 
@@ -123,14 +137,33 @@ export const useUserLinks = () => {
     queryFn: async (): Promise<LinkData[]> => {
       if (!user?.id) return [];
       
-      const { data, error } = await supabase
-        .from('links')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-      
-      if (error) throw error;
-      return data || [];
+      try {
+        // Get JWT token from Clerk
+        const token = await user.getJWTToken();
+        
+        // Set the auth token for this request
+        const { error: sessionError } = await supabase.auth.setSession({
+          access_token: token,
+          refresh_token: token, // Using the same token for simplicity
+        });
+        
+        if (sessionError) {
+          console.error('Error setting session:', sessionError);
+          throw sessionError;
+        }
+        
+        const { data, error } = await supabase
+          .from('links')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        return data || [];
+      } catch (error) {
+        console.error('Error fetching links:', error);
+        return [];
+      }
     },
     enabled: !!user?.id,
   });
@@ -139,28 +172,50 @@ export const useUserLinks = () => {
 // Hook to increment click count for a link
 export const useIncrementLinkClicks = () => {
   const queryClient = useQueryClient();
+  const { user } = useUser();
   
   return useMutation({
     mutationFn: async (linkId: string) => {
-      const { data, error } = await supabase
-        .from('links')
-        .select('clicks')
-        .eq('id', linkId)
-        .single();
+      if (!user?.id) throw new Error('User not authenticated');
       
-      if (error) throw error;
-      
-      const newClicks = (data.clicks || 0) + 1;
-      
-      const { data: updatedLink, error: updateError } = await supabase
-        .from('links')
-        .update({ clicks: newClicks })
-        .eq('id', linkId)
-        .select()
-        .single();
-      
-      if (updateError) throw updateError;
-      return updatedLink;
+      try {
+        // Get JWT token from Clerk
+        const token = await user.getJWTToken();
+        
+        // Set the auth token for this request
+        const { error: sessionError } = await supabase.auth.setSession({
+          access_token: token,
+          refresh_token: token, // Using the same token for simplicity
+        });
+        
+        if (sessionError) {
+          console.error('Error setting session:', sessionError);
+          throw sessionError;
+        }
+        
+        const { data, error } = await supabase
+          .from('links')
+          .select('clicks')
+          .eq('id', linkId)
+          .single();
+        
+        if (error) throw error;
+        
+        const newClicks = (data.clicks || 0) + 1;
+        
+        const { data: updatedLink, error: updateError } = await supabase
+          .from('links')
+          .update({ clicks: newClicks })
+          .eq('id', linkId)
+          .select()
+          .single();
+        
+        if (updateError) throw updateError;
+        return updatedLink;
+      } catch (error) {
+        console.error('Error incrementing clicks:', error);
+        throw error;
+      }
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['links'] });

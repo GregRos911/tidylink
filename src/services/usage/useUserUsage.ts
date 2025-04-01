@@ -14,6 +14,20 @@ export const useUserUsage = () => {
       if (!user?.id) return null;
       
       try {
+        // Get JWT token from Clerk
+        const token = await user.getJWTToken();
+        
+        // Set the auth token for this request
+        const { error: sessionError } = await supabase.auth.setSession({
+          access_token: token,
+          refresh_token: token, // Using the same token for simplicity
+        });
+        
+        if (sessionError) {
+          console.error('Error setting session:', sessionError);
+          throw sessionError;
+        }
+        
         // Try to get existing usage record
         const { data, error } = await supabase
           .from('usage')
