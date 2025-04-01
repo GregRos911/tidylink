@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '@clerk/clerk-react';
+import { useAuth, useUser } from '@clerk/clerk-react';
 import { Navigate } from 'react-router-dom';
 import { setupSupabaseSession } from '@/services/clerkSupabaseAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -10,7 +10,8 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { isSignedIn, isLoaded, user } = useAuth();
+  const { isSignedIn, isLoaded } = useAuth();
+  const { user } = useUser();
   const [isSupabaseReady, setIsSupabaseReady] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
