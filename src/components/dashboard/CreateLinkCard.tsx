@@ -8,8 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { useUserUsage, FREE_PLAN_LIMITS } from '@/services/usageService';
-import { useCreateLink } from '@/services/linkService';
+import { useUserUsage, FREE_PLAN_LIMITS } from '@/services/usage';
+import { useCreateLink } from '@/services/links';
 import { Lock } from 'lucide-react';
 
 const CreateLinkCard = () => {

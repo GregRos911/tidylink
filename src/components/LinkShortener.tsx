@@ -1,10 +1,11 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from 'sonner';
 import { Copy, Check, Link2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useCreateLink } from '@/services/linkService';
+import { useCreateLink } from '@/services/links';
 import { useUser } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
 import { useUserUsage, FREE_PLAN_LIMITS } from '@/services/usage';
