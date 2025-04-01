@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,6 +15,7 @@ import {
   TableHeader, 
   TableRow 
 } from "@/components/ui/table";
+import { LinkItem } from '@/lib/types/linkTypes';
 
 interface LinkHistoryItem {
   id: string;

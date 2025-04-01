@@ -4,6 +4,9 @@ import { useUser } from "@clerk/clerk-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useIncrementUsage } from "./usageService";
 
+// Use the LinkItem type from the new location
+import { LinkItem } from "@/lib/types/linkTypes";
+
 // Types
 export interface LinkData {
   id: string;
