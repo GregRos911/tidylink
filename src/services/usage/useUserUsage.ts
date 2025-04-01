@@ -15,7 +15,7 @@ export const useUserUsage = () => {
       
       try {
         // Get JWT token from Clerk
-        const token = await user.getJWTToken();
+        const token = await user.getToken();
         
         // Set the auth token for this request
         const { error: sessionError } = await supabase.auth.setSession({
