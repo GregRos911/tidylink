@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -27,9 +28,6 @@ import DashboardTopBar from '@/components/dashboard/DashboardTopBar';
 import { useIncrementUsage } from '@/services/usage';
 import { useUserUsage } from '@/services/usage';
 import { FREE_PLAN_LIMITS } from '@/services/usage/constants';
-import QRCodePatternThumbnail, { QRPatternType } from './QRCodePatternThumbnail';
-import QRCodeCornerThumbnail, { QRCornerType } from './QRCodeCornerThumbnail';
-import QRCodeFrameThumbnail, { QRFrameType } from './QRCodeFrameThumbnail';
 
 const QRCodeDesignPage: React.FC = () => {
   const navigate = useNavigate();
@@ -43,13 +41,13 @@ const QRCodeDesignPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('design');
   
   // QR code customization options
-  const [pattern, setPattern] = useState<QRPatternType>('square');
-  const [cornerType, setCornerType] = useState<QRCornerType>('square');
+  const [pattern, setPattern] = useState<'square' | 'rounded' | 'dot' | 'classy' | 'extra-rounded'>('square');
+  const [cornerType, setCornerType] = useState<'square' | 'rounded' | 'dot'>('square');
   const [foregroundColor, setForegroundColor] = useState('#000000');
   const [backgroundColor, setBackgroundColor] = useState('#FFFFFF');
   const [useCustomCornerColor, setUseCustomCornerColor] = useState(false);
   const [logo, setLogo] = useState<string>('');
-  const [selectedFrame, setSelectedFrame] = useState<QRFrameType>('none');
+  const [selectedFrame, setSelectedFrame] = useState<string>('none');
   const [hideBitlyLogo, setHideBitlyLogo] = useState(false);
   
   // Calculate remaining QR codes
@@ -65,27 +63,19 @@ const QRCodeDesignPage: React.FC = () => {
   }, [location]);
   
   // QR code patterns with premium indicators
-  const patterns: { value: QRPatternType; premium: boolean }[] = [
+  const patterns = [
     { value: 'square', premium: false },
-    { value: 'rounded', premium: false },
     { value: 'dot', premium: false },
-    { value: 'circle', premium: true },
+    { value: 'rounded', premium: true },
     { value: 'classy', premium: true },
     { value: 'extra-rounded', premium: true },
-    { value: 'edge-cut', premium: true },
   ];
   
   // Corner types with premium indicators
-  const cornerTypes: { value: QRCornerType; premium: boolean }[] = [
+  const cornerTypes = [
     { value: 'square', premium: false },
-    { value: 'rounded', premium: false },
     { value: 'dot', premium: false },
-    { value: 'edge-cut', premium: true },
-    { value: 'extra-rounded', premium: true },
-    { value: 'circular', premium: true },
-    { value: 'pointed', premium: true },
-    { value: 'edge-round', premium: true },
-    { value: 'fancy', premium: true },
+    { value: 'rounded', premium: true },
   ];
   
   // Color presets
@@ -101,7 +91,7 @@ const QRCodeDesignPage: React.FC = () => {
   ];
   
   // Frames with premium indicators
-  const frames: { value: QRFrameType; label: string; premium: boolean }[] = [
+  const frames = [
     { value: 'none', label: 'None', premium: false },
     { value: 'simple', label: 'Simple', premium: false },
     { value: 'rounded', label: 'Rounded', premium: false },
@@ -207,13 +197,20 @@ const QRCodeDesignPage: React.FC = () => {
                             <h3 className="font-medium mb-2">Patterns</h3>
                             <div className="flex flex-wrap gap-2">
                               {patterns.map((patternOption) => (
-                                <QRCodePatternThumbnail
+                                <div 
                                   key={patternOption.value}
-                                  type={patternOption.value}
-                                  selected={pattern === patternOption.value}
-                                  premium={patternOption.premium}
-                                  onClick={() => !patternOption.premium && setPattern(patternOption.value)}
-                                />
+                                  className={`relative w-14 h-14 border rounded cursor-pointer flex items-center justify-center
+                                    ${pattern === patternOption.value ? 'border-blue-500 border-2' : 'border-gray-300'}
+                                    ${patternOption.premium ? 'opacity-80' : ''}`}
+                                  onClick={() => !patternOption.premium && setPattern(patternOption.value as any)}
+                                >
+                                  <div className="w-8 h-8 bg-black rounded-sm"></div>
+                                  {patternOption.premium && (
+                                    <div className="absolute top-1 right-1">
+                                      <Lock className="h-4 w-4 text-gray-400" />
+                                    </div>
+                                  )}
+                                </div>
                               ))}
                               <Button variant="ghost" className="text-blue-600 flex items-center">
                                 <Plus className="h-4 w-4 mr-1" />
@@ -227,13 +224,20 @@ const QRCodeDesignPage: React.FC = () => {
                             <h3 className="font-medium mb-2">Corners</h3>
                             <div className="flex flex-wrap gap-2">
                               {cornerTypes.map((cornerOption) => (
-                                <QRCodeCornerThumbnail
+                                <div 
                                   key={cornerOption.value}
-                                  type={cornerOption.value}
-                                  selected={cornerType === cornerOption.value}
-                                  premium={cornerOption.premium}
-                                  onClick={() => !cornerOption.premium && setCornerType(cornerOption.value)}
-                                />
+                                  className={`relative w-12 h-12 border rounded cursor-pointer flex items-center justify-center
+                                    ${cornerType === cornerOption.value ? 'border-blue-500 border-2' : 'border-gray-300'}
+                                    ${cornerOption.premium ? 'opacity-80' : ''}`}
+                                  onClick={() => !cornerOption.premium && setCornerType(cornerOption.value as any)}
+                                >
+                                  <div className="w-6 h-6 border-2 border-black"></div>
+                                  {cornerOption.premium && (
+                                    <div className="absolute top-1 right-1">
+                                      <Lock className="h-3 w-3 text-gray-400" />
+                                    </div>
+                                  )}
+                                </div>
                               ))}
                             </div>
                           </div>
@@ -250,8 +254,8 @@ const QRCodeDesignPage: React.FC = () => {
                               {colorPresets.map((color) => (
                                 <div 
                                   key={color}
-                                  className={`w-10 h-10 rounded-full cursor-pointer border 
-                                    ${foregroundColor === color ? 'ring-2 ring-blue-500 ring-offset-2' : 'border-gray-200'}`}
+                                  className={`w-10 h-10 rounded-full cursor-pointer 
+                                    ${foregroundColor === color ? 'ring-2 ring-blue-500 ring-offset-2' : ''}`}
                                   style={{ backgroundColor: color }}
                                   onClick={() => handleColorPresetClick(color)}
                                 />
@@ -383,13 +387,24 @@ const QRCodeDesignPage: React.FC = () => {
                           
                           <div className="flex flex-wrap gap-2">
                             {frames.map((frame) => (
-                              <QRCodeFrameThumbnail
+                              <div 
                                 key={frame.value}
-                                type={frame.value}
-                                selected={selectedFrame === frame.value}
-                                premium={frame.premium}
+                                className={`relative w-16 h-16 border rounded cursor-pointer flex items-center justify-center
+                                  ${selectedFrame === frame.value ? 'border-blue-500 border-2' : 'border-gray-300'}
+                                  ${frame.premium ? 'opacity-80' : ''}`}
                                 onClick={() => !frame.premium && setSelectedFrame(frame.value)}
-                              />
+                              >
+                                {frame.value === 'none' ? (
+                                  <X className="h-5 w-5" />
+                                ) : (
+                                  <div className="w-10 h-10 border border-black rounded-sm"></div>
+                                )}
+                                {frame.premium && (
+                                  <div className="absolute top-1 right-1">
+                                    <Lock className="h-3 w-3 text-gray-400" />
+                                  </div>
+                                )}
+                              </div>
                             ))}
                             <Button variant="ghost" className="text-blue-600 flex items-center">
                               <Plus className="h-4 w-4 mr-1" />
@@ -450,7 +465,6 @@ const QRCodeDesignPage: React.FC = () => {
                       dotsType={pattern}
                       backgroundColor={backgroundColor}
                       foregroundColor={foregroundColor}
-                      frameType={selectedFrame}
                     />
                   </div>
                   {url && (

@@ -1,21 +1,19 @@
 
 import React, { useEffect, useRef } from 'react';
-import QRCodeStyling, { DrawType, Options } from 'qr-code-styling';
+import QRCodeStyling, { DrawType } from 'qr-code-styling';
 import { Facebook, Instagram, Github } from 'lucide-react';
-import { QRPatternType } from './QRCodePatternThumbnail';
-import { QRCornerType } from './QRCodeCornerThumbnail';
-import { QRFrameType } from './QRCodeFrameThumbnail';
+
+type QRCodeCornerType = 'square' | 'rounded' | 'dot';
+type QRCodeDotsType = 'square' | 'rounded' | 'dot' | 'classy' | 'extra-rounded';
 
 interface QRCodePreviewProps {
   url: string;
   size?: number;
   logo?: string;
-  cornerType?: QRCornerType;
-  dotsType?: QRPatternType;
+  cornerType?: QRCodeCornerType;
+  dotsType?: QRCodeDotsType;
   backgroundColor?: string;
   foregroundColor?: string;
-  frameType?: QRFrameType;
-  frameText?: string;
 }
 
 const QRCodePreview: React.FC<QRCodePreviewProps> = ({
@@ -26,8 +24,6 @@ const QRCodePreview: React.FC<QRCodePreviewProps> = ({
   dotsType = 'square',
   backgroundColor = '#FFFFFF',
   foregroundColor = '#000000',
-  frameType = 'none',
-  frameText = 'SCAN ME',
 }) => {
   const qrRef = useRef<HTMLDivElement>(null);
   const qrCode = useRef<QRCodeStyling | null>(null);
@@ -41,14 +37,14 @@ const QRCodePreview: React.FC<QRCodePreviewProps> = ({
     }
 
     // Convert string types to DrawType
-    const cornerTypeValue = getCornerType(cornerType);
-    const dotsTypeValue = getDotsType(dotsType);
+    const cornerTypeValue = cornerType as DrawType;
+    const dotsTypeValue = dotsType as DrawType;
 
     // Base options
-    const options: Options = {
+    const options: any = {
       width: size,
       height: size,
-      data: url || 'https://example.com',
+      data: url,
       dotsOptions: {
         color: foregroundColor,
         type: dotsTypeValue,
@@ -60,50 +56,39 @@ const QRCodePreview: React.FC<QRCodePreviewProps> = ({
       backgroundOptions: {
         color: backgroundColor,
       },
-      imageOptions: {
-        crossOrigin: 'anonymous',
-        margin: 5,
-      },
     };
-
-    // Handle frame if specified
-    if (frameType !== 'none') {
-      options.frameOptions = {
-        style: getFrameStyle(frameType),
-        text: frameText || 'SCAN ME',
-        textColor: foregroundColor,
-        backgroundColor: backgroundColor,
-        borderColor: foregroundColor,
-        borderWidth: 1,
-      };
-    }
 
     // Handle different logo types
     if (logo) {
-      // For social media icons (would use placeholders in real implementation)
+      // For social media icons, we'd ideally use SVGs or images
+      // This is a simplified approach for the demo
       if (logo === 'instagram' || logo === 'facebook' || logo === 'github') {
-        // Use placeholders for these icons since we can't directly use SVGs
-        // In a real implementation, we'd have actual image URLs for these icons
+        // In a real implementation, you'd use actual image URLs for these logos
         const logoPlaceholder = 'https://via.placeholder.com/150';
+        
+        options.imageOptions = {
+          crossOrigin: 'anonymous',
+          margin: 5,
+        };
         options.image = logoPlaceholder;
       } else if (logo.startsWith('http')) {
         // For uploaded images or URLs
+        options.imageOptions = {
+          crossOrigin: 'anonymous',
+          margin: 5,
+        };
         options.image = logo;
       }
     }
 
-    try {
-      // Create new QR code
-      if (!qrCode.current) {
-        qrCode.current = new QRCodeStyling(options);
-        qrCode.current.append(qrRef.current);
-      } else {
-        qrCode.current.update(options);
-      }
-    } catch (error) {
-      console.error('Error generating QR code:', error);
+    // Create new QR code
+    if (!qrCode.current) {
+      qrCode.current = new QRCodeStyling(options);
+      qrCode.current.append(qrRef.current);
+    } else {
+      qrCode.current.update(options);
     }
-  }, [url, size, logo, cornerType, dotsType, backgroundColor, foregroundColor, frameType, frameText]);
+  }, [url, size, logo, cornerType, dotsType, backgroundColor, foregroundColor]);
 
   // Render the logo placeholder in the center for the preview
   const renderLogoPlaceholder = () => {
@@ -146,61 +131,6 @@ const QRCodePreview: React.FC<QRCodePreviewProps> = ({
     }
     
     return null;
-  };
-
-  // Helper function to convert corner type to compatible QR styling type
-  const getCornerType = (type: QRCornerType): DrawType => {
-    switch (type) {
-      case 'dot':
-        return 'dot';
-      case 'rounded':
-        return 'rounded';
-      case 'edge-cut':
-      case 'extra-rounded':
-        return 'extra-rounded';
-      case 'circular':
-        return 'dot';
-      case 'pointed':
-      case 'edge-round':
-      case 'fancy':
-        return 'rounded'; // Fallback for types not directly supported
-      default:
-        return 'square';
-    }
-  };
-
-  // Helper function to convert dots type to compatible QR styling type
-  const getDotsType = (type: QRPatternType): DrawType => {
-    switch (type) {
-      case 'dot':
-        return 'dot';
-      case 'rounded':
-        return 'rounded';
-      case 'classy':
-        return 'classy';
-      case 'extra-rounded':
-        return 'extra-rounded';
-      case 'circle':
-        return 'dot'; // Close approximation
-      case 'edge-cut':
-        return 'classy'; // Close approximation
-      default:
-        return 'square';
-    }
-  };
-
-  // Helper function to convert frame type to compatible QR styling frame style
-  const getFrameStyle = (type: QRFrameType): 'standard' | 'circle' | 'rounded' => {
-    switch (type) {
-      case 'rounded':
-        return 'rounded';
-      case 'scan-me-bottom':
-      case 'scan-me-top':
-      case 'scan-me-fancy':
-        return 'standard';
-      default:
-        return 'standard';
-    }
   };
 
   return (
