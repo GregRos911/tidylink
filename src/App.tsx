@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -15,6 +14,7 @@ import SignUp from "./pages/SignUp";
 import RedirectPage from "./components/RedirectPage";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
+import QRCodeDesignPage from "./pages/QRCodeDesignPage";
 
 const queryClient = new QueryClient();
 
@@ -47,6 +47,11 @@ const App = () => (
           <Route path="/qr-codes" element={
             <ProtectedRoute>
               <QRCodePage />
+            </ProtectedRoute>
+          } />
+          <Route path="/qr-design" element={
+            <ProtectedRoute>
+              <QRCodeDesignPage />
             </ProtectedRoute>
           } />
           <Route path="/links" element={

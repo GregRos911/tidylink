@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useUser } from '@clerk/clerk-react';
 import { toast } from 'sonner';
 import { Link, useNavigate } from 'react-router-dom';
-import { QrCode, Link as LinkIcon, Upload, ChevronRight, ArrowLeft } from 'lucide-react';
+import { QrCode, Link as LinkIcon, Upload, ChevronRight, ArrowLeft, Palette } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -60,19 +60,44 @@ const QRCodePage: React.FC = () => {
         if (linkResult) {
           // Use the short URL for the QR code
           setGeneratedQRCodeUrl(linkResult.short_url);
+          
+          // Show option to customize QR code
+          toast.success('QR code created! Would you like to customize it?', {
+            action: {
+              label: 'Customize',
+              onClick: () => navigate('/qr-design', { state: { url: linkResult.short_url } })
+            }
+          });
         }
       } else {
         // Just increment QR code usage and use the original URL
         await incrementUsage.mutateAsync({ type: 'qrCode' });
         setGeneratedQRCodeUrl(originalUrl);
+        
+        // Show option to customize QR code
+        toast.success('QR code created! Would you like to customize it?', {
+          action: {
+            label: 'Customize',
+            onClick: () => navigate('/qr-design', { state: { url: originalUrl } })
+          }
+        });
       }
       
-      toast.success('QR code created successfully!');
     } catch (error: any) {
       console.error('Error creating QR code:', error);
       toast.error(error.message || 'Failed to create QR code');
     } finally {
       setIsLoading(false);
+    }
+  };
+  
+  const handleCustomizeQRCode = () => {
+    if (generatedQRCodeUrl) {
+      navigate('/qr-design', { state: { url: generatedQRCodeUrl } });
+    } else if (originalUrl) {
+      navigate('/qr-design', { state: { url: originalUrl } });
+    } else {
+      navigate('/qr-design');
     }
   };
   
@@ -110,10 +135,10 @@ const QRCodePage: React.FC = () => {
                       <QrCode className="h-4 w-4" />
                       Configure code
                     </TabsTrigger>
-                    <TabsTrigger value="customize" className="flex items-center gap-2" disabled>
+                    <TabsTrigger value="customize" className="flex items-center gap-2" onClick={handleCustomizeQRCode}>
                       <div className="flex items-center gap-1">
+                        <Palette className="h-4 w-4" />
                         Customize design
-                        <span className="text-xs bg-brand-blue text-white px-1 rounded ml-1">Pro</span>
                       </div>
                     </TabsTrigger>
                   </TabsList>
@@ -212,17 +237,6 @@ const QRCodePage: React.FC = () => {
                       </Button>
                     </div>
                   </TabsContent>
-                  
-                  <TabsContent value="customize">
-                    <Card>
-                      <CardContent className="pt-6">
-                        <h2 className="text-xl font-bold">Customize Your QR Code</h2>
-                        <p className="text-muted-foreground mb-4">
-                          This feature is available on paid plans only.
-                        </p>
-                      </CardContent>
-                    </Card>
-                  </TabsContent>
                 </Tabs>
               </div>
               
@@ -241,9 +255,17 @@ const QRCodePage: React.FC = () => {
                     />
                   </div>
                   {generatedQRCodeUrl && (
-                    <div className="mt-4">
+                    <div className="mt-4 space-y-2">
                       <Button className="w-full" onClick={() => window.open(generatedQRCodeUrl, '_blank')}>
                         View QR Code
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        className="w-full flex items-center justify-center gap-2"
+                        onClick={handleCustomizeQRCode}
+                      >
+                        <Palette className="h-4 w-4" />
+                        Customize Design
                       </Button>
                     </div>
                   )}

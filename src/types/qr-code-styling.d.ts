@@ -67,6 +67,15 @@ declare module 'qr-code-styling' {
         }>;
       };
     };
+    frameOptions?: {
+      style?: 'standard' | 'circle' | 'rounded';
+      text?: string;
+      textColor?: string;
+      backgroundColor?: string;
+      borderColor?: string;
+      borderWidth?: number;
+      hideCorners?: boolean;
+    };
   }
 
   interface FileExtension {
@@ -80,5 +89,6 @@ declare module 'qr-code-styling' {
     append(element: HTMLElement): void;
     download(options?: { name?: string; extension?: string }): void;
     update(options: Partial<Options>): void;
+    exportImage(type?: string): Promise<string>;
   }
 }
