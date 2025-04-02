@@ -29,6 +29,205 @@ import { useIncrementUsage } from '@/services/usage';
 import { useUserUsage } from '@/services/usage';
 import { FREE_PLAN_LIMITS } from '@/services/usage/constants';
 
+// Pattern thumbnails component
+const PatternThumbnail = ({ type, selected, premium, onClick }: { 
+  type: string; 
+  selected: boolean; 
+  premium: boolean;
+  onClick: () => void;
+}) => {
+  const renderPattern = () => {
+    // Create a simplified QR pattern based on type
+    switch (type) {
+      case 'square':
+        return (
+          <div className="grid grid-cols-3 gap-[2px]">
+            {[...Array(9)].map((_, i) => (
+              <div key={i} className={`h-2 w-2 ${i % 2 === 0 ? 'bg-black' : 'bg-transparent'}`}></div>
+            ))}
+          </div>
+        );
+      case 'dot':
+        return (
+          <div className="grid grid-cols-3 gap-[2px]">
+            {[...Array(9)].map((_, i) => (
+              <div key={i} className={`h-2 w-2 rounded-full ${i % 2 === 0 ? 'bg-black' : 'bg-transparent'}`}></div>
+            ))}
+          </div>
+        );
+      case 'rounded':
+        return (
+          <div className="grid grid-cols-3 gap-[2px]">
+            {[...Array(9)].map((_, i) => (
+              <div key={i} className={`h-2 w-2 rounded-sm ${i % 2 === 0 ? 'bg-black' : 'bg-transparent'}`}></div>
+            ))}
+          </div>
+        );
+      case 'classy':
+        return (
+          <div className="grid grid-cols-3 gap-[2px]">
+            {[...Array(9)].map((_, i) => (
+              <div key={i} className={`h-2 w-2 ${i % 2 === 0 ? 'bg-black' : 'bg-transparent'} ${i % 3 === 0 ? 'rounded-tl-sm rounded-br-sm' : ''}`}></div>
+            ))}
+          </div>
+        );
+      case 'extra-rounded':
+        return (
+          <div className="grid grid-cols-3 gap-[2px]">
+            {[...Array(9)].map((_, i) => (
+              <div key={i} className={`h-2 w-2 rounded-lg ${i % 2 === 0 ? 'bg-black' : 'bg-transparent'}`}></div>
+            ))}
+          </div>
+        );
+      default:
+        return (
+          <div className="grid grid-cols-3 gap-[2px]">
+            {[...Array(9)].map((_, i) => (
+              <div key={i} className={`h-2 w-2 ${i % 2 === 0 ? 'bg-black' : 'bg-transparent'}`}></div>
+            ))}
+          </div>
+        );
+    }
+  };
+
+  return (
+    <div 
+      className={`relative w-14 h-14 border rounded cursor-pointer flex items-center justify-center
+        ${selected ? 'border-blue-500 border-2' : 'border-gray-300'}
+        ${premium ? 'opacity-80' : ''}`}
+      onClick={onClick}
+    >
+      <div className="flex items-center justify-center">
+        {renderPattern()}
+      </div>
+      {premium && (
+        <div className="absolute top-1 right-1">
+          <Lock className="h-4 w-4 text-gray-400" />
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Corner type thumbnail component
+const CornerThumbnail = ({ type, selected, premium, onClick }: { 
+  type: string; 
+  selected: boolean; 
+  premium: boolean;
+  onClick: () => void;
+}) => {
+  const renderCorner = () => {
+    switch (type) {
+      case 'square':
+        return (
+          <div className="h-6 w-6 border-2 border-black"></div>
+        );
+      case 'dot':
+        return (
+          <div className="h-6 w-6 border-2 border-black rounded-full"></div>
+        );
+      case 'rounded':
+        return (
+          <div className="h-6 w-6 border-2 border-black rounded-md"></div>
+        );
+      default:
+        return (
+          <div className="h-6 w-6 border-2 border-black"></div>
+        );
+    }
+  };
+
+  return (
+    <div 
+      className={`relative w-12 h-12 border rounded cursor-pointer flex items-center justify-center
+        ${selected ? 'border-blue-500 border-2' : 'border-gray-300'}
+        ${premium ? 'opacity-80' : ''}`}
+      onClick={onClick}
+    >
+      {renderCorner()}
+      {premium && (
+        <div className="absolute top-1 right-1">
+          <Lock className="h-3 w-3 text-gray-400" />
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Frame thumbnail component
+const FrameThumbnail = ({ value, selected, premium, onClick }: { 
+  value: string;
+  selected: boolean; 
+  premium: boolean;
+  onClick: () => void;
+}) => {
+  const renderFrame = () => {
+    switch (value) {
+      case 'none':
+        return (
+          <X className="h-5 w-5" />
+        );
+      case 'simple':
+        return (
+          <div className="w-10 h-10 p-1 border border-black">
+            <div className="bg-gray-300 w-full h-full"></div>
+          </div>
+        );
+      case 'rounded':
+        return (
+          <div className="w-10 h-10 p-1 border border-black rounded-lg">
+            <div className="bg-gray-300 w-full h-full rounded"></div>
+          </div>
+        );
+      case 'scan-me-bottom':
+        return (
+          <div className="w-10 h-12 flex flex-col">
+            <div className="w-10 h-8 border border-black">
+              <div className="bg-gray-300 w-full h-full"></div>
+            </div>
+            <div className="text-[6px] mt-1 text-center font-bold">SCAN ME</div>
+          </div>
+        );
+      case 'scan-me-fancy':
+        return (
+          <div className="w-10 h-10 p-1 border border-black relative">
+            <div className="bg-gray-300 w-full h-full"></div>
+            <div className="absolute -bottom-2 left-0 right-0 text-[6px] text-center bg-white font-bold">SCAN</div>
+          </div>
+        );
+      case 'scan-me-top':
+        return (
+          <div className="w-10 h-12 flex flex-col">
+            <div className="text-[6px] mb-1 text-center font-bold">SCAN ME</div>
+            <div className="w-10 h-8 border border-black">
+              <div className="bg-gray-300 w-full h-full"></div>
+            </div>
+          </div>
+        );
+      default:
+        return (
+          <div className="w-10 h-10 border border-black rounded-sm"></div>
+        );
+    }
+  };
+
+  return (
+    <div 
+      className={`relative w-16 h-16 border rounded cursor-pointer flex items-center justify-center
+        ${selected ? 'border-blue-500 border-2' : 'border-gray-300'}
+        ${premium ? 'opacity-80' : ''}`}
+      onClick={onClick}
+    >
+      {renderFrame()}
+      {premium && (
+        <div className="absolute top-1 right-1">
+          <Lock className="h-3 w-3 text-gray-400" />
+        </div>
+      )}
+    </div>
+  );
+};
+
 const QRCodeDesignPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -197,20 +396,13 @@ const QRCodeDesignPage: React.FC = () => {
                             <h3 className="font-medium mb-2">Patterns</h3>
                             <div className="flex flex-wrap gap-2">
                               {patterns.map((patternOption) => (
-                                <div 
+                                <PatternThumbnail
                                   key={patternOption.value}
-                                  className={`relative w-14 h-14 border rounded cursor-pointer flex items-center justify-center
-                                    ${pattern === patternOption.value ? 'border-blue-500 border-2' : 'border-gray-300'}
-                                    ${patternOption.premium ? 'opacity-80' : ''}`}
+                                  type={patternOption.value}
+                                  selected={pattern === patternOption.value}
+                                  premium={patternOption.premium}
                                   onClick={() => !patternOption.premium && setPattern(patternOption.value as any)}
-                                >
-                                  <div className="w-8 h-8 bg-black rounded-sm"></div>
-                                  {patternOption.premium && (
-                                    <div className="absolute top-1 right-1">
-                                      <Lock className="h-4 w-4 text-gray-400" />
-                                    </div>
-                                  )}
-                                </div>
+                                />
                               ))}
                               <Button variant="ghost" className="text-blue-600 flex items-center">
                                 <Plus className="h-4 w-4 mr-1" />
@@ -224,20 +416,13 @@ const QRCodeDesignPage: React.FC = () => {
                             <h3 className="font-medium mb-2">Corners</h3>
                             <div className="flex flex-wrap gap-2">
                               {cornerTypes.map((cornerOption) => (
-                                <div 
+                                <CornerThumbnail
                                   key={cornerOption.value}
-                                  className={`relative w-12 h-12 border rounded cursor-pointer flex items-center justify-center
-                                    ${cornerType === cornerOption.value ? 'border-blue-500 border-2' : 'border-gray-300'}
-                                    ${cornerOption.premium ? 'opacity-80' : ''}`}
+                                  type={cornerOption.value}
+                                  selected={cornerType === cornerOption.value}
+                                  premium={cornerOption.premium}
                                   onClick={() => !cornerOption.premium && setCornerType(cornerOption.value as any)}
-                                >
-                                  <div className="w-6 h-6 border-2 border-black"></div>
-                                  {cornerOption.premium && (
-                                    <div className="absolute top-1 right-1">
-                                      <Lock className="h-3 w-3 text-gray-400" />
-                                    </div>
-                                  )}
-                                </div>
+                                />
                               ))}
                             </div>
                           </div>
@@ -387,24 +572,13 @@ const QRCodeDesignPage: React.FC = () => {
                           
                           <div className="flex flex-wrap gap-2">
                             {frames.map((frame) => (
-                              <div 
+                              <FrameThumbnail
                                 key={frame.value}
-                                className={`relative w-16 h-16 border rounded cursor-pointer flex items-center justify-center
-                                  ${selectedFrame === frame.value ? 'border-blue-500 border-2' : 'border-gray-300'}
-                                  ${frame.premium ? 'opacity-80' : ''}`}
+                                value={frame.value}
+                                selected={selectedFrame === frame.value}
+                                premium={frame.premium}
                                 onClick={() => !frame.premium && setSelectedFrame(frame.value)}
-                              >
-                                {frame.value === 'none' ? (
-                                  <X className="h-5 w-5" />
-                                ) : (
-                                  <div className="w-10 h-10 border border-black rounded-sm"></div>
-                                )}
-                                {frame.premium && (
-                                  <div className="absolute top-1 right-1">
-                                    <Lock className="h-3 w-3 text-gray-400" />
-                                  </div>
-                                )}
-                              </div>
+                              />
                             ))}
                             <Button variant="ghost" className="text-blue-600 flex items-center">
                               <Plus className="h-4 w-4 mr-1" />

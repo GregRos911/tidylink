@@ -44,7 +44,7 @@ const QRCodePreview: React.FC<QRCodePreviewProps> = ({
     const options: any = {
       width: size,
       height: size,
-      data: url,
+      data: url || 'https://example.com',
       dotsOptions: {
         color: foregroundColor,
         type: dotsTypeValue,
@@ -56,37 +56,35 @@ const QRCodePreview: React.FC<QRCodePreviewProps> = ({
       backgroundOptions: {
         color: backgroundColor,
       },
+      imageOptions: {
+        crossOrigin: 'anonymous',
+        margin: 5,
+      },
     };
 
     // Handle different logo types
     if (logo) {
-      // For social media icons, we'd ideally use SVGs or images
-      // This is a simplified approach for the demo
+      // For social media icons
       if (logo === 'instagram' || logo === 'facebook' || logo === 'github') {
-        // In a real implementation, you'd use actual image URLs for these logos
+        // Use placeholders for these icons since we can't directly use SVGs
         const logoPlaceholder = 'https://via.placeholder.com/150';
-        
-        options.imageOptions = {
-          crossOrigin: 'anonymous',
-          margin: 5,
-        };
         options.image = logoPlaceholder;
       } else if (logo.startsWith('http')) {
         // For uploaded images or URLs
-        options.imageOptions = {
-          crossOrigin: 'anonymous',
-          margin: 5,
-        };
         options.image = logo;
       }
     }
 
-    // Create new QR code
-    if (!qrCode.current) {
-      qrCode.current = new QRCodeStyling(options);
-      qrCode.current.append(qrRef.current);
-    } else {
-      qrCode.current.update(options);
+    try {
+      // Create new QR code
+      if (!qrCode.current) {
+        qrCode.current = new QRCodeStyling(options);
+        qrCode.current.append(qrRef.current);
+      } else {
+        qrCode.current.update(options);
+      }
+    } catch (error) {
+      console.error('Error generating QR code:', error);
     }
   }, [url, size, logo, cornerType, dotsType, backgroundColor, foregroundColor]);
 
