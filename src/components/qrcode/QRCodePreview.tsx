@@ -41,7 +41,7 @@ const QRCodePreview: React.FC<QRCodePreviewProps> = ({
     const dotsTypeValue = dotsType as DrawType;
 
     // Base options
-    const options = {
+    const options: any = {
       width: size,
       height: size,
       data: url,
@@ -59,8 +59,6 @@ const QRCodePreview: React.FC<QRCodePreviewProps> = ({
     };
 
     // Handle different logo types
-    let fullOptions = { ...options };
-    
     if (logo) {
       // For social media icons, we'd ideally use SVGs or images
       // This is a simplified approach for the demo
@@ -68,33 +66,27 @@ const QRCodePreview: React.FC<QRCodePreviewProps> = ({
         // In a real implementation, you'd use actual image URLs for these logos
         const logoPlaceholder = 'https://via.placeholder.com/150';
         
-        fullOptions = {
-          ...options,
-          image: logoPlaceholder,
-          imageOptions: {
-            crossOrigin: 'anonymous',
-            margin: 5,
-          },
+        options.imageOptions = {
+          crossOrigin: 'anonymous',
+          margin: 5,
         };
+        options.image = logoPlaceholder;
       } else if (logo.startsWith('http')) {
         // For uploaded images or URLs
-        fullOptions = {
-          ...options,
-          image: logo,
-          imageOptions: {
-            crossOrigin: 'anonymous',
-            margin: 5,
-          },
+        options.imageOptions = {
+          crossOrigin: 'anonymous',
+          margin: 5,
         };
+        options.image = logo;
       }
     }
 
     // Create new QR code
     if (!qrCode.current) {
-      qrCode.current = new QRCodeStyling(fullOptions);
+      qrCode.current = new QRCodeStyling(options);
       qrCode.current.append(qrRef.current);
     } else {
-      qrCode.current.update(fullOptions);
+      qrCode.current.update(options);
     }
   }, [url, size, logo, cornerType, dotsType, backgroundColor, foregroundColor]);
 
