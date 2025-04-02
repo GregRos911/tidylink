@@ -9,6 +9,7 @@ import HistoryPage from "./pages/HistoryPage";
 import PricingPage from "./pages/PricingPage";
 import DashboardPage from "./pages/DashboardPage";
 import ProfilePage from "./pages/ProfilePage";
+import QRCodePage from "./pages/QRCodePage";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import RedirectPage from "./components/RedirectPage";
@@ -43,14 +44,14 @@ const App = () => (
               <DashboardPage />
             </ProtectedRoute>
           } />
+          <Route path="/qr-codes" element={
+            <ProtectedRoute>
+              <QRCodePage />
+            </ProtectedRoute>
+          } />
           <Route path="/links" element={
             <ProtectedRoute>
               <HistoryPage />
-            </ProtectedRoute>
-          } />
-          <Route path="/qr-codes" element={
-            <ProtectedRoute>
-              <DashboardPage />
             </ProtectedRoute>
           } />
           <Route path="/settings" element={

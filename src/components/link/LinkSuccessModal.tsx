@@ -8,7 +8,7 @@ import {
   DialogClose
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Copy, ExternalLink, X } from 'lucide-react';
+import { Copy, ExternalLink, QrCode, X } from 'lucide-react';
 import { toast } from 'sonner';
 import SocialShareButtons from './SocialShareButtons';
 import { useNavigate } from 'react-router-dom';
@@ -50,6 +50,11 @@ const LinkSuccessModal: React.FC<LinkSuccessModalProps> = ({
     onClose();
   };
   
+  const createQRCode = () => {
+    navigate('/qr-codes');
+    onClose();
+  };
+  
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-md">
@@ -72,7 +77,7 @@ const LinkSuccessModal: React.FC<LinkSuccessModalProps> = ({
               {displayUrl}
             </p>
             
-            <div className="flex gap-2 justify-center">
+            <div className="flex flex-wrap gap-2 justify-center">
               <Button 
                 variant="outline" 
                 className="flex items-center gap-2" 
@@ -80,6 +85,14 @@ const LinkSuccessModal: React.FC<LinkSuccessModalProps> = ({
               >
                 <ExternalLink className="h-4 w-4" />
                 View link details
+              </Button>
+              <Button 
+                variant="outline"
+                className="flex items-center gap-2" 
+                onClick={createQRCode}
+              >
+                <QrCode className="h-4 w-4" />
+                Create QR code
               </Button>
               <Button 
                 className="flex items-center gap-2" 
