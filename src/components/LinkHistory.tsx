@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import { useUserLinks } from '@/services/links';
 import LinkHistoryEmpty from './linkHistory/LinkHistoryEmpty';
 import LinkHistoryLoading from './linkHistory/LinkHistoryLoading';
-import LinkHistoryTable from './linkHistory/LinkHistoryTable';
+import LinkCard from './linkHistory/LinkCard';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
@@ -16,7 +16,7 @@ interface LinkHistoryProps {
 
 const LinkHistory: React.FC<LinkHistoryProps> = ({ searchQuery = '' }) => {
   const [currentPage, setCurrentPage] = useState(0);
-  const itemsPerPage = 10;
+  const itemsPerPage = 12; // Show more items per page for card layout
   const queryClient = useQueryClient();
   
   const { data: links, isLoading, isError } = useUserLinks({
@@ -71,18 +71,9 @@ const LinkHistory: React.FC<LinkHistoryProps> = ({ searchQuery = '' }) => {
     return <LinkHistoryEmpty />;
   }
   
-  // Format links for the table
-  const formattedLinks = filteredLinks.map(link => ({
-    id: link.id,
-    originalUrl: link.original_url,
-    shortUrl: link.short_url,
-    createdAt: link.created_at,
-    clicks: link.clicks
-  }));
-  
   return (
     <>
-      <Card className="w-full shadow-md">
+      <Card className="w-full shadow-md mb-6">
         <CardHeader className="pb-0">
           <CardTitle className="text-2xl">Your Link History</CardTitle>
           <CardDescription>
@@ -90,10 +81,19 @@ const LinkHistory: React.FC<LinkHistoryProps> = ({ searchQuery = '' }) => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <LinkHistoryTable 
-            linkHistory={formattedLinks} 
-            onDeleteLink={deleteLink} 
-          />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredLinks.map(link => (
+              <LinkCard
+                key={link.id}
+                id={link.id}
+                originalUrl={link.original_url}
+                shortUrl={link.short_url}
+                createdAt={link.created_at}
+                clicks={link.clicks}
+                onDelete={deleteLink}
+              />
+            ))}
+          </div>
         </CardContent>
       </Card>
       

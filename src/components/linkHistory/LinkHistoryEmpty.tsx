@@ -15,7 +15,7 @@ const LinkHistoryEmpty: React.FC = () => {
         <p className="text-muted-foreground mb-6 max-w-md">
           Start shortening URLs to see your history here. Create your first TidyLink to begin tracking clicks and sharing.
         </p>
-        <Link to="/">
+        <Link to="/dashboard">
           <Button>Create Your First Short Link</Button>
         </Link>
       </div>
