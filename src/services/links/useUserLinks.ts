@@ -26,11 +26,8 @@ export const useUserLinks = () => {
         throw error;
       }
       
-      console.log('Fetched links:', data);
       return data || [];
     },
     enabled: !!user?.id,
-    staleTime: 1000 * 60, // 1 minute
-    refetchOnWindowFocus: true,
   });
 };
