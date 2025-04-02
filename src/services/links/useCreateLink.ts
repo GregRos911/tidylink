@@ -5,14 +5,16 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useIncrementUsage } from "../usage";
 import { generateRandomAlias } from "./utils";
 import type { LinkData, CreateLinkParams } from "./types";
+import { useState } from "react";
 
 // Hook to create a new short link
 export const useCreateLink = () => {
   const queryClient = useQueryClient();
   const { user } = useUser();
   const incrementUsage = useIncrementUsage();
+  const [createdLink, setCreatedLink] = useState<LinkData | null>(null);
   
-  return useMutation({
+  const mutation = useMutation({
     mutationFn: async ({ 
       originalUrl, 
       customBackhalf,
@@ -36,23 +38,40 @@ export const useCreateLink = () => {
           });
         }
         
-        // Create short URL
-        const alias = customBackhalf || generateRandomAlias();
-        const baseUrl = window.location.origin;
-        const shortUrl = `${baseUrl}/r/${alias}`;
+        // Create a unique short URL
+        let alias = customBackhalf;
+        let isUnique = false;
         
-        // Check if the custom alias is already taken
-        if (customBackhalf) {
+        if (!alias) {
+          // Generate unique random alias if no custom backhalf
+          while (!isUnique) {
+            alias = generateRandomAlias(7);
+            
+            // Check if alias already exists
+            const { data: existingLink } = await supabase
+              .from('links')
+              .select('id')
+              .eq('custom_backhalf', alias)
+              .maybeSingle();
+            
+            isUnique = !existingLink;
+          }
+        } else {
+          // Check if the custom alias is already taken
           const { data: existingLink } = await supabase
             .from('links')
             .select('id')
-            .eq('custom_backhalf', customBackhalf)
+            .eq('custom_backhalf', alias)
             .maybeSingle();
           
           if (existingLink) {
             throw new Error('This custom back-half is already in use. Please choose another one.');
           }
         }
+        
+        // Generate the short URL
+        const baseUrl = window.location.origin;
+        const shortUrl = `${baseUrl}/r/${alias}`;
         
         // Insert new link
         const { data, error } = await supabase
@@ -61,7 +80,7 @@ export const useCreateLink = () => {
             user_id: user.id,
             original_url: originalUrl,
             short_url: shortUrl,
-            custom_backhalf: customBackhalf || null,
+            custom_backhalf: alias,
             clicks: 0
           }])
           .select()
@@ -73,6 +92,10 @@ export const useCreateLink = () => {
         }
         
         console.log('Link created successfully:', data);
+        
+        // Store the created link data
+        setCreatedLink(data);
+        
         return data;
       } catch (error) {
         // If there's an error after incrementing usage, we should revert the usage increment
@@ -84,4 +107,10 @@ export const useCreateLink = () => {
       queryClient.invalidateQueries({ queryKey: ['links', user?.id] });
     }
   });
+  
+  return {
+    ...mutation,
+    createdLink,
+    clearCreatedLink: () => setCreatedLink(null)
+  };
 };
