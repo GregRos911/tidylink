@@ -18,7 +18,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -28,205 +27,9 @@ import DashboardTopBar from '@/components/dashboard/DashboardTopBar';
 import { useIncrementUsage } from '@/services/usage';
 import { useUserUsage } from '@/services/usage';
 import { FREE_PLAN_LIMITS } from '@/services/usage/constants';
-
-// Pattern thumbnails component
-const PatternThumbnail = ({ type, selected, premium, onClick }: { 
-  type: string; 
-  selected: boolean; 
-  premium: boolean;
-  onClick: () => void;
-}) => {
-  const renderPattern = () => {
-    // Create a simplified QR pattern based on type
-    switch (type) {
-      case 'square':
-        return (
-          <div className="grid grid-cols-3 gap-[2px]">
-            {[...Array(9)].map((_, i) => (
-              <div key={i} className={`h-2 w-2 ${i % 2 === 0 ? 'bg-black' : 'bg-transparent'}`}></div>
-            ))}
-          </div>
-        );
-      case 'dot':
-        return (
-          <div className="grid grid-cols-3 gap-[2px]">
-            {[...Array(9)].map((_, i) => (
-              <div key={i} className={`h-2 w-2 rounded-full ${i % 2 === 0 ? 'bg-black' : 'bg-transparent'}`}></div>
-            ))}
-          </div>
-        );
-      case 'rounded':
-        return (
-          <div className="grid grid-cols-3 gap-[2px]">
-            {[...Array(9)].map((_, i) => (
-              <div key={i} className={`h-2 w-2 rounded-sm ${i % 2 === 0 ? 'bg-black' : 'bg-transparent'}`}></div>
-            ))}
-          </div>
-        );
-      case 'classy':
-        return (
-          <div className="grid grid-cols-3 gap-[2px]">
-            {[...Array(9)].map((_, i) => (
-              <div key={i} className={`h-2 w-2 ${i % 2 === 0 ? 'bg-black' : 'bg-transparent'} ${i % 3 === 0 ? 'rounded-tl-sm rounded-br-sm' : ''}`}></div>
-            ))}
-          </div>
-        );
-      case 'extra-rounded':
-        return (
-          <div className="grid grid-cols-3 gap-[2px]">
-            {[...Array(9)].map((_, i) => (
-              <div key={i} className={`h-2 w-2 rounded-lg ${i % 2 === 0 ? 'bg-black' : 'bg-transparent'}`}></div>
-            ))}
-          </div>
-        );
-      default:
-        return (
-          <div className="grid grid-cols-3 gap-[2px]">
-            {[...Array(9)].map((_, i) => (
-              <div key={i} className={`h-2 w-2 ${i % 2 === 0 ? 'bg-black' : 'bg-transparent'}`}></div>
-            ))}
-          </div>
-        );
-    }
-  };
-
-  return (
-    <div 
-      className={`relative w-14 h-14 border rounded cursor-pointer flex items-center justify-center
-        ${selected ? 'border-blue-500 border-2' : 'border-gray-300'}
-        ${premium ? 'opacity-80' : ''}`}
-      onClick={onClick}
-    >
-      <div className="flex items-center justify-center">
-        {renderPattern()}
-      </div>
-      {premium && (
-        <div className="absolute top-1 right-1">
-          <Lock className="h-4 w-4 text-gray-400" />
-        </div>
-      )}
-    </div>
-  );
-};
-
-// Corner type thumbnail component
-const CornerThumbnail = ({ type, selected, premium, onClick }: { 
-  type: string; 
-  selected: boolean; 
-  premium: boolean;
-  onClick: () => void;
-}) => {
-  const renderCorner = () => {
-    switch (type) {
-      case 'square':
-        return (
-          <div className="h-6 w-6 border-2 border-black"></div>
-        );
-      case 'dot':
-        return (
-          <div className="h-6 w-6 border-2 border-black rounded-full"></div>
-        );
-      case 'rounded':
-        return (
-          <div className="h-6 w-6 border-2 border-black rounded-md"></div>
-        );
-      default:
-        return (
-          <div className="h-6 w-6 border-2 border-black"></div>
-        );
-    }
-  };
-
-  return (
-    <div 
-      className={`relative w-12 h-12 border rounded cursor-pointer flex items-center justify-center
-        ${selected ? 'border-blue-500 border-2' : 'border-gray-300'}
-        ${premium ? 'opacity-80' : ''}`}
-      onClick={onClick}
-    >
-      {renderCorner()}
-      {premium && (
-        <div className="absolute top-1 right-1">
-          <Lock className="h-3 w-3 text-gray-400" />
-        </div>
-      )}
-    </div>
-  );
-};
-
-// Frame thumbnail component
-const FrameThumbnail = ({ value, selected, premium, onClick }: { 
-  value: string;
-  selected: boolean; 
-  premium: boolean;
-  onClick: () => void;
-}) => {
-  const renderFrame = () => {
-    switch (value) {
-      case 'none':
-        return (
-          <X className="h-5 w-5" />
-        );
-      case 'simple':
-        return (
-          <div className="w-10 h-10 p-1 border border-black">
-            <div className="bg-gray-300 w-full h-full"></div>
-          </div>
-        );
-      case 'rounded':
-        return (
-          <div className="w-10 h-10 p-1 border border-black rounded-lg">
-            <div className="bg-gray-300 w-full h-full rounded"></div>
-          </div>
-        );
-      case 'scan-me-bottom':
-        return (
-          <div className="w-10 h-12 flex flex-col">
-            <div className="w-10 h-8 border border-black">
-              <div className="bg-gray-300 w-full h-full"></div>
-            </div>
-            <div className="text-[6px] mt-1 text-center font-bold">SCAN ME</div>
-          </div>
-        );
-      case 'scan-me-fancy':
-        return (
-          <div className="w-10 h-10 p-1 border border-black relative">
-            <div className="bg-gray-300 w-full h-full"></div>
-            <div className="absolute -bottom-2 left-0 right-0 text-[6px] text-center bg-white font-bold">SCAN</div>
-          </div>
-        );
-      case 'scan-me-top':
-        return (
-          <div className="w-10 h-12 flex flex-col">
-            <div className="text-[6px] mb-1 text-center font-bold">SCAN ME</div>
-            <div className="w-10 h-8 border border-black">
-              <div className="bg-gray-300 w-full h-full"></div>
-            </div>
-          </div>
-        );
-      default:
-        return (
-          <div className="w-10 h-10 border border-black rounded-sm"></div>
-        );
-    }
-  };
-
-  return (
-    <div 
-      className={`relative w-16 h-16 border rounded cursor-pointer flex items-center justify-center
-        ${selected ? 'border-blue-500 border-2' : 'border-gray-300'}
-        ${premium ? 'opacity-80' : ''}`}
-      onClick={onClick}
-    >
-      {renderFrame()}
-      {premium && (
-        <div className="absolute top-1 right-1">
-          <Lock className="h-3 w-3 text-gray-400" />
-        </div>
-      )}
-    </div>
-  );
-};
+import QRCodePatternThumbnail, { QRPatternType } from './QRCodePatternThumbnail';
+import QRCodeCornerThumbnail, { QRCornerType } from './QRCodeCornerThumbnail';
+import QRCodeFrameThumbnail, { QRFrameType } from './QRCodeFrameThumbnail';
 
 const QRCodeDesignPage: React.FC = () => {
   const navigate = useNavigate();
@@ -240,13 +43,13 @@ const QRCodeDesignPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('design');
   
   // QR code customization options
-  const [pattern, setPattern] = useState<'square' | 'rounded' | 'dot' | 'classy' | 'extra-rounded'>('square');
-  const [cornerType, setCornerType] = useState<'square' | 'rounded' | 'dot'>('square');
+  const [pattern, setPattern] = useState<QRPatternType>('square');
+  const [cornerType, setCornerType] = useState<QRCornerType>('square');
   const [foregroundColor, setForegroundColor] = useState('#000000');
   const [backgroundColor, setBackgroundColor] = useState('#FFFFFF');
   const [useCustomCornerColor, setUseCustomCornerColor] = useState(false);
   const [logo, setLogo] = useState<string>('');
-  const [selectedFrame, setSelectedFrame] = useState<string>('none');
+  const [selectedFrame, setSelectedFrame] = useState<QRFrameType>('none');
   const [hideBitlyLogo, setHideBitlyLogo] = useState(false);
   
   // Calculate remaining QR codes
@@ -262,19 +65,27 @@ const QRCodeDesignPage: React.FC = () => {
   }, [location]);
   
   // QR code patterns with premium indicators
-  const patterns = [
+  const patterns: { value: QRPatternType; premium: boolean }[] = [
     { value: 'square', premium: false },
+    { value: 'rounded', premium: false },
     { value: 'dot', premium: false },
-    { value: 'rounded', premium: true },
+    { value: 'circle', premium: true },
     { value: 'classy', premium: true },
     { value: 'extra-rounded', premium: true },
+    { value: 'edge-cut', premium: true },
   ];
   
   // Corner types with premium indicators
-  const cornerTypes = [
+  const cornerTypes: { value: QRCornerType; premium: boolean }[] = [
     { value: 'square', premium: false },
+    { value: 'rounded', premium: false },
     { value: 'dot', premium: false },
-    { value: 'rounded', premium: true },
+    { value: 'edge-cut', premium: true },
+    { value: 'extra-rounded', premium: true },
+    { value: 'circular', premium: true },
+    { value: 'pointed', premium: true },
+    { value: 'edge-round', premium: true },
+    { value: 'fancy', premium: true },
   ];
   
   // Color presets
@@ -290,7 +101,7 @@ const QRCodeDesignPage: React.FC = () => {
   ];
   
   // Frames with premium indicators
-  const frames = [
+  const frames: { value: QRFrameType; label: string; premium: boolean }[] = [
     { value: 'none', label: 'None', premium: false },
     { value: 'simple', label: 'Simple', premium: false },
     { value: 'rounded', label: 'Rounded', premium: false },
@@ -396,12 +207,12 @@ const QRCodeDesignPage: React.FC = () => {
                             <h3 className="font-medium mb-2">Patterns</h3>
                             <div className="flex flex-wrap gap-2">
                               {patterns.map((patternOption) => (
-                                <PatternThumbnail
+                                <QRCodePatternThumbnail
                                   key={patternOption.value}
                                   type={patternOption.value}
                                   selected={pattern === patternOption.value}
                                   premium={patternOption.premium}
-                                  onClick={() => !patternOption.premium && setPattern(patternOption.value as any)}
+                                  onClick={() => !patternOption.premium && setPattern(patternOption.value)}
                                 />
                               ))}
                               <Button variant="ghost" className="text-blue-600 flex items-center">
@@ -416,12 +227,12 @@ const QRCodeDesignPage: React.FC = () => {
                             <h3 className="font-medium mb-2">Corners</h3>
                             <div className="flex flex-wrap gap-2">
                               {cornerTypes.map((cornerOption) => (
-                                <CornerThumbnail
+                                <QRCodeCornerThumbnail
                                   key={cornerOption.value}
                                   type={cornerOption.value}
                                   selected={cornerType === cornerOption.value}
                                   premium={cornerOption.premium}
-                                  onClick={() => !cornerOption.premium && setCornerType(cornerOption.value as any)}
+                                  onClick={() => !cornerOption.premium && setCornerType(cornerOption.value)}
                                 />
                               ))}
                             </div>
@@ -439,8 +250,8 @@ const QRCodeDesignPage: React.FC = () => {
                               {colorPresets.map((color) => (
                                 <div 
                                   key={color}
-                                  className={`w-10 h-10 rounded-full cursor-pointer 
-                                    ${foregroundColor === color ? 'ring-2 ring-blue-500 ring-offset-2' : ''}`}
+                                  className={`w-10 h-10 rounded-full cursor-pointer border 
+                                    ${foregroundColor === color ? 'ring-2 ring-blue-500 ring-offset-2' : 'border-gray-200'}`}
                                   style={{ backgroundColor: color }}
                                   onClick={() => handleColorPresetClick(color)}
                                 />
@@ -572,9 +383,9 @@ const QRCodeDesignPage: React.FC = () => {
                           
                           <div className="flex flex-wrap gap-2">
                             {frames.map((frame) => (
-                              <FrameThumbnail
+                              <QRCodeFrameThumbnail
                                 key={frame.value}
-                                value={frame.value}
+                                type={frame.value}
                                 selected={selectedFrame === frame.value}
                                 premium={frame.premium}
                                 onClick={() => !frame.premium && setSelectedFrame(frame.value)}
@@ -639,6 +450,7 @@ const QRCodeDesignPage: React.FC = () => {
                       dotsType={pattern}
                       backgroundColor={backgroundColor}
                       foregroundColor={foregroundColor}
+                      frameType={selectedFrame}
                     />
                   </div>
                   {url && (
