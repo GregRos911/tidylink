@@ -1,11 +1,17 @@
 
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Copy, QrCode, Trash2, ExternalLink, BarChart } from 'lucide-react';
+import { Copy, QrCode, Trash2, ExternalLink, BarChart, Share2, Edit } from 'lucide-react';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import QRCodeGenerator from '../QRCodeGenerator';
 import { TableCell, TableRow } from "@/components/ui/table";
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
 
 interface LinkHistoryItemProps {
   id: string;
@@ -37,6 +43,21 @@ const LinkHistoryItem: React.FC<LinkHistoryItemProps> = ({
       }, 2000);
     } catch (err) {
       toast.error('Failed to copy to clipboard');
+    }
+  };
+
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Check out this link',
+          url: shortUrl
+        });
+      } catch (err) {
+        console.error('Error sharing:', err);
+      }
+    } else {
+      copyToClipboard(shortUrl);
     }
   };
   
@@ -82,6 +103,15 @@ const LinkHistoryItem: React.FC<LinkHistoryItemProps> = ({
             )}
           </Button>
           
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleShare}
+            title="Share link"
+          >
+            <Share2 className="h-4 w-4" />
+          </Button>
+          
           <Dialog>
             <DialogTrigger asChild>
               <Button
@@ -102,14 +132,25 @@ const LinkHistoryItem: React.FC<LinkHistoryItemProps> = ({
             </DialogContent>
           </Dialog>
           
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => onDelete(id)}
-            title="Delete link"
-          >
-            <Trash2 className="h-4 w-4 text-destructive" />
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+              >
+                <Edit className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem 
+                className="text-destructive focus:text-destructive"
+                onClick={() => onDelete(id)}
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </TableCell>
     </TableRow>

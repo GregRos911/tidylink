@@ -16,6 +16,7 @@ export type Database = {
           custom_backhalf: string | null
           id: string
           original_url: string
+          qr_code_design_id: string | null
           short_url: string
           user_id: string
         }
@@ -25,6 +26,7 @@ export type Database = {
           custom_backhalf?: string | null
           id?: string
           original_url: string
+          qr_code_design_id?: string | null
           short_url: string
           user_id: string
         }
@@ -34,7 +36,67 @@ export type Database = {
           custom_backhalf?: string | null
           id?: string
           original_url?: string
+          qr_code_design_id?: string | null
           short_url?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "links_qr_code_design_id_fkey"
+            columns: ["qr_code_design_id"]
+            isOneToOne: false
+            referencedRelation: "qr_code_designs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      qr_code_designs: {
+        Row: {
+          background_color: string
+          center_icon: string | null
+          corner_color: string | null
+          corner_style: string
+          created_at: string
+          custom_text: string | null
+          foreground_color: string
+          frame_style: string | null
+          id: string
+          logo_url: string | null
+          name: string
+          pattern: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          background_color?: string
+          center_icon?: string | null
+          corner_color?: string | null
+          corner_style?: string
+          created_at?: string
+          custom_text?: string | null
+          foreground_color?: string
+          frame_style?: string | null
+          id?: string
+          logo_url?: string | null
+          name: string
+          pattern?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          background_color?: string
+          center_icon?: string | null
+          corner_color?: string | null
+          corner_style?: string
+          created_at?: string
+          custom_text?: string | null
+          foreground_color?: string
+          frame_style?: string | null
+          id?: string
+          logo_url?: string | null
+          name?: string
+          pattern?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
