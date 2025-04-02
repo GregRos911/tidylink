@@ -45,7 +45,7 @@ const App = () => (
           } />
           <Route path="/links" element={
             <ProtectedRoute>
-              <DashboardPage />
+              <HistoryPage />
             </ProtectedRoute>
           } />
           <Route path="/qr-codes" element={

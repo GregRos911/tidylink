@@ -42,9 +42,10 @@ const LinkSuccessModal: React.FC<LinkSuccessModalProps> = ({
   
   const viewLinkDetails = () => {
     if (linkId) {
-      navigate(`/links/${linkId}`);
+      // Navigate to history page instead of specific link details page
+      navigate('/history');
     } else {
-      navigate('/links');
+      navigate('/history');
     }
     onClose();
   };
