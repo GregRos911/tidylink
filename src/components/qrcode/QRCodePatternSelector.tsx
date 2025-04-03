@@ -20,6 +20,14 @@ const QRCodePatternSelector: React.FC<QRCodePatternSelectorProps> = ({
   setPattern,
   patterns,
 }) => {
+  // Create a simple cache for failed images to avoid excessive error logging
+  const [failedImages, setFailedImages] = React.useState<Set<string>>(new Set());
+
+  const handleImageError = (imageUrl: string) => {
+    console.log(`Using fallback for failed image: ${imageUrl}`);
+    setFailedImages(prev => new Set(prev).add(imageUrl));
+  };
+
   return (
     <div>
       <h3 className="font-medium mb-2">Patterns</h3>
@@ -38,16 +46,16 @@ const QRCodePatternSelector: React.FC<QRCodePatternSelectorProps> = ({
             >
               {template ? (
                 <div className="w-11 h-11 flex items-center justify-center overflow-hidden">
-                  <img 
-                    src={template.image} 
-                    alt={`Pattern ${patternOption.value}`}
-                    className="max-w-full max-h-full object-contain"
-                    onError={(e) => {
-                      console.error(`Failed to load image: ${template.image}`);
-                      e.currentTarget.style.display = 'none';
-                      e.currentTarget.parentElement!.innerHTML = '<div class="w-8 h-8 bg-black rounded-sm"></div>';
-                    }}
-                  />
+                  {failedImages.has(template.image) ? (
+                    <div className="w-8 h-8 bg-black rounded-sm"></div>
+                  ) : (
+                    <img 
+                      src={template.image} 
+                      alt={`Pattern ${patternOption.value}`}
+                      className="max-w-full max-h-full object-contain"
+                      onError={() => handleImageError(template.image)}
+                    />
+                  )}
                 </div>
               ) : (
                 <div className="w-8 h-8 bg-black rounded-sm"></div>

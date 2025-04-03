@@ -31,6 +31,7 @@ const QRCodePreview: React.FC<QRCodePreviewProps> = ({
   const qrRef = useRef<HTMLDivElement>(null);
   const qrCode = useRef<QRCodeStyling | null>(null);
   const [isUsingTemplate, setIsUsingTemplate] = useState<boolean>(false);
+  const [templateImageFailed, setTemplateImageFailed] = useState<boolean>(false);
 
   useEffect(() => {
     if (!qrRef.current) return;
@@ -40,25 +41,14 @@ const QRCodePreview: React.FC<QRCodePreviewProps> = ({
       qrRef.current.removeChild(qrRef.current.firstChild);
     }
 
+    // Reset failed state when dependencies change
+    setTemplateImageFailed(false);
+
     // If we're using a template ID directly
     if (templateId) {
       const template = getTemplateById(templateId);
       if (template) {
-        setIsUsingTemplate(true);
-        
-        // Create an image element
-        const img = document.createElement('img');
-        img.src = template.image;
-        img.alt = template.name;
-        img.style.width = `${size}px`;
-        img.style.height = `${size}px`;
-        img.onerror = () => {
-          console.error(`Failed to load template image: ${template.image}`);
-          // Fallback to standard QR code
-          createStandardQRCode();
-        };
-        
-        qrRef.current.appendChild(img);
+        tryLoadTemplateImage(template.image, template.name);
         return;
       }
     }
@@ -68,32 +58,38 @@ const QRCodePreview: React.FC<QRCodePreviewProps> = ({
       const patternTemplateId = `template-${dotsType}`;
       const template = getTemplateById(patternTemplateId);
       
-      if (template) {
-        setIsUsingTemplate(true);
-        
-        // Create an image element
-        const img = document.createElement('img');
-        img.src = template.image;
-        img.alt = template.name;
-        img.style.width = `${size}px`;
-        img.style.height = `${size}px`;
-        
-        // Add error handling
-        img.onerror = () => {
-          console.error(`Failed to load pattern image: ${template.image}`);
-          // Fallback to standard QR code
-          createStandardQRCode();
-        };
-        
-        qrRef.current.appendChild(img);
+      if (template && !templateImageFailed) {
+        tryLoadTemplateImage(template.image, template.name);
         return;
       }
     }
 
-    // Create standard QR code
+    // Create standard QR code as fallback
     createStandardQRCode();
 
-  }, [url, size, logo, cornerType, dotsType, backgroundColor, foregroundColor, templateId]);
+  }, [url, size, logo, cornerType, dotsType, backgroundColor, foregroundColor, templateId, templateImageFailed]);
+
+  // Function to try loading a template image
+  const tryLoadTemplateImage = (imageUrl: string, altText: string) => {
+    setIsUsingTemplate(true);
+    
+    // Create an image element
+    const img = document.createElement('img');
+    img.src = imageUrl;
+    img.alt = altText;
+    img.style.width = `${size}px`;
+    img.style.height = `${size}px`;
+    
+    // Add error handling
+    img.onerror = () => {
+      console.error(`Failed to load template image: ${imageUrl}`);
+      setTemplateImageFailed(true);
+    };
+
+    if (qrRef.current) {
+      qrRef.current.appendChild(img);
+    }
+  };
 
   // Function to create a standard QR code
   const createStandardQRCode = () => {
