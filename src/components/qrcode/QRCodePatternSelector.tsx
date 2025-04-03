@@ -37,7 +37,7 @@ const QRCodePatternSelector: React.FC<QRCodePatternSelectorProps> = ({
               onClick={() => !patternOption.premium && setPattern(patternOption.value)}
             >
               {template ? (
-                <div className="w-10 h-10 flex items-center justify-center">
+                <div className="w-11 h-11 flex items-center justify-center overflow-hidden">
                   <img 
                     src={template.image} 
                     alt={`Pattern ${patternOption.value}`}
