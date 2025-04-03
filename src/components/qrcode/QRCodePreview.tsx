@@ -1,6 +1,7 @@
+
 import React, { useEffect, useRef } from 'react';
 import { Loader2 } from 'lucide-react';
-import QRCodeStyling from 'qr-code-styling';
+import QRCodeStyling, { DrawType, Options } from 'qr-code-styling';
 
 interface QRCodePreviewProps {
   value: string;
@@ -30,18 +31,8 @@ const QRCodePreview: React.FC<QRCodePreviewProps> = ({
     if (!ref.current) return;
     
     // Map our simple design options to qr-code-styling options
-    const dotsType = design.pattern === 'dots' ? 'dots' :
-                     design.pattern === 'rounded' ? 'rounded' :
-                     design.pattern === 'classy' ? 'classy' :
-                     design.pattern === 'classy-rounded' ? 'classy-rounded' :
-                     design.pattern === 'extra-rounded' ? 'extra-rounded' :
-                     'square';
-                     
-    const cornersType = design.cornerStyle === 'rounded' ? 'rounded' :
-                       design.cornerStyle === 'dots' ? 'dots' :
-                       design.cornerStyle === 'extra-rounded' ? 'extra-rounded' :
-                       design.cornerStyle === 'circle' ? 'circle' :
-                       'square';
+    const dotsType = getDotType(design.pattern);
+    const cornersType = getCornerType(design.cornerStyle);
                        
     const logoSrc = design.logoUrl ? design.logoUrl :
                     design.centerIcon === 'facebook' ? 'https://cdn.cdnlogo.com/logos/f/83/facebook.svg' :
@@ -51,19 +42,19 @@ const QRCodePreview: React.FC<QRCodePreviewProps> = ({
                     
     // Note: In a real app, you would use actual images for these icons and logos
                     
-    const options = {
+    const options: Partial<Options> = {
       width: size,
       height: size,
       data: value,
-      type: 'svg', // svg is more flexible for styling
+      type: 'svg' as DrawType, // Explicitly cast to DrawType
       image: logoSrc ? logoSrc : undefined,
       dotsOptions: {
         color: design.foregroundColor,
-        type: dotsType
+        type: dotsType as any // Using any here as a temporary solution
       },
       cornersSquareOptions: {
         color: design.cornerColor || design.foregroundColor,
-        type: cornersType
+        type: cornersType as any // Using any here as a temporary solution
       },
       backgroundOptions: {
         color: design.backgroundColor
@@ -97,6 +88,29 @@ const QRCodePreview: React.FC<QRCodePreviewProps> = ({
       }
     };
   }, [value, design, size]);
+
+  // Helper function to get the correct dot type
+  function getDotType(pattern: string): string {
+    switch (pattern) {
+      case 'dots': return 'dots';
+      case 'rounded': return 'rounded';
+      case 'classy': return 'classy';
+      case 'classy-rounded': return 'classy-rounded';
+      case 'extra-rounded': return 'extra-rounded';
+      default: return 'square';
+    }
+  }
+
+  // Helper function to get the correct corner type
+  function getCornerType(cornerStyle: string): string {
+    switch (cornerStyle) {
+      case 'rounded': return 'rounded';
+      case 'dots': return 'dots';
+      case 'extra-rounded': return 'extra-rounded';
+      case 'circle': return 'circle';
+      default: return 'square';
+    }
+  }
   
   return (
     <div className="relative flex items-center justify-center bg-white p-4 rounded-md">
