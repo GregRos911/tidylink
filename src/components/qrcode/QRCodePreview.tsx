@@ -1,8 +1,7 @@
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import QRCodeStyling, { DrawType } from 'qr-code-styling';
 import { Facebook, Instagram, Github } from 'lucide-react';
-import { getTemplateById } from './qrCodeTemplates';
 
 type QRCodeCornerType = 'square' | 'rounded' | 'dot';
 type QRCodeDotsType = 'square' | 'rounded' | 'dot' | 'classy' | 'extra-rounded';
@@ -12,10 +11,9 @@ interface QRCodePreviewProps {
   size?: number;
   logo?: string;
   cornerType?: QRCodeCornerType;
-  dotsType?: string; // Changed to string to accept pattern values like '1', '2', etc.
+  dotsType?: QRCodeDotsType;
   backgroundColor?: string;
   foregroundColor?: string;
-  templateId?: string;
 }
 
 const QRCodePreview: React.FC<QRCodePreviewProps> = ({
@@ -26,12 +24,9 @@ const QRCodePreview: React.FC<QRCodePreviewProps> = ({
   dotsType = 'square',
   backgroundColor = '#FFFFFF',
   foregroundColor = '#000000',
-  templateId,
 }) => {
   const qrRef = useRef<HTMLDivElement>(null);
   const qrCode = useRef<QRCodeStyling | null>(null);
-  const [isUsingTemplate, setIsUsingTemplate] = useState<boolean>(false);
-  const [templateImageFailed, setTemplateImageFailed] = useState<boolean>(false);
 
   useEffect(() => {
     if (!qrRef.current) return;
@@ -41,64 +36,9 @@ const QRCodePreview: React.FC<QRCodePreviewProps> = ({
       qrRef.current.removeChild(qrRef.current.firstChild);
     }
 
-    // Reset failed state when dependencies change
-    setTemplateImageFailed(false);
-
-    // If we're using a template ID directly
-    if (templateId) {
-      const template = getTemplateById(templateId);
-      if (template) {
-        tryLoadTemplateImage(template.image, template.name);
-        return;
-      }
-    }
-    
-    // If we're using a pattern as a template (numbered patterns like '1', '2', etc.)
-    if (dotsType && !isNaN(Number(dotsType))) {
-      const patternTemplateId = `template-${dotsType}`;
-      const template = getTemplateById(patternTemplateId);
-      
-      if (template && !templateImageFailed) {
-        tryLoadTemplateImage(template.image, template.name);
-        return;
-      }
-    }
-
-    // Create standard QR code as fallback
-    createStandardQRCode();
-
-  }, [url, size, logo, cornerType, dotsType, backgroundColor, foregroundColor, templateId, templateImageFailed]);
-
-  // Function to try loading a template image
-  const tryLoadTemplateImage = (imageUrl: string, altText: string) => {
-    setIsUsingTemplate(true);
-    
-    // Create an image element
-    const img = document.createElement('img');
-    img.src = imageUrl;
-    img.alt = altText;
-    img.style.width = `${size}px`;
-    img.style.height = `${size}px`;
-    
-    // Add error handling
-    img.onerror = () => {
-      console.error(`Failed to load template image: ${imageUrl}`);
-      setTemplateImageFailed(true);
-    };
-
-    if (qrRef.current) {
-      qrRef.current.appendChild(img);
-    }
-  };
-
-  // Function to create a standard QR code
-  const createStandardQRCode = () => {
-    setIsUsingTemplate(false);
-
-    // Convert string types to DrawType for standard QR code styling
-    // If dotsType is a number (pattern ID), default to 'square'
-    const dotsTypeValue = (isNaN(Number(dotsType)) ? dotsType : 'square') as DrawType;
+    // Convert string types to DrawType
     const cornerTypeValue = cornerType as DrawType;
+    const dotsTypeValue = dotsType as DrawType;
 
     // Base options
     const options: any = {
@@ -144,15 +84,15 @@ const QRCodePreview: React.FC<QRCodePreviewProps> = ({
     // Create new QR code
     if (!qrCode.current) {
       qrCode.current = new QRCodeStyling(options);
-      qrCode.current.append(qrRef.current!);
+      qrCode.current.append(qrRef.current);
     } else {
       qrCode.current.update(options);
     }
-  };
+  }, [url, size, logo, cornerType, dotsType, backgroundColor, foregroundColor]);
 
   // Render the logo placeholder in the center for the preview
   const renderLogoPlaceholder = () => {
-    if (!logo || isUsingTemplate) return null;
+    if (!logo) return null;
     
     const logoStyle = {
       position: 'absolute' as const,
