@@ -121,7 +121,7 @@ const LinkHistory: React.FC<LinkHistoryProps> = ({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+          <div className="flex flex-col gap-4 mt-4">
             {filteredLinks.map(link => (
               <LinkCard
                 key={link.id}
