@@ -1,7 +1,8 @@
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import QRCodeStyling, { DrawType } from 'qr-code-styling';
 import { Facebook, Instagram, Github } from 'lucide-react';
+import { getTemplateById } from './qrCodeTemplates';
 
 type QRCodeCornerType = 'square' | 'rounded' | 'dot';
 type QRCodeDotsType = 'square' | 'rounded' | 'dot' | 'classy' | 'extra-rounded';
@@ -14,6 +15,7 @@ interface QRCodePreviewProps {
   dotsType?: QRCodeDotsType;
   backgroundColor?: string;
   foregroundColor?: string;
+  templateId?: string;
 }
 
 const QRCodePreview: React.FC<QRCodePreviewProps> = ({
@@ -24,9 +26,11 @@ const QRCodePreview: React.FC<QRCodePreviewProps> = ({
   dotsType = 'square',
   backgroundColor = '#FFFFFF',
   foregroundColor = '#000000',
+  templateId,
 }) => {
   const qrRef = useRef<HTMLDivElement>(null);
   const qrCode = useRef<QRCodeStyling | null>(null);
+  const [isUsingTemplate, setIsUsingTemplate] = useState<boolean>(false);
 
   useEffect(() => {
     if (!qrRef.current) return;
@@ -35,6 +39,26 @@ const QRCodePreview: React.FC<QRCodePreviewProps> = ({
     if (qrRef.current.firstChild) {
       qrRef.current.removeChild(qrRef.current.firstChild);
     }
+
+    // If we're using a template, display the template image with the URL
+    if (templateId) {
+      const template = getTemplateById(templateId);
+      if (template) {
+        setIsUsingTemplate(true);
+        
+        // Create an image element
+        const img = document.createElement('img');
+        img.src = template.image;
+        img.alt = template.name;
+        img.style.width = `${size}px`;
+        img.style.height = `${size}px`;
+        
+        qrRef.current.appendChild(img);
+        return;
+      }
+    }
+
+    setIsUsingTemplate(false);
 
     // Convert string types to DrawType
     const cornerTypeValue = cornerType as DrawType;
@@ -88,11 +112,11 @@ const QRCodePreview: React.FC<QRCodePreviewProps> = ({
     } else {
       qrCode.current.update(options);
     }
-  }, [url, size, logo, cornerType, dotsType, backgroundColor, foregroundColor]);
+  }, [url, size, logo, cornerType, dotsType, backgroundColor, foregroundColor, templateId]);
 
   // Render the logo placeholder in the center for the preview
   const renderLogoPlaceholder = () => {
-    if (!logo) return null;
+    if (!logo || isUsingTemplate) return null;
     
     const logoStyle = {
       position: 'absolute' as const,
