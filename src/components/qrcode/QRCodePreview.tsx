@@ -52,6 +52,11 @@ const QRCodePreview: React.FC<QRCodePreviewProps> = ({
         img.alt = template.name;
         img.style.width = `${size}px`;
         img.style.height = `${size}px`;
+        img.onerror = () => {
+          console.error(`Failed to load template image: ${template.image}`);
+          // Fallback to standard QR code
+          createStandardQRCode();
+        };
         
         qrRef.current.appendChild(img);
         return;
@@ -73,11 +78,25 @@ const QRCodePreview: React.FC<QRCodePreviewProps> = ({
         img.style.width = `${size}px`;
         img.style.height = `${size}px`;
         
+        // Add error handling
+        img.onerror = () => {
+          console.error(`Failed to load pattern image: ${template.image}`);
+          // Fallback to standard QR code
+          createStandardQRCode();
+        };
+        
         qrRef.current.appendChild(img);
         return;
       }
     }
 
+    // Create standard QR code
+    createStandardQRCode();
+
+  }, [url, size, logo, cornerType, dotsType, backgroundColor, foregroundColor, templateId]);
+
+  // Function to create a standard QR code
+  const createStandardQRCode = () => {
     setIsUsingTemplate(false);
 
     // Convert string types to DrawType for standard QR code styling
@@ -129,11 +148,11 @@ const QRCodePreview: React.FC<QRCodePreviewProps> = ({
     // Create new QR code
     if (!qrCode.current) {
       qrCode.current = new QRCodeStyling(options);
-      qrCode.current.append(qrRef.current);
+      qrCode.current.append(qrRef.current!);
     } else {
       qrCode.current.update(options);
     }
-  }, [url, size, logo, cornerType, dotsType, backgroundColor, foregroundColor, templateId]);
+  };
 
   // Render the logo placeholder in the center for the preview
   const renderLogoPlaceholder = () => {

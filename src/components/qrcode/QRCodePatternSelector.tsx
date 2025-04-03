@@ -37,11 +37,18 @@ const QRCodePatternSelector: React.FC<QRCodePatternSelectorProps> = ({
               onClick={() => !patternOption.premium && setPattern(patternOption.value)}
             >
               {template ? (
-                <img 
-                  src={template.image} 
-                  alt={`Pattern ${patternOption.value}`}
-                  className="w-10 h-10 object-contain"
-                />
+                <div className="w-10 h-10 flex items-center justify-center">
+                  <img 
+                    src={template.image} 
+                    alt={`Pattern ${patternOption.value}`}
+                    className="max-w-full max-h-full object-contain"
+                    onError={(e) => {
+                      console.error(`Failed to load image: ${template.image}`);
+                      e.currentTarget.style.display = 'none';
+                      e.currentTarget.parentElement!.innerHTML = '<div class="w-8 h-8 bg-black rounded-sm"></div>';
+                    }}
+                  />
+                </div>
               ) : (
                 <div className="w-8 h-8 bg-black rounded-sm"></div>
               )}
