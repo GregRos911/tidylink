@@ -2,15 +2,17 @@
 import React, { useState } from 'react';
 import Nav from '@/components/Nav';
 import LinkHistory from '@/components/LinkHistory';
-import { Link as LinkIcon, Search, Calendar, SlidersHorizontal } from 'lucide-react';
+import { Link as LinkIcon, Search, Calendar, SlidersHorizontal, QrCode } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useUser } from '@clerk/clerk-react';
 import { Input } from '@/components/ui/input';
 import { Link } from 'react-router-dom';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const HistoryPage: React.FC = () => {
   const { user } = useUser();
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState('all');
   
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -21,15 +23,23 @@ const HistoryPage: React.FC = () => {
           <div>
             <h1 className="text-3xl font-bold">Your TidyLinks</h1>
             <p className="text-muted-foreground mt-1">
-              Manage and track all your shortened links
+              Manage and track all your shortened links and QR codes
             </p>
           </div>
           
-          <Link to="/dashboard">
-            <Button className="whitespace-nowrap">
-              Create link
-            </Button>
-          </Link>
+          <div className="flex gap-2">
+            <Link to="/dashboard">
+              <Button className="whitespace-nowrap">
+                Create link
+              </Button>
+            </Link>
+            <Link to="/qr-codes">
+              <Button variant="outline" className="whitespace-nowrap flex items-center gap-1">
+                <QrCode className="h-4 w-4" />
+                Create QR code
+              </Button>
+            </Link>
+          </div>
         </div>
         
         <div className="flex flex-col md:flex-row gap-4 mb-6">
@@ -54,7 +64,15 @@ const HistoryPage: React.FC = () => {
           </Button>
         </div>
         
-        <LinkHistory searchQuery={searchQuery} />
+        <Tabs defaultValue="all" className="mb-6" onValueChange={setActiveTab}>
+          <TabsList className="w-full max-w-md mx-auto">
+            <TabsTrigger value="all" className="flex-1">All Items</TabsTrigger>
+            <TabsTrigger value="links" className="flex-1">Links</TabsTrigger>
+            <TabsTrigger value="qrcodes" className="flex-1">QR Codes</TabsTrigger>
+          </TabsList>
+        </Tabs>
+        
+        <LinkHistory searchQuery={searchQuery} filterType={activeTab} />
       </main>
       
       <footer className="bg-background border-t py-6">

@@ -9,12 +9,17 @@ import LinkCard from './linkHistory/LinkCard';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
+import { QrCode, Link } from 'lucide-react';
 
 interface LinkHistoryProps {
   searchQuery?: string;
+  filterType?: 'all' | 'links' | 'qrcodes';
 }
 
-const LinkHistory: React.FC<LinkHistoryProps> = ({ searchQuery = '' }) => {
+const LinkHistory: React.FC<LinkHistoryProps> = ({ 
+  searchQuery = '', 
+  filterType = 'all' 
+}) => {
   const [currentPage, setCurrentPage] = useState(0);
   const itemsPerPage = 12; // Show more items per page for card layout
   const queryClient = useQueryClient();
@@ -27,13 +32,24 @@ const LinkHistory: React.FC<LinkHistoryProps> = ({ searchQuery = '' }) => {
   });
   
   const filteredLinks = links?.filter(link => {
-    if (!searchQuery) return true;
-    const query = searchQuery.toLowerCase();
-    return (
-      link.original_url.toLowerCase().includes(query) || 
-      link.short_url.toLowerCase().includes(query) ||
-      (link.custom_backhalf && link.custom_backhalf.toLowerCase().includes(query))
-    );
+    // First apply search filter
+    const matchesSearch = !searchQuery || 
+      link.original_url.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      link.short_url.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (link.custom_backhalf && link.custom_backhalf.toLowerCase().includes(searchQuery.toLowerCase()));
+    
+    // Then apply type filter
+    const hasQrCode = !!link.qr_code_design_id;
+    
+    if (filterType === 'all') {
+      return matchesSearch;
+    } else if (filterType === 'links') {
+      return matchesSearch && !hasQrCode;
+    } else if (filterType === 'qrcodes') {
+      return matchesSearch && hasQrCode;
+    }
+    
+    return false;
   });
   
   const deleteLink = async (id: string) => {
@@ -68,20 +84,44 @@ const LinkHistory: React.FC<LinkHistoryProps> = ({ searchQuery = '' }) => {
   }
   
   if (!filteredLinks || filteredLinks.length === 0) {
-    return <LinkHistoryEmpty />;
+    const emptyMessage = filterType === 'qrcodes' 
+      ? "You haven't created any QR codes yet"
+      : filterType === 'links'
+      ? "You haven't created any links yet"
+      : "No links or QR codes found";
+      
+    return <LinkHistoryEmpty message={emptyMessage} />;
   }
   
   return (
     <>
       <Card className="w-full shadow-md mb-6">
         <CardHeader className="pb-0">
-          <CardTitle className="text-2xl">Your Link History</CardTitle>
+          <CardTitle className="text-2xl flex items-center gap-2">
+            {filterType === 'qrcodes' ? (
+              <>
+                <QrCode className="h-5 w-5" />
+                Your QR Codes
+              </>
+            ) : filterType === 'links' ? (
+              <>
+                <Link className="h-5 w-5" />
+                Your Link History
+              </>
+            ) : (
+              <>Your Link & QR Code History</>
+            )}
+          </CardTitle>
           <CardDescription>
-            View and manage all your shortened links
+            {filterType === 'qrcodes' 
+              ? "View and manage all your QR codes"
+              : filterType === 'links'
+              ? "View and manage all your shortened links"
+              : "View and manage all your shortened links and QR codes"}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
             {filteredLinks.map(link => (
               <LinkCard
                 key={link.id}
@@ -91,6 +131,7 @@ const LinkHistory: React.FC<LinkHistoryProps> = ({ searchQuery = '' }) => {
                 createdAt={link.created_at}
                 clicks={link.clicks}
                 onDelete={deleteLink}
+                hasQrCode={!!link.qr_code_design_id}
               />
             ))}
           </div>

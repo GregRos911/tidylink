@@ -6,7 +6,8 @@ import {
   Copy, 
   ExternalLink, 
   Share2, 
-  MoreHorizontal
+  MoreHorizontal,
+  QrCode
 } from 'lucide-react';
 import { 
   Card, 
@@ -28,6 +29,7 @@ import {
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import SocialShareButtons from '@/components/link/SocialShareButtons';
 import { useNavigate } from 'react-router-dom';
+import { Badge } from "@/components/ui/badge";
 
 interface LinkCardProps {
   id: string;
@@ -36,6 +38,7 @@ interface LinkCardProps {
   createdAt: string;
   clicks: number;
   onDelete: (id: string) => Promise<void>;
+  hasQrCode?: boolean;
 }
 
 const LinkCard: React.FC<LinkCardProps> = ({
@@ -44,7 +47,8 @@ const LinkCard: React.FC<LinkCardProps> = ({
   shortUrl,
   createdAt,
   clicks,
-  onDelete
+  onDelete,
+  hasQrCode = false
 }) => {
   const [copied, setCopied] = useState(false);
   const navigate = useNavigate();
@@ -73,6 +77,12 @@ const LinkCard: React.FC<LinkCardProps> = ({
   const viewDetails = () => {
     navigate(`/links/${id}`);
   };
+
+  const viewQrCode = () => {
+    if (hasQrCode) {
+      navigate(`/qr-codes?linkId=${id}`);
+    }
+  };
   
   return (
     <Card className="h-full hover:shadow-md transition-shadow duration-300">
@@ -89,9 +99,17 @@ const LinkCard: React.FC<LinkCardProps> = ({
               }}
             />
             <div>
-              <CardTitle className="text-base sm:text-lg font-medium line-clamp-1">
-                {title}
-              </CardTitle>
+              <div className="flex items-center gap-2">
+                <CardTitle className="text-base sm:text-lg font-medium line-clamp-1">
+                  {title}
+                </CardTitle>
+                {hasQrCode && (
+                  <Badge variant="outline" className="flex items-center gap-1 bg-brand-blue/10">
+                    <QrCode className="h-3 w-3" />
+                    <span className="text-xs">QR</span>
+                  </Badge>
+                )}
+              </div>
               <a 
                 href={shortUrl} 
                 target="_blank" 
@@ -115,6 +133,12 @@ const LinkCard: React.FC<LinkCardProps> = ({
                 <BarChart className="h-4 w-4 mr-2" />
                 View details
               </DropdownMenuItem>
+              {hasQrCode && (
+                <DropdownMenuItem onClick={viewQrCode}>
+                  <QrCode className="h-4 w-4 mr-2" />
+                  View QR code
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem onClick={() => onDelete(id)} className="text-destructive focus:text-destructive">
                 Delete link
               </DropdownMenuItem>
@@ -184,15 +208,27 @@ const LinkCard: React.FC<LinkCardProps> = ({
             </DialogContent>
           </Dialog>
           
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={viewDetails}
-            className="h-8"
-          >
-            <BarChart className="h-4 w-4 mr-1" />
-            Details
-          </Button>
+          {hasQrCode ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={viewQrCode}
+              className="h-8"
+            >
+              <QrCode className="h-4 w-4 mr-1" />
+              QR Code
+            </Button>
+          ) : (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={viewDetails}
+              className="h-8"
+            >
+              <BarChart className="h-4 w-4 mr-1" />
+              Details
+            </Button>
+          )}
         </div>
       </CardFooter>
     </Card>

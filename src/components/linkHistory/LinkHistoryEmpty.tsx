@@ -1,22 +1,36 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Button } from "@/components/ui/button";
-import { LinkIcon } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { QrCode, Link as LinkIcon } from 'lucide-react';
 
-const LinkHistoryEmpty: React.FC = () => {
+interface LinkHistoryEmptyProps {
+  message?: string;
+}
+
+const LinkHistoryEmpty: React.FC<LinkHistoryEmptyProps> = ({ 
+  message = "You haven't created any links yet" 
+}) => {
   return (
-    <div className="flex flex-col items-center justify-center h-64 bg-white rounded-lg border border-gray-200 p-8">
-      <div className="text-center">
-        <div className="bg-gray-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-          <LinkIcon className="h-8 w-8 text-brand-blue" />
-        </div>
-        <h3 className="text-xl font-medium mb-2">No links found</h3>
-        <p className="text-muted-foreground mb-6 max-w-md">
-          Start shortening URLs to see your history here. Create your first TidyLink to begin tracking clicks and sharing.
-        </p>
+    <div className="flex flex-col items-center justify-center p-12 text-center bg-background border rounded-md">
+      <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
+        <LinkIcon className="h-8 w-8 text-muted-foreground" />
+      </div>
+      <h3 className="text-lg font-medium mb-2">No links found</h3>
+      <p className="text-muted-foreground mb-6 max-w-md">
+        {message}
+      </p>
+      <div className="flex gap-4">
         <Link to="/dashboard">
-          <Button>Create Your First Short Link</Button>
+          <Button>
+            Create a link
+          </Button>
+        </Link>
+        <Link to="/qr-codes">
+          <Button variant="outline" className="flex items-center gap-2">
+            <QrCode className="h-4 w-4" />
+            Create QR code
+          </Button>
         </Link>
       </div>
     </div>
