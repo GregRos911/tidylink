@@ -25,8 +25,8 @@ const QRCodePatternSelector: React.FC<QRCodePatternSelectorProps> = ({
       <h3 className="font-medium mb-2">Patterns</h3>
       <div className="flex flex-wrap gap-2">
         {patterns.map((patternOption) => {
-          // Find matching template from qrCodeTemplates if possible
-          const templateImage = qrCodeTemplates.find(t => t.id === `template-${patternOption.value}`)?.image || '';
+          // Find matching template from qrCodeTemplates
+          const templateImage = qrCodeTemplates.find(t => t.id === `template-${patternOption.value}`)?.image;
           
           return (
             <div 
