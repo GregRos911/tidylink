@@ -25,15 +25,19 @@ const QRCodeCornerSelector: React.FC<QRCodeCornerSelectorProps> = ({
         {cornerTypes.map((cornerOption) => (
           <div 
             key={cornerOption.value}
-            className={`relative w-12 h-12 border rounded cursor-pointer flex items-center justify-center
+            className={`relative w-14 h-14 border rounded cursor-pointer flex items-center justify-center
               ${cornerType === cornerOption.value ? 'border-blue-500 border-2' : 'border-gray-300'}
               ${cornerOption.premium ? 'opacity-80' : ''}`}
-            onClick={() => !cornerOption.premium && setCornerType(cornerOption.value as any)}
+            onClick={() => !cornerOption.premium && setCornerType(cornerOption.value)}
           >
-            <div className="w-6 h-6 border-2 border-black"></div>
+            <div className="w-8 h-8">
+              {cornerOption.value === 'square' && <div className="w-full h-full bg-black" />}
+              {cornerOption.value === 'dot' && <div className="w-full h-full bg-black rounded-full" />}
+              {cornerOption.value === 'rounded' && <div className="w-full h-full bg-black rounded-lg" />}
+            </div>
             {cornerOption.premium && (
               <div className="absolute top-1 right-1">
-                <Lock className="h-3 w-3 text-gray-400" />
+                <Lock className="h-4 w-4 text-gray-400" />
               </div>
             )}
           </div>

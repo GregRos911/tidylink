@@ -30,6 +30,15 @@ const QRCodeStyleOptions: React.FC<QRCodeStyleOptionsProps> = ({
   patterns,
   cornerTypes
 }) => {
+  // Create wrapper functions to ensure correct typing
+  const handlePatternChange = (patternValue: string) => {
+    setPattern(patternValue);
+  };
+
+  const handleCornerTypeChange = (cornerValue: string) => {
+    setCornerType(cornerValue);
+  };
+
   return (
     <div className="space-y-6 mb-8">
       <h2 className="text-xl font-semibold">Select styles</h2>
@@ -37,14 +46,14 @@ const QRCodeStyleOptions: React.FC<QRCodeStyleOptionsProps> = ({
       {/* Patterns */}
       <QRCodePatternSelector 
         pattern={pattern}
-        setPattern={setPattern}
+        setPattern={handlePatternChange}
         patterns={patterns}
       />
       
       {/* Corners */}
       <QRCodeCornerSelector 
         cornerType={cornerType}
-        setCornerType={setCornerType}
+        setCornerType={handleCornerTypeChange}
         cornerTypes={cornerTypes}
       />
     </div>

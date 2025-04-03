@@ -12,7 +12,7 @@ interface QRCodePreviewProps {
   size?: number;
   logo?: string;
   cornerType?: QRCodeCornerType;
-  dotsType?: QRCodeDotsType;
+  dotsType?: string; // Changed to string to accept pattern values like '1', '2', etc.
   backgroundColor?: string;
   foregroundColor?: string;
   templateId?: string;
@@ -40,9 +40,29 @@ const QRCodePreview: React.FC<QRCodePreviewProps> = ({
       qrRef.current.removeChild(qrRef.current.firstChild);
     }
 
-    // If we're using a template, display the template image with the URL
+    // If we're using a template ID directly
     if (templateId) {
       const template = getTemplateById(templateId);
+      if (template) {
+        setIsUsingTemplate(true);
+        
+        // Create an image element
+        const img = document.createElement('img');
+        img.src = template.image;
+        img.alt = template.name;
+        img.style.width = `${size}px`;
+        img.style.height = `${size}px`;
+        
+        qrRef.current.appendChild(img);
+        return;
+      }
+    }
+    
+    // If we're using a pattern as a template (numbered patterns like '1', '2', etc.)
+    if (dotsType && !isNaN(Number(dotsType))) {
+      const patternTemplateId = `template-${dotsType}`;
+      const template = getTemplateById(patternTemplateId);
+      
       if (template) {
         setIsUsingTemplate(true);
         
@@ -60,9 +80,10 @@ const QRCodePreview: React.FC<QRCodePreviewProps> = ({
 
     setIsUsingTemplate(false);
 
-    // Convert string types to DrawType
+    // Convert string types to DrawType for standard QR code styling
+    // If dotsType is a number (pattern ID), default to 'square'
+    const dotsTypeValue = (isNaN(Number(dotsType)) ? dotsType : 'square') as DrawType;
     const cornerTypeValue = cornerType as DrawType;
-    const dotsTypeValue = dotsType as DrawType;
 
     // Base options
     const options: any = {

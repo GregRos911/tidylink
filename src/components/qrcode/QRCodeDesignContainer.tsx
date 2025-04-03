@@ -44,13 +44,24 @@ const QRCodeDesignContainer: React.FC<QRCodeDesignContainerProps> = ({
   const [hideBitlyLogo, setHideBitlyLogo] = React.useState(false);
   const [selectedTemplateId, setSelectedTemplateId] = React.useState<string>('');
   
-  // QR code patterns with premium indicators
+  // Create pattern setter function with proper type handling
+  const handlePatternChange = (patternValue: string) => {
+    setPattern(patternValue as 'square' | 'rounded' | 'dot' | 'classy' | 'extra-rounded');
+  };
+  
+  // Create corner type setter function with proper type handling
+  const handleCornerTypeChange = (cornerValue: string) => {
+    setCornerType(cornerValue as 'square' | 'rounded' | 'dot');
+  };
+  
+  // QR code patterns with premium indicators and IDs matching the template images
   const patterns = [
-    { value: 'square', premium: false },
-    { value: 'dot', premium: false },
-    { value: 'rounded', premium: true },
-    { value: 'classy', premium: true },
-    { value: 'extra-rounded', premium: true },
+    { value: '1', premium: false },
+    { value: '2', premium: false },
+    { value: '3', premium: false },
+    { value: '4', premium: true },
+    { value: '5', premium: true },
+    { value: '6', premium: true },
   ];
   
   // Corner types with premium indicators
@@ -123,24 +134,17 @@ const QRCodeDesignContainer: React.FC<QRCodeDesignContainerProps> = ({
                   You can create {qrCodesRemaining} more codes this month.
                 </p>
                 
-                {/* Template Selection Section */}
-                <QRCodeTemplateSelector 
-                  availableTemplates={availableTemplates}
-                  selectedTemplateId={selectedTemplateId}
-                  handleTemplateSelect={handleTemplateSelect}
-                />
+                {/* Template Selection Section - REMOVED PER USER REQUEST */}
                 
-                {/* Select Styles Section - Only show if no template is selected */}
-                {!selectedTemplateId && (
-                  <QRCodeStyleOptions 
-                    pattern={pattern}
-                    setPattern={setPattern}
-                    cornerType={cornerType}
-                    setCornerType={setCornerType}
-                    patterns={patterns}
-                    cornerTypes={cornerTypes}
-                  />
-                )}
+                {/* Select Styles Section */}
+                <QRCodeStyleOptions 
+                  pattern={pattern}
+                  setPattern={handlePatternChange}
+                  cornerType={cornerType}
+                  setCornerType={handleCornerTypeChange}
+                  patterns={patterns}
+                  cornerTypes={cornerTypes}
+                />
                 
                 {/* Choose Colors Section - Only show if no template is selected */}
                 {!selectedTemplateId && (
