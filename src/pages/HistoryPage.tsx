@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 const HistoryPage: React.FC = () => {
   const { user } = useUser();
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState('all');
+  const [activeTab, setActiveTab] = useState<'all' | 'links' | 'qrcodes'>('all');
   
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -64,7 +64,7 @@ const HistoryPage: React.FC = () => {
           </Button>
         </div>
         
-        <Tabs defaultValue="all" className="mb-6" onValueChange={setActiveTab}>
+        <Tabs defaultValue="all" className="mb-6" onValueChange={(value) => setActiveTab(value as 'all' | 'links' | 'qrcodes')}>
           <TabsList className="w-full max-w-md mx-auto">
             <TabsTrigger value="all" className="flex-1">All Items</TabsTrigger>
             <TabsTrigger value="links" className="flex-1">Links</TabsTrigger>
