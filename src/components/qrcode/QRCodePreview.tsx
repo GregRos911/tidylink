@@ -1,212 +1,115 @@
-
 import React, { useEffect, useRef } from 'react';
-import QRCodeStyling, { DrawType, Options } from 'qr-code-styling';
-import { Facebook, Instagram, Github } from 'lucide-react';
-import { QRPatternType } from './QRCodePatternThumbnail';
-import { QRCornerType } from './QRCodeCornerThumbnail';
-import { QRFrameType } from './QRCodeFrameThumbnail';
+import { Loader2 } from 'lucide-react';
+import QRCodeStyling from 'qr-code-styling';
 
 interface QRCodePreviewProps {
-  url: string;
+  value: string;
+  design: {
+    pattern: string;
+    cornerStyle: string;
+    foregroundColor: string;
+    backgroundColor: string;
+    cornerColor: string | null;
+    centerIcon: string | null;
+    customText: string | null;
+    frameStyle: string | null;
+    logoUrl: string | null;
+  };
   size?: number;
-  logo?: string;
-  cornerType?: QRCornerType;
-  dotsType?: QRPatternType;
-  backgroundColor?: string;
-  foregroundColor?: string;
-  frameType?: QRFrameType;
-  frameText?: string;
 }
 
-const QRCodePreview: React.FC<QRCodePreviewProps> = ({
-  url,
-  size = 250,
-  logo = '',
-  cornerType = 'square',
-  dotsType = 'square',
-  backgroundColor = '#FFFFFF',
-  foregroundColor = '#000000',
-  frameType = 'none',
-  frameText = 'SCAN ME',
+const QRCodePreview: React.FC<QRCodePreviewProps> = ({ 
+  value, 
+  design,
+  size = 250
 }) => {
-  const qrRef = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
   const qrCode = useRef<QRCodeStyling | null>(null);
-
+  
   useEffect(() => {
-    if (!qrRef.current) return;
-
-    // Clear any existing content
-    if (qrRef.current.firstChild) {
-      qrRef.current.removeChild(qrRef.current.firstChild);
-    }
-
-    // Convert string types to DrawType
-    const cornerTypeValue = getCornerType(cornerType);
-    const dotsTypeValue = getDotsType(dotsType);
-
-    // Base options
-    const options: Options = {
+    if (!ref.current) return;
+    
+    // Map our simple design options to qr-code-styling options
+    const dotsType = design.pattern === 'dots' ? 'dots' :
+                     design.pattern === 'rounded' ? 'rounded' :
+                     design.pattern === 'classy' ? 'classy' :
+                     design.pattern === 'classy-rounded' ? 'classy-rounded' :
+                     design.pattern === 'extra-rounded' ? 'extra-rounded' :
+                     'square';
+                     
+    const cornersType = design.cornerStyle === 'rounded' ? 'rounded' :
+                       design.cornerStyle === 'dots' ? 'dots' :
+                       design.cornerStyle === 'extra-rounded' ? 'extra-rounded' :
+                       design.cornerStyle === 'circle' ? 'circle' :
+                       'square';
+                       
+    const logoSrc = design.logoUrl ? design.logoUrl :
+                    design.centerIcon === 'facebook' ? 'https://cdn.cdnlogo.com/logos/f/83/facebook.svg' :
+                    design.centerIcon === 'instagram' ? 'https://cdn.cdnlogo.com/logos/i/4/instagram.svg' :
+                    design.centerIcon === 'pinterest' ? 'https://cdn.cdnlogo.com/logos/p/20/pinterest.svg' :
+                    '';
+                    
+    // Note: In a real app, you would use actual images for these icons and logos
+                    
+    const options = {
       width: size,
       height: size,
-      data: url || 'https://example.com',
+      data: value,
+      type: 'svg', // svg is more flexible for styling
+      image: logoSrc ? logoSrc : undefined,
       dotsOptions: {
-        color: foregroundColor,
-        type: dotsTypeValue,
+        color: design.foregroundColor,
+        type: dotsType
       },
       cornersSquareOptions: {
-        color: foregroundColor,
-        type: cornerTypeValue,
+        color: design.cornerColor || design.foregroundColor,
+        type: cornersType
       },
       backgroundOptions: {
-        color: backgroundColor,
+        color: design.backgroundColor
       },
       imageOptions: {
         crossOrigin: 'anonymous',
-        margin: 5,
-      },
-    };
-
-    // Handle frame if specified
-    if (frameType !== 'none') {
-      options.frameOptions = {
-        style: getFrameStyle(frameType),
-        text: frameText || 'SCAN ME',
-        textColor: foregroundColor,
-        backgroundColor: backgroundColor,
-        borderColor: foregroundColor,
-        borderWidth: 1,
-      };
-    }
-
-    // Handle different logo types
-    if (logo) {
-      // For social media icons (would use placeholders in real implementation)
-      if (logo === 'instagram' || logo === 'facebook' || logo === 'github') {
-        // Use placeholders for these icons since we can't directly use SVGs
-        // In a real implementation, we'd have actual image URLs for these icons
-        const logoPlaceholder = 'https://via.placeholder.com/150';
-        options.image = logoPlaceholder;
-      } else if (logo.startsWith('http')) {
-        // For uploaded images or URLs
-        options.image = logo;
+        margin: 10
       }
-    }
-
-    try {
-      // Create new QR code
-      if (!qrCode.current) {
+    };
+    
+    // If qrCode ref already exists, update it
+    if (qrCode.current) {
+      qrCode.current.update(options);
+    } else {
+      // Otherwise create a new instance
+      import('qr-code-styling').then(({ default: QRCodeStyling }) => {
         qrCode.current = new QRCodeStyling(options);
-        qrCode.current.append(qrRef.current);
-      } else {
-        qrCode.current.update(options);
+        if (ref.current) {
+          ref.current.innerHTML = '';
+          qrCode.current.append(ref.current);
+        }
+      }).catch(err => {
+        console.error('Failed to load QR code library:', err);
+      });
+    }
+    
+    // Cleanup
+    return () => {
+      if (ref.current) {
+        ref.current.innerHTML = '';
       }
-    } catch (error) {
-      console.error('Error generating QR code:', error);
-    }
-  }, [url, size, logo, cornerType, dotsType, backgroundColor, foregroundColor, frameType, frameText]);
-
-  // Render the logo placeholder in the center for the preview
-  const renderLogoPlaceholder = () => {
-    if (!logo) return null;
-    
-    const logoStyle = {
-      position: 'absolute' as const,
-      top: '50%',
-      left: '50%',
-      transform: 'translate(-50%, -50%)',
-      backgroundColor: 'white',
-      borderRadius: '50%',
-      padding: '8px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      width: '40px',
-      height: '40px',
-      zIndex: 10,
     };
-    
-    if (logo === 'instagram') {
-      return (
-        <div style={logoStyle}>
-          <Instagram size={24} />
-        </div>
-      );
-    } else if (logo === 'facebook') {
-      return (
-        <div style={logoStyle}>
-          <Facebook size={24} />
-        </div>
-      );
-    } else if (logo === 'github') {
-      return (
-        <div style={logoStyle}>
-          <Github size={24} />
-        </div>
-      );
-    }
-    
-    return null;
-  };
-
-  // Helper function to convert corner type to compatible QR styling type
-  const getCornerType = (type: QRCornerType): DrawType => {
-    switch (type) {
-      case 'dot':
-        return 'dot';
-      case 'rounded':
-        return 'rounded';
-      case 'edge-cut':
-      case 'extra-rounded':
-        return 'extra-rounded';
-      case 'circular':
-        return 'dot';
-      case 'pointed':
-      case 'edge-round':
-      case 'fancy':
-        return 'rounded'; // Fallback for types not directly supported
-      default:
-        return 'square';
-    }
-  };
-
-  // Helper function to convert dots type to compatible QR styling type
-  const getDotsType = (type: QRPatternType): DrawType => {
-    switch (type) {
-      case 'dot':
-        return 'dot';
-      case 'rounded':
-        return 'rounded';
-      case 'classy':
-        return 'classy';
-      case 'extra-rounded':
-        return 'extra-rounded';
-      case 'circle':
-        return 'dot'; // Close approximation
-      case 'edge-cut':
-        return 'classy'; // Close approximation
-      default:
-        return 'square';
-    }
-  };
-
-  // Helper function to convert frame type to compatible QR styling frame style
-  const getFrameStyle = (type: QRFrameType): 'standard' | 'circle' | 'rounded' => {
-    switch (type) {
-      case 'rounded':
-        return 'rounded';
-      case 'scan-me-bottom':
-      case 'scan-me-top':
-      case 'scan-me-fancy':
-        return 'standard';
-      default:
-        return 'standard';
-    }
-  };
-
+  }, [value, design, size]);
+  
   return (
-    <div className="relative">
-      <div ref={qrRef} className="flex justify-center items-center" />
-      {renderLogoPlaceholder()}
+    <div className="relative flex items-center justify-center bg-white p-4 rounded-md">
+      <div ref={ref} className="flex items-center justify-center min-h-[250px] min-w-[250px]">
+        <Loader2 className="h-10 w-10 animate-spin text-brand-blue" />
+      </div>
+      
+      {/* This would be where you'd add frame styling if selected */}
+      {design.frameStyle && (
+        <div className="absolute bottom-2 left-0 right-0 text-center text-xs font-medium">
+          {design.frameStyle.includes('scanme') && 'SCAN ME'}
+        </div>
+      )}
     </div>
   );
 };
