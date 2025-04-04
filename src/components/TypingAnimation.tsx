@@ -64,8 +64,8 @@ const TypingAnimation: React.FC<TypingAnimationProps> = ({
       className={`transition-opacity duration-500 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
       aria-live="polite"
     >
-      <span className="font-bold text-xl md:text-2xl text-brand-blue">{displayText}</span>
-      <span className={`ml-0.5 inline-block w-1 h-5 bg-brand-blue ${isTyping ? 'animate-pulse-slow' : 'opacity-0'}`}></span>
+      <span className="font-bold text-2xl md:text-4xl text-brand-blue">{displayText}</span>
+      <span className={`ml-0.5 inline-block w-1 h-6 bg-brand-blue ${isTyping ? 'animate-pulse-slow' : 'opacity-0'}`}></span>
     </div>
   );
 };
