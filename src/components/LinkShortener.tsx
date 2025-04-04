@@ -29,6 +29,15 @@ const LinkShortener: React.FC = () => {
       </CardHeader>
       <CardContent className="flex flex-col items-center space-y-6">
         <div className="text-center p-4">
+          <div className="flex justify-center mb-6">
+            <TypingAnimation 
+              texts={["Build Trust.", "Secure Links."]} 
+              typingSpeed={80}
+              pauseTime={1500}
+              fadeTime={600}
+            />
+          </div>
+          
           <div className="flex justify-center mb-4">
             <div className="p-3 bg-brand-blue/10 rounded-full">
               <LinkIcon size={40} className="text-brand-blue" />
@@ -38,15 +47,6 @@ const LinkShortener: React.FC = () => {
           <p className="text-gray-600 mb-2">
             Sign in to your account to create custom branded short links, QR codes and more
           </p>
-          
-          <div className="flex justify-center mb-6">
-            <TypingAnimation 
-              texts={["Build Trust.", "Secure Links."]} 
-              typingSpeed={80}
-              pauseTime={1500}
-              fadeTime={600}
-            />
-          </div>
           
           <Button onClick={handleCreateLink} className="w-full sm:w-auto bg-gradient-to-r from-brand-blue via-brand-purple to-brand-pink hover:opacity-90 transition-opacity">
             {isSignedIn ? "Go to Dashboard" : "Sign In to Get Started"}
