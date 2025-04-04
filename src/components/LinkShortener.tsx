@@ -1,15 +1,19 @@
+
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link, useNavigate } from 'react-router-dom';
 import { useUser } from '@clerk/clerk-react';
 import { LinkIcon, ChevronRight } from 'lucide-react';
+import TypingAnimation from './TypingAnimation';
+
 const LinkShortener: React.FC = () => {
   const {
     isSignedIn,
     isLoaded
   } = useUser();
   const navigate = useNavigate();
+  
   const handleCreateLink = () => {
     if (isSignedIn) {
       navigate('/dashboard');
@@ -17,6 +21,7 @@ const LinkShortener: React.FC = () => {
       navigate('/sign-in');
     }
   };
+  
   return <Card className="w-full max-w-3xl mx-auto shadow-md">
       <CardHeader>
         <CardTitle className="text-2xl">Shorten Your URLs</CardTitle>
@@ -30,9 +35,19 @@ const LinkShortener: React.FC = () => {
             </div>
           </div>
           <h3 className="text-xl font-semibold mb-2">Start creating and sharing links</h3>
-          <p className="text-gray-600 mb-6">
+          <p className="text-gray-600 mb-2">
             Sign in to your account to create custom branded short links, QR codes and more
           </p>
+          
+          <div className="flex justify-center mb-6">
+            <TypingAnimation 
+              texts={["Build Trust.", "Secure Links."]} 
+              typingSpeed={80}
+              pauseTime={1500}
+              fadeTime={600}
+            />
+          </div>
+          
           <Button onClick={handleCreateLink} className="w-full sm:w-auto bg-gradient-to-r from-brand-blue via-brand-purple to-brand-pink hover:opacity-90 transition-opacity">
             {isSignedIn ? "Go to Dashboard" : "Sign In to Get Started"}
             <ChevronRight className="h-4 w-4 ml-1" />
@@ -54,4 +69,5 @@ const LinkShortener: React.FC = () => {
       </CardContent>
     </Card>;
 };
+
 export default LinkShortener;
