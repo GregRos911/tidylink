@@ -13,6 +13,7 @@ import { useUserUsage, FREE_PLAN_LIMITS } from '@/services/usage';
 import { toast } from 'sonner';
 import QRCodePreviewModal from '@/components/qrcode/QRCodePreviewModal';
 import LinkSelector from '@/components/qrcode/LinkSelector';
+import CreateQRLinkCard from '@/components/qrcode/CreateQRLinkCard';
 
 const QRCodeBuilderPage: React.FC = () => {
   const navigate = useNavigate();
@@ -70,6 +71,12 @@ const QRCodeBuilderPage: React.FC = () => {
     setShowPreviewModal(true);
   };
   
+  // Handle when a new link is created
+  const handleLinkCreated = (linkId: string) => {
+    // Set the selected link to the newly created link
+    setSelectedLink(linkId);
+  };
+  
   return (
     <div className="min-h-screen flex bg-gray-50">
       {/* Sidebar - Hidden on mobile */}
@@ -96,6 +103,9 @@ const QRCodeBuilderPage: React.FC = () => {
               </Button>
               <h1 className="text-2xl font-bold">QR Code Builder</h1>
             </div>
+            
+            {/* Create QR Link Card */}
+            <CreateQRLinkCard onLinkCreated={handleLinkCreated} />
             
             {/* Link Selection Component */}
             <LinkSelector 
