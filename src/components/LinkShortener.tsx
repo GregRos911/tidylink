@@ -1,15 +1,15 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link, useNavigate } from 'react-router-dom';
 import { useUser } from '@clerk/clerk-react';
 import { LinkIcon, ChevronRight } from 'lucide-react';
-
 const LinkShortener: React.FC = () => {
-  const { isSignedIn, isLoaded } = useUser();
+  const {
+    isSignedIn,
+    isLoaded
+  } = useUser();
   const navigate = useNavigate();
-  
   const handleCreateLink = () => {
     if (isSignedIn) {
       navigate('/dashboard');
@@ -17,14 +17,10 @@ const LinkShortener: React.FC = () => {
       navigate('/sign-in');
     }
   };
-  
-  return (
-    <Card className="w-full max-w-3xl mx-auto shadow-md">
+  return <Card className="w-full max-w-3xl mx-auto shadow-md">
       <CardHeader>
         <CardTitle className="text-2xl">Shorten Your URLs</CardTitle>
-        <CardDescription>
-          Create short links that never expire and track every click
-        </CardDescription>
+        <CardDescription>Create short links and QR codes with the option to build trust with a secure link.</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col items-center space-y-6">
         <div className="text-center p-4">
@@ -37,10 +33,7 @@ const LinkShortener: React.FC = () => {
           <p className="text-gray-600 mb-6">
             Sign in to your account to create custom branded short links, QR codes and more
           </p>
-          <Button
-            onClick={handleCreateLink}
-            className="w-full sm:w-auto bg-gradient-to-r from-brand-blue via-brand-purple to-brand-pink hover:opacity-90 transition-opacity"
-          >
+          <Button onClick={handleCreateLink} className="w-full sm:w-auto bg-gradient-to-r from-brand-blue via-brand-purple to-brand-pink hover:opacity-90 transition-opacity">
             {isSignedIn ? "Go to Dashboard" : "Sign In to Get Started"}
             <ChevronRight className="h-4 w-4 ml-1" />
           </Button>
@@ -59,8 +52,6 @@ const LinkShortener: React.FC = () => {
           </div>
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>;
 };
-
 export default LinkShortener;
