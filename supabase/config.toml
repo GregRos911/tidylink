@@ -23,3 +23,4 @@ enabled = true
 
 [edge-functions]
 [edge-functions.send-campaign-emails]
+

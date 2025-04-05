@@ -68,9 +68,6 @@ export const useSendCampaignEmails = () => {
       } else {
         toast.success(`Successfully sent ${data.sent} campaign emails!`);
       }
-    },
-    onError: (error: any) => {
-      toast.error(error.message || 'Failed to send campaign emails');
     }
   });
 };
