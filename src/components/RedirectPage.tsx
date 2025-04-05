@@ -78,13 +78,15 @@ const RedirectPage: React.FC = () => {
           
           await supabase.from('links').update({ clicks: (link.clicks || 0) + 1 }).eq('id', link.id);
           
-          // We'll store analytics data but handle the case if link_analytics isn't in types yet
+          // Use RPC function instead of direct table access
           try {
             await supabase.rpc('insert_link_analytics', {
               p_link_id: link.id,
               p_user_id: link.user_id,
               p_device_type: deviceType,
               p_referrer: referrer,
+              p_location_country: null,
+              p_location_city: null,
               p_is_qr_scan: false
             });
           } catch (analyticsError) {
