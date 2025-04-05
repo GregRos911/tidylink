@@ -10,7 +10,7 @@ import { CampaignData } from '../CampaignComposer';
 import { Campaign } from '@/services/campaigns/types';
 import { useCampaignLinks, useCreateUTMLink } from '@/services/campaigns';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { LinkIcon, LinkIcon2, Plus } from 'lucide-react';
+import { LinkIcon, Link2Icon, Plus } from 'lucide-react';
 
 interface SelectLinkStepProps {
   campaignData: CampaignData;
@@ -137,7 +137,7 @@ const SelectLinkStep: React.FC<SelectLinkStepProps> = ({
                         `}
                         onClick={() => handleExistingLinkSelect(link.id)}
                       >
-                        <LinkIcon2 className="h-4 w-4 text-gray-500 flex-shrink-0" />
+                        <Link2Icon className="h-4 w-4 text-gray-500 flex-shrink-0" />
                         <div className="ml-3 flex-1 min-w-0">
                           <p className="font-medium text-sm truncate">{link.original_url}</p>
                           <p className="text-xs text-gray-500 truncate">{link.short_url}</p>

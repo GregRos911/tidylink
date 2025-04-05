@@ -7,7 +7,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { CampaignData } from '../CampaignComposer';
 import { Campaign } from '@/services/campaigns/types';
-import { InfoCircle } from 'lucide-react';
+import { InfoIcon } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface SenderInfoStepProps {
@@ -53,7 +53,7 @@ const SenderInfoStep: React.FC<SenderInfoStepProps> = ({
       <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4 mb-4">
         <div className="flex items-start">
           <div className="flex-shrink-0">
-            <InfoCircle className="h-5 w-5 text-yellow-500" />
+            <InfoIcon className="h-5 w-5 text-yellow-500" />
           </div>
           <div className="ml-3">
             <h3 className="text-sm font-medium text-yellow-800">Important</h3>
@@ -81,7 +81,7 @@ const SenderInfoStep: React.FC<SenderInfoStepProps> = ({
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <InfoCircle className="h-4 w-4 ml-2 text-gray-400" />
+                        <InfoIcon className="h-4 w-4 ml-2 text-gray-400" />
                       </TooltipTrigger>
                       <TooltipContent>
                         <p className="w-60">This is the name that will appear as the sender in the recipient's inbox.</p>
@@ -107,7 +107,7 @@ const SenderInfoStep: React.FC<SenderInfoStepProps> = ({
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <InfoCircle className="h-4 w-4 ml-2 text-gray-400" />
+                        <InfoIcon className="h-4 w-4 ml-2 text-gray-400" />
                       </TooltipTrigger>
                       <TooltipContent>
                         <p className="w-80">This email must be from a domain you've verified with Resend. Using non-verified domains may cause your emails to be marked as spam.</p>
