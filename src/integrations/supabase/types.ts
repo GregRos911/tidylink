@@ -9,6 +9,50 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      link_analytics: {
+        Row: {
+          created_at: string
+          device_type: string
+          id: string
+          is_qr_scan: boolean
+          link_id: string
+          location_city: string | null
+          location_country: string | null
+          referrer: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          device_type: string
+          id?: string
+          is_qr_scan?: boolean
+          link_id: string
+          location_city?: string | null
+          location_country?: string | null
+          referrer?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          device_type?: string
+          id?: string
+          is_qr_scan?: boolean
+          link_id?: string
+          location_city?: string | null
+          location_country?: string | null
+          referrer?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "link_analytics_link_id_fkey"
+            columns: ["link_id"]
+            isOneToOne: false
+            referencedRelation: "links"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       links: {
         Row: {
           clicks: number

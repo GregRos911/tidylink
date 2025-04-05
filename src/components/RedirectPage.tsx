@@ -1,9 +1,22 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
-import { Loader2 } from 'lucide-react';
+import { supabase } from "../integrations/supabase/client";
+import { useUser } from "@clerk/clerk-react";
+
+const getDeviceType = () => {
+  const ua = navigator.userAgent;
+  if (/(tablet|ipad|playbook|silk)|(android(?!.*mobi))/i.test(ua)) {
+    return "Tablet";
+  }
+  if (/Mobile|Android|iP(hone|od)|IEMobile|BlackBerry|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)/.test(ua)) {
+    return "Mobile";
+  }
+  return "Desktop";
+};
+
+const getReferrer = () => {
+  return document.referrer ? new URL(document.referrer).hostname : "Direct";
+};
 
 const RedirectPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -11,7 +24,9 @@ const RedirectPage: React.FC = () => {
   const [countdown, setCountdown] = useState(3);
   const [originalUrl, setOriginalUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  
+  const [notFound, setNotFound] = useState(false);
+  const user = useUser();
+
   useEffect(() => {
     if (!id) {
       navigate('/');
@@ -26,7 +41,6 @@ const RedirectPage: React.FC = () => {
         
         console.log('Looking for link with short_url:', shortUrl);
         
-        // First try to find by short_url
         let { data: link, error } = await supabase
           .from('links')
           .select('*')
@@ -37,7 +51,6 @@ const RedirectPage: React.FC = () => {
           console.error('Error when searching by short_url:', error);
         }
         
-        // If not found, try to find by custom_backhalf
         if (!link) {
           console.log('Link not found by short_url, trying custom_backhalf:', id);
           const { data: customLink, error: customError } = await supabase
@@ -57,23 +70,19 @@ const RedirectPage: React.FC = () => {
           console.log('Link found:', link);
           setOriginalUrl(link.original_url);
           
-          // Increment click count
-          try {
-            console.log('Incrementing click count for link ID:', link.id);
-            const { error: updateError } = await supabase
-              .from('links')
-              .update({ clicks: (link.clicks || 0) + 1 })
-              .eq('id', link.id);
-            
-            if (updateError) {
-              console.error('Error incrementing click count:', updateError);
-            }
-          } catch (updateError) {
-            console.error('Exception when incrementing click count:', updateError);
-            // Continue with redirect even if click count update fails
-          }
+          const deviceType = getDeviceType();
+          const referrer = getReferrer();
           
-          // Start countdown for redirect
+          await supabase.from('links').update({ clicks: (link.clicks || 0) + 1 }).eq('id', link.id);
+          
+          await supabase.from('link_analytics').insert([{
+            link_id: link.id,
+            user_id: link.user_id,
+            device_type: deviceType,
+            referrer: referrer,
+            is_qr_scan: false
+          }]);
+          
           const timer = setInterval(() => {
             setCountdown(prev => {
               if (prev <= 1) {
@@ -101,7 +110,7 @@ const RedirectPage: React.FC = () => {
     };
     
     fetchLink();
-  }, [id, navigate]);
+  }, [id, navigate, user]);
   
   if (isLoading) {
     return (

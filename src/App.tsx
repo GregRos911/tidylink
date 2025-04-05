@@ -15,6 +15,7 @@ import RedirectPage from "./components/RedirectPage";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import QRCodeBuilderPage from "./pages/QRCodeBuilderPage";
+import AnalyticsPage from "./pages/AnalyticsPage";
 
 const queryClient = new QueryClient();
 
@@ -52,6 +53,11 @@ const App = () => (
           <Route path="/qr-codes" element={
             <ProtectedRoute>
               <QRCodeBuilderPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/analytics" element={
+            <ProtectedRoute>
+              <AnalyticsPage />
             </ProtectedRoute>
           } />
           <Route path="/settings" element={

@@ -17,7 +17,7 @@ const DashboardSidebar: React.FC = () => {
     { icon: Home, label: 'Home', href: '/dashboard' },
     { icon: LinkIcon, label: 'Links', href: '/links' },
     { icon: QrCode, label: 'QR Codes', href: '/qr-codes' },
-    { icon: BarChart2, label: 'Analytics', href: '/analytics', locked: true },
+    { icon: BarChart2, label: 'Analytics', href: '/analytics' }, // Unlocked now
     { icon: LayoutGrid, label: 'Campaigns', href: '/campaigns', locked: true },
     { icon: Globe, label: 'Custom Domains', href: '/domains', locked: true },
     { icon: Settings, label: 'Settings', href: '/settings' },
