@@ -61,14 +61,12 @@ export const useIncrementUsage = () => {
           return data;
         }
         
-        // Check limits before incrementing
+        // Check limits before incrementing - but not for QR Codes anymore
         if (type === 'link' && (currentUsage.links_used || 0) >= FREE_PLAN_LIMITS.links) {
           throw new Error(`You've reached your monthly limit of ${FREE_PLAN_LIMITS.links} links on the Free Plan. Please upgrade to continue.`);
         }
         
-        if (type === 'qrCode' && (currentUsage.qr_codes_used || 0) >= FREE_PLAN_LIMITS.qrCodes) {
-          throw new Error(`You've reached your monthly limit of ${FREE_PLAN_LIMITS.qrCodes} QR codes on the Free Plan. Please upgrade to continue.`);
-        }
+        // QR code limit check is removed
         
         if (customBackHalf && (currentUsage.custom_backhalves_used || 0) >= FREE_PLAN_LIMITS.customBackHalves) {
           throw new Error(`You've reached your monthly limit of ${FREE_PLAN_LIMITS.customBackHalves} custom back-halves on the Free Plan. Please upgrade to continue.`);
@@ -99,6 +97,13 @@ export const useIncrementUsage = () => {
         return data;
       } catch (error: any) {
         console.error('Error in incrementUsage:', error);
+        
+        // If this is a QR code limit error, we'll ignore it and let the operation continue
+        if (type === 'qrCode' && error.message?.includes('limit')) {
+          console.log('Ignoring QR code limit error');
+          return { success: true }; // Return something to prevent error in UI
+        }
+        
         toast.error(error.message || 'Failed to update usage limits');
         throw error;
       }

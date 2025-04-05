@@ -19,7 +19,7 @@ const SharingOptions: React.FC<SharingOptionsProps> = ({
     <div className="mb-6">
       <h3 className="text-lg font-semibold mb-4">Ways to share</h3>
       
-      {/* QR Code toggle */}
+      {/* QR Code toggle - now always enabled */}
       <div className="flex items-center justify-between py-3 border-b">
         <div>
           <h4 className="font-medium">QR Code</h4>
@@ -32,7 +32,7 @@ const SharingOptions: React.FC<SharingOptionsProps> = ({
           <Switch
             checked={generateQrCode}
             onCheckedChange={setGenerateQrCode}
-            disabled={!canGenerateQrCode}
+            disabled={false} {/* Always enabled now */}
           />
         </div>
       </div>

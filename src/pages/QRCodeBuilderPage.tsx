@@ -28,10 +28,6 @@ const QRCodeBuilderPage: React.FC = () => {
   // Fetch user's usage data
   const { data: usageData, isLoading: isLoadingUsage } = useUserUsage();
   
-  // Check if user has reached their QR code limit
-  const hasReachedQRLimit = usageData && 
-    usageData.qr_codes_used >= FREE_PLAN_LIMITS.qrCodes;
-  
   // QR code design state
   const [qrDesign, setQRDesign] = useState({
     pattern: 'square',
@@ -53,11 +49,6 @@ const QRCodeBuilderPage: React.FC = () => {
   const handleGenerateQRCode = () => {
     if (!selectedLink) {
       toast.error('Please select a link to generate a QR code for');
-      return;
-    }
-    
-    if (hasReachedQRLimit) {
-      toast.error(`You've reached your monthly limit of ${FREE_PLAN_LIMITS.qrCodes} QR codes. Please upgrade your plan.`);
       return;
     }
     
@@ -125,7 +116,7 @@ const QRCodeBuilderPage: React.FC = () => {
               <Button 
                 size="lg" 
                 onClick={handleGenerateQRCode}
-                disabled={!selectedLink || hasReachedQRLimit}
+                disabled={!selectedLink}
               >
                 Generate QR Code
               </Button>
@@ -140,16 +131,7 @@ const QRCodeBuilderPage: React.FC = () => {
                 </div>
               ) : (
                 <p>
-                  You have used {usageData?.qr_codes_used || 0} of {FREE_PLAN_LIMITS.qrCodes} QR codes this month.
-                  {hasReachedQRLimit && (
-                    <Button 
-                      variant="link" 
-                      className="text-brand-blue pl-1 pr-0 py-0 h-auto"
-                      onClick={() => navigate('/pricing')}
-                    >
-                      Upgrade to create more.
-                    </Button>
-                  )}
+                  You have used {usageData?.qr_codes_used || 0} QR codes. All premium features are now available!
                 </p>
               )}
             </div>

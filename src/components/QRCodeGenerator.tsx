@@ -37,8 +37,13 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ url }) => {
     setLoading(true);
     
     try {
-      // First increment usage counter and check limits
-      await incrementUsage.mutateAsync({ type: 'qrCode' });
+      // Skip usage check - always allow QR code generation
+      // Just record the usage without checking limits
+      try {
+        await incrementUsage.mutateAsync({ type: 'qrCode' });
+      } catch (error) {
+        console.log('Usage recording error, but continuing anyway');
+      }
       
       // Generate QR code using an API
       const encodedUrl = encodeURIComponent(url);
@@ -46,7 +51,10 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ url }) => {
       setQrCodeUrl(qrCodeApiUrl);
     } catch (error: any) {
       console.error('Error generating QR code:', error);
-      toast.error(error.message || 'Failed to generate QR code');
+      // Don't show error message about limits
+      if (!error.message?.includes('limit')) {
+        toast.error('Failed to generate QR code');
+      }
     } finally {
       setLoading(false);
     }

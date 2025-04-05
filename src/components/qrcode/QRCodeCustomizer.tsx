@@ -53,55 +53,44 @@ const QRCodeCustomizer: React.FC<QRCodeCustomizerProps> = ({
     '#EC4899', // Pink
   ];
   
-  // QR patterns
+  // QR patterns - All available now (removed premium flag)
   const patterns = [
-    { id: 'square', name: 'Square', premium: false },
-    { id: 'rounded', name: 'Rounded', premium: false },
-    { id: 'dots', name: 'Dots', premium: true },
-    { id: 'classy', name: 'Classy', premium: true },
-    { id: 'classy-rounded', name: 'Classy Rounded', premium: true },
-    { id: 'extra-rounded', name: 'Extra Rounded', premium: true },
+    { id: 'square', name: 'Square' },
+    { id: 'rounded', name: 'Rounded' },
+    { id: 'dots', name: 'Dots' },
+    { id: 'classy', name: 'Classy' },
+    { id: 'classy-rounded', name: 'Classy Rounded' },
+    { id: 'extra-rounded', name: 'Extra Rounded' },
   ];
   
-  // Corner styles
+  // Corner styles - All available now
   const cornerStyles = [
-    { id: 'square', name: 'Square', premium: false },
-    { id: 'rounded', name: 'Rounded', premium: false },
-    { id: 'dots', name: 'Dots', premium: true },
-    { id: 'extra-rounded', name: 'Extra Rounded', premium: true },
-    { id: 'circle', name: 'Circle', premium: true },
+    { id: 'square', name: 'Square' },
+    { id: 'rounded', name: 'Rounded' },
+    { id: 'dots', name: 'Dots' },
+    { id: 'extra-rounded', name: 'Extra Rounded' },
+    { id: 'circle', name: 'Circle' },
   ];
   
-  // Frame styles
+  // Frame styles - All available now
   const frameStyles = [
-    { id: null, name: 'None', premium: false },
-    { id: 'simple', name: 'Simple', premium: false },
-    { id: 'rounded', name: 'Rounded', premium: true },
-    { id: 'scanme-bottom', name: 'Scan Me (Bottom)', premium: true },
-    { id: 'scanme-cursive', name: 'Scan Me (Cursive)', premium: true },
-    { id: 'scanme-top', name: 'Scan Me (Top)', premium: true },
+    { id: null, name: 'None' },
+    { id: 'simple', name: 'Simple' },
+    { id: 'rounded', name: 'Rounded' },
+    { id: 'scanme-bottom', name: 'Scan Me (Bottom)' },
+    { id: 'scanme-cursive', name: 'Scan Me (Cursive)' },
+    { id: 'scanme-top', name: 'Scan Me (Top)' },
   ];
   
-  // Center icons
+  // Center icons - All available now
   const centerIcons = [
     { id: null, name: 'None', icon: <X className="h-5 w-5" /> },
-    { id: 'upload', name: 'Upload', icon: <Upload className="h-5 w-5" />, premium: true },
-    { id: 'custom-text', name: 'Custom Text', icon: <span className="text-xs font-bold">TEXT</span>, premium: true },
-    { id: 'pinterest', name: 'Pinterest', icon: <div className="h-5 w-5 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-xs">P</div>, premium: true },
-    { id: 'facebook', name: 'Facebook', icon: <Facebook className="h-5 w-5 text-blue-600" />, premium: true },
-    { id: 'instagram', name: 'Instagram', icon: <Instagram className="h-5 w-5 text-pink-600" />, premium: true },
+    { id: 'upload', name: 'Upload', icon: <Upload className="h-5 w-5" /> },
+    { id: 'custom-text', name: 'Custom Text', icon: <span className="text-xs font-bold">TEXT</span> },
+    { id: 'pinterest', name: 'Pinterest', icon: <div className="h-5 w-5 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-xs">P</div> },
+    { id: 'facebook', name: 'Facebook', icon: <Facebook className="h-5 w-5 text-blue-600" /> },
+    { id: 'instagram', name: 'Instagram', icon: <Instagram className="h-5 w-5 text-pink-600" /> },
   ];
-  
-  // Premium feature information popup content
-  const getPremiumInfo = (featureName: string) => (
-    <div className="text-center p-2">
-      <h3 className="font-semibold text-lg mb-2">Premium Feature</h3>
-      <p className="text-sm text-gray-600 mb-4">{featureName} is only available on paid plans.</p>
-      <Button size="sm" onClick={() => window.location.href = '/pricing'}>
-        View Plans
-      </Button>
-    </div>
-  );
   
   const handleColorChange = (type: 'foreground' | 'background' | 'corner', color: string) => {
     if (type === 'foreground') {
@@ -173,41 +162,19 @@ const QRCodeCustomizer: React.FC<QRCodeCustomizerProps> = ({
                   <h3 className="text-lg font-medium mb-3">Patterns</h3>
                   <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
                     {patterns.map((pattern) => (
-                      <Tooltip key={pattern.id}>
-                        <TooltipTrigger asChild>
-                          <div
-                            className={`
-                              border rounded-md p-2 flex items-center justify-center cursor-pointer
-                              ${design.pattern === pattern.id ? 'border-brand-blue' : 'border-gray-200'}
-                              ${pattern.premium ? 'opacity-60' : ''}
-                            `}
-                            onClick={() => {
-                              if (!pattern.premium) {
-                                onDesignChange({ ...design, pattern: pattern.id });
-                              } else {
-                                toast.error('This pattern is only available on paid plans');
-                              }
-                            }}
-                          >
-                            <div className="relative">
-                              <div className="w-12 h-12 flex items-center justify-center">
-                                {/* Pattern preview would go here */}
-                                <span className="text-xs">{pattern.name}</span>
-                              </div>
-                              {pattern.premium && (
-                                <div className="absolute top-0 right-0">
-                                  <Lock className="h-3 w-3 text-gray-400" />
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </TooltipTrigger>
-                        {pattern.premium && (
-                          <TooltipContent>
-                            <p>Available on paid plans</p>
-                          </TooltipContent>
-                        )}
-                      </Tooltip>
+                      <div
+                        key={pattern.id}
+                        className={`
+                          border rounded-md p-2 flex items-center justify-center cursor-pointer
+                          ${design.pattern === pattern.id ? 'border-brand-blue' : 'border-gray-200'}
+                        `}
+                        onClick={() => onDesignChange({ ...design, pattern: pattern.id })}
+                      >
+                        <div className="w-12 h-12 flex items-center justify-center">
+                          {/* Pattern preview would go here */}
+                          <span className="text-xs">{pattern.name}</span>
+                        </div>
+                      </div>
                     ))}
                   </div>
                 </div>
@@ -216,41 +183,19 @@ const QRCodeCustomizer: React.FC<QRCodeCustomizerProps> = ({
                   <h3 className="text-lg font-medium mb-3">Corner Styles</h3>
                   <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
                     {cornerStyles.map((corner) => (
-                      <Tooltip key={corner.id}>
-                        <TooltipTrigger asChild>
-                          <div
-                            className={`
-                              border rounded-md p-2 flex items-center justify-center cursor-pointer
-                              ${design.cornerStyle === corner.id ? 'border-brand-blue' : 'border-gray-200'}
-                              ${corner.premium ? 'opacity-60' : ''}
-                            `}
-                            onClick={() => {
-                              if (!corner.premium) {
-                                onDesignChange({ ...design, cornerStyle: corner.id });
-                              } else {
-                                toast.error('This corner style is only available on paid plans');
-                              }
-                            }}
-                          >
-                            <div className="relative">
-                              <div className="w-12 h-12 flex items-center justify-center">
-                                {/* Corner style preview would go here */}
-                                <span className="text-xs">{corner.name}</span>
-                              </div>
-                              {corner.premium && (
-                                <div className="absolute top-0 right-0">
-                                  <Lock className="h-3 w-3 text-gray-400" />
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </TooltipTrigger>
-                        {corner.premium && (
-                          <TooltipContent>
-                            <p>Available on paid plans</p>
-                          </TooltipContent>
-                        )}
-                      </Tooltip>
+                      <div
+                        key={corner.id}
+                        className={`
+                          border rounded-md p-2 flex items-center justify-center cursor-pointer
+                          ${design.cornerStyle === corner.id ? 'border-brand-blue' : 'border-gray-200'}
+                        `}
+                        onClick={() => onDesignChange({ ...design, cornerStyle: corner.id })}
+                      >
+                        <div className="w-12 h-12 flex items-center justify-center">
+                          {/* Corner style preview would go here */}
+                          <span className="text-xs">{corner.name}</span>
+                        </div>
+                      </div>
                     ))}
                   </div>
                 </div>
@@ -276,27 +221,19 @@ const QRCodeCustomizer: React.FC<QRCodeCustomizerProps> = ({
                   
                   <div className="flex items-center gap-4">
                     <Label htmlFor="fg-color" className="min-w-24">Custom color</Label>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div className="flex-1 relative">
-                          <Input
-                            id="fg-color"
-                            type="text"
-                            value={design.foregroundColor}
-                            className="pl-12"
-                            disabled
-                          />
-                          <div 
-                            className="absolute left-2 top-1/2 -translate-y-1/2 w-6 h-6 rounded-sm"
-                            style={{ backgroundColor: design.foregroundColor }}
-                          />
-                          <Lock className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                        </div>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Custom colors available on paid plans</p>
-                      </TooltipContent>
-                    </Tooltip>
+                    <div className="flex-1 relative">
+                      <Input
+                        id="fg-color"
+                        type="color"
+                        value={design.foregroundColor}
+                        className="pl-12"
+                        onChange={(e) => handleColorChange('foreground', e.target.value)}
+                      />
+                      <div 
+                        className="absolute left-2 top-1/2 -translate-y-1/2 w-6 h-6 rounded-sm"
+                        style={{ backgroundColor: design.foregroundColor }}
+                      />
+                    </div>
                   </div>
                 </div>
                 
@@ -318,97 +255,90 @@ const QRCodeCustomizer: React.FC<QRCodeCustomizerProps> = ({
                   
                   <div className="flex items-center gap-4">
                     <Label htmlFor="bg-color" className="min-w-24">Custom color</Label>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div className="flex-1 relative">
-                          <Input
-                            id="bg-color"
-                            type="text"
-                            value={design.backgroundColor}
-                            className="pl-12"
-                            disabled
-                          />
-                          <div 
-                            className="absolute left-2 top-1/2 -translate-y-1/2 w-6 h-6 rounded-sm border border-gray-200"
-                            style={{ backgroundColor: design.backgroundColor }}
-                          />
-                          <Lock className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                        </div>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Custom colors available on paid plans</p>
-                      </TooltipContent>
-                    </Tooltip>
+                    <div className="flex-1 relative">
+                      <Input
+                        id="bg-color"
+                        type="color"
+                        value={design.backgroundColor}
+                        className="pl-12"
+                        onChange={(e) => handleColorChange('background', e.target.value)}
+                      />
+                      <div 
+                        className="absolute left-2 top-1/2 -translate-y-1/2 w-6 h-6 rounded-sm border border-gray-200"
+                        style={{ backgroundColor: design.backgroundColor }}
+                      />
+                    </div>
                   </div>
                 </div>
                 
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="text-lg font-medium">Corner Color</h3>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div className="flex items-center gap-2">
-                          <Label htmlFor="use-corner-color">Use QR Code color</Label>
-                          <Switch 
-                            id="use-corner-color" 
-                            disabled
-                          />
-                          <Lock className="h-4 w-4 text-gray-400" />
-                        </div>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Available on paid plans</p>
-                      </TooltipContent>
-                    </Tooltip>
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="use-corner-color">Use QR Code color</Label>
+                      <Switch 
+                        id="use-corner-color" 
+                        checked={!design.cornerColor}
+                        onCheckedChange={(checked) => 
+                          onDesignChange({ ...design, cornerColor: checked ? null : design.foregroundColor })
+                        }
+                      />
+                    </div>
                   </div>
+                  
+                  {design.cornerColor !== null && (
+                    <>
+                      <div className="grid grid-cols-8 gap-2 mb-4">
+                        {colorPresets.map((color) => (
+                          <div
+                            key={color}
+                            className={`
+                              w-10 h-10 rounded-full cursor-pointer
+                              ${design.cornerColor === color ? 'ring-2 ring-offset-2 ring-brand-blue' : ''}
+                            `}
+                            style={{ backgroundColor: color }}
+                            onClick={() => handleColorChange('corner', color)}
+                          />
+                        ))}
+                      </div>
+                      
+                      <div className="flex items-center gap-4">
+                        <Label htmlFor="corner-color" className="min-w-24">Custom color</Label>
+                        <div className="flex-1 relative">
+                          <Input
+                            id="corner-color"
+                            type="color"
+                            value={design.cornerColor || '#000000'}
+                            className="pl-12"
+                            onChange={(e) => handleColorChange('corner', e.target.value)}
+                          />
+                          <div 
+                            className="absolute left-2 top-1/2 -translate-y-1/2 w-6 h-6 rounded-sm"
+                            style={{ backgroundColor: design.cornerColor || '#000000' }}
+                          />
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
               </TabsContent>
               
               {/* Logo & Icon Tab */}
               <TabsContent value="logo" className="space-y-6">
                 <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-lg font-medium">Add a Logo or Center Icon</h3>
-                    <Button variant="outline" size="sm" disabled>
-                      <Lock className="h-3 w-3 mr-1" />
-                      Upgrade
-                    </Button>
-                  </div>
-                  
+                  <h3 className="text-lg font-medium mb-3">Add a Logo or Center Icon</h3>
                   <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
                     {centerIcons.map((icon) => (
-                      <Tooltip key={icon.id || 'none'}>
-                        <TooltipTrigger asChild>
-                          <div
-                            className={`
-                              border rounded-md p-4 flex items-center justify-center cursor-pointer
-                              ${design.centerIcon === icon.id ? 'border-brand-blue' : 'border-gray-200'}
-                              ${icon.premium ? 'opacity-60' : ''}
-                            `}
-                            onClick={() => {
-                              if (!icon.premium) {
-                                onDesignChange({ ...design, centerIcon: icon.id });
-                              } else {
-                                toast.error('This feature is only available on paid plans');
-                              }
-                            }}
-                          >
-                            <div className="relative">
-                              {icon.icon}
-                              {icon.premium && (
-                                <div className="absolute -top-2 -right-2">
-                                  <Lock className="h-3 w-3 text-gray-400" />
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </TooltipTrigger>
-                        {icon.premium && (
-                          <TooltipContent>
-                            <p>Available on paid plans</p>
-                          </TooltipContent>
-                        )}
-                      </Tooltip>
+                      <div
+                        key={icon.id || 'none'}
+                        className={`
+                          border rounded-md p-4 flex items-center justify-center cursor-pointer
+                          ${design.centerIcon === icon.id ? 'border-brand-blue' : 'border-gray-200'}
+                        `}
+                        onClick={() => onDesignChange({ ...design, centerIcon: icon.id })}
+                      >
+                        {icon.icon}
+                      </div>
                     ))}
                   </div>
                   
@@ -422,7 +352,6 @@ const QRCodeCustomizer: React.FC<QRCodeCustomizerProps> = ({
                           accept="image/*"
                           className="hidden"
                           onChange={handleLogoUpload}
-                          disabled
                         />
                         <Label htmlFor="logo-upload" className="cursor-pointer block">
                           <Image className="h-8 w-8 mx-auto mb-2 text-gray-400" />
@@ -442,7 +371,6 @@ const QRCodeCustomizer: React.FC<QRCodeCustomizerProps> = ({
                         maxLength={5}
                         value={design.customText || ''}
                         onChange={(e) => onDesignChange({ ...design, customText: e.target.value })}
-                        disabled
                       />
                     </div>
                   )}
@@ -452,52 +380,23 @@ const QRCodeCustomizer: React.FC<QRCodeCustomizerProps> = ({
               {/* Frame Tab */}
               <TabsContent value="frame" className="space-y-6">
                 <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-lg font-medium">Select a Frame</h3>
-                    <Button variant="outline" size="sm" disabled>
-                      <Lock className="h-3 w-3 mr-1" />
-                      Upgrade
-                    </Button>
-                  </div>
-                  
+                  <h3 className="text-lg font-medium mb-3">Select a Frame</h3>
                   <div className="grid grid-cols-3 gap-2">
                     {frameStyles.map((frame) => (
-                      <Tooltip key={frame.id || 'none'}>
-                        <TooltipTrigger asChild>
-                          <div
-                            className={`
-                              border rounded-md p-4 flex items-center justify-center cursor-pointer
-                              ${design.frameStyle === frame.id ? 'border-brand-blue' : 'border-gray-200'}
-                              ${frame.premium ? 'opacity-60' : ''}
-                            `}
-                            onClick={() => {
-                              if (!frame.premium) {
-                                onDesignChange({ ...design, frameStyle: frame.id });
-                              } else {
-                                toast.error('This feature is only available on paid plans');
-                              }
-                            }}
-                          >
-                            <div className="relative">
-                              <div className="w-16 h-16 flex items-center justify-center border border-gray-200">
-                                {frame.id?.includes('scanme') && (
-                                  <div className="text-xs font-semibold">SCAN ME</div>
-                                )}
-                              </div>
-                              {frame.premium && (
-                                <div className="absolute -top-2 -right-2">
-                                  <Lock className="h-3 w-3 text-gray-400" />
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </TooltipTrigger>
-                        {frame.premium && (
-                          <TooltipContent>
-                            <p>Available on paid plans</p>
-                          </TooltipContent>
-                        )}
-                      </Tooltip>
+                      <div
+                        key={frame.id || 'none'}
+                        className={`
+                          border rounded-md p-4 flex items-center justify-center cursor-pointer
+                          ${design.frameStyle === frame.id ? 'border-brand-blue' : 'border-gray-200'}
+                        `}
+                        onClick={() => onDesignChange({ ...design, frameStyle: frame.id })}
+                      >
+                        <div className="w-16 h-16 flex items-center justify-center border border-gray-200">
+                          {frame.id?.includes('scanme') && (
+                            <div className="text-xs font-semibold">SCAN ME</div>
+                          )}
+                        </div>
+                      </div>
                     ))}
                   </div>
                 </div>
