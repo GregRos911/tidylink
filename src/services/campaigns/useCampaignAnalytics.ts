@@ -117,56 +117,60 @@ export const useCampaignAnalytics = (campaignId?: string, days = 30) => {
         throw topLinksError;
       }
       
-      // Get device types
-      const { data: deviceData, error: deviceError } = await supabase
+      // For device types, locations and referrers, we need to do aggregation in JS
+      // since the group is not available in the client
+      const { data: analytics, error: analyticsDetailError } = await supabase
         .from('link_analytics')
-        .select('device_type, count')
-        .in('link_id', linkIds)
-        .not('device_type', 'is', null)
-        .group('device_type');
-      
-      if (deviceError) {
-        console.error('Error fetching device types:', deviceError);
-        throw deviceError;
+        .select('device_type, location_country, referrer')
+        .in('link_id', linkIds);
+        
+      if (analyticsDetailError) {
+        console.error('Error fetching analytics details:', analyticsDetailError);
+        throw analyticsDetailError;
       }
       
-      // Get top locations
-      const { data: locationData, error: locationError } = await supabase
-        .from('link_analytics')
-        .select('location_country, count')
-        .in('link_id', linkIds)
-        .not('location_country', 'is', null)
-        .group('location_country')
-        .order('count', { ascending: false })
-        .limit(5);
+      // Process device types
+      const deviceTypeCounts: Record<string, number> = {};
+      analytics?.forEach(item => {
+        const deviceType = item.device_type || 'Unknown';
+        deviceTypeCounts[deviceType] = (deviceTypeCounts[deviceType] || 0) + 1;
+      });
       
-      if (locationError) {
-        console.error('Error fetching top locations:', locationError);
-        throw locationError;
-      }
+      const deviceTypes = Object.entries(deviceTypeCounts)
+        .map(([device_type, count]) => ({ device_type, count }))
+        .sort((a, b) => b.count - a.count);
       
-      // Get top referrers
-      const { data: referrerData, error: referrerError } = await supabase
-        .from('link_analytics')
-        .select('referrer, count')
-        .in('link_id', linkIds)
-        .not('referrer', 'is', null)
-        .group('referrer')
-        .order('count', { ascending: false })
-        .limit(5);
+      // Process locations
+      const locationCounts: Record<string, number> = {};
+      analytics?.forEach(item => {
+        const location = item.location_country || 'Unknown';
+        locationCounts[location] = (locationCounts[location] || 0) + 1;
+      });
       
-      if (referrerError) {
-        console.error('Error fetching top referrers:', referrerError);
-        throw referrerError;
-      }
+      const topLocations = Object.entries(locationCounts)
+        .map(([location_country, count]) => ({ location_country, count }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 5);
+      
+      // Process referrers
+      const referrerCounts: Record<string, number> = {};
+      analytics?.forEach(item => {
+        const referrer = item.referrer || 'Direct';
+        referrerCounts[referrer] = (referrerCounts[referrer] || 0) + 1;
+      });
+      
+      const topReferrers = Object.entries(referrerCounts)
+        .map(([referrer, count]) => ({ referrer, count }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 5);
       
       return {
         totalClicks: totalClicks || 0,
         clicksByDay: clicksByDayArray,
         topLinks: links || [],
-        deviceTypes: deviceData || [],
-        topLocations: locationData || [],
-        topReferrers: referrerData || []
+        deviceTypes,
+        topLocations,
+        topReferrers
       };
     },
     enabled: !!user?.id && !!campaignId,

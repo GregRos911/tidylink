@@ -15,6 +15,7 @@ export const useUserCampaigns = () => {
       
       console.log('Fetching campaigns for user ID:', user.id);
       
+      // Use raw query to avoid Typescript issues with table definitions
       const { data, error } = await supabase
         .from('campaigns')
         .select('*')
@@ -26,7 +27,8 @@ export const useUserCampaigns = () => {
         throw error;
       }
       
-      return data || [];
+      // Cast data to Campaign type
+      return (data as unknown) as Campaign[] || [];
     },
     enabled: !!user?.id,
   });

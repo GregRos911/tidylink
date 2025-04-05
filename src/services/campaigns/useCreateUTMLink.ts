@@ -80,7 +80,7 @@ export const useCreateUTMLink = () => {
         if (utmContent) url.searchParams.append('utm_content', utmContent);
         
         // Insert new link with UTM parameters
-        const { data, error } = await supabase
+        const { data: rawData, error } = await supabase
           .from('links')
           .insert([{
             user_id: user.id,
@@ -95,14 +95,18 @@ export const useCreateUTMLink = () => {
             utm_term: utmTerm || null,
             utm_content: utmContent || null
           }])
-          .select()
-          .single();
+          .select();
         
         if (error) {
           console.error('Error creating UTM link:', error);
           throw error;
         }
         
+        if (!rawData || rawData.length === 0) {
+          throw new Error('Failed to create UTM link: No data returned');
+        }
+        
+        const data = rawData[0] as LinkData;
         console.log('UTM link created successfully:', data);
         return data;
       } catch (error: any) {

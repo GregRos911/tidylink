@@ -16,16 +16,17 @@ export const useIncrementLinkClicks = () => {
       locationCity?: string;
     }) => {
       // 1. Increment the clicks count in the links table
-      const { data: linkData, error: linkError } = await supabase
+      const { data, error: fetchError } = await supabase
         .from('links')
         .select('clicks, campaign_id')
         .eq('id', linkId)
-        .single();
+        .maybeSingle();
       
-      if (linkError) throw linkError;
+      if (fetchError) throw fetchError;
+      if (!data) throw new Error('Link not found');
       
-      const newClicks = (linkData.clicks || 0) + 1;
-      const campaignId = linkData.campaign_id;
+      const newClicks = (data.clicks || 0) + 1;
+      const campaignId = data.campaign_id;
       
       const { data: updatedLink, error: updateError } = await supabase
         .from('links')

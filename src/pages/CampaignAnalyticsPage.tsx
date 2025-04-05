@@ -23,6 +23,29 @@ const CampaignAnalyticsPage: React.FC = () => {
     isLoading: isLoadingAnalytics 
   } = useCampaignAnalytics(id);
   
+  // Transform data to match the expected format for chart components
+  const timeSeriesData = analyticsData?.clicksByDay.map(item => ({
+    date: item.date,
+    clicks: item.clicks,
+    scans: 0,
+    total: item.clicks
+  })) || [];
+  
+  const deviceData = analyticsData?.deviceTypes.map(item => ({
+    device: item.device_type,
+    percentage: item.count
+  })) || [];
+  
+  const locationData = analyticsData?.topLocations.map(item => ({
+    location: item.location_country,
+    count: item.count
+  })) || [];
+  
+  const referrerData = analyticsData?.topReferrers.map(item => ({
+    name: item.referrer,
+    value: item.count
+  })) || [];
+  
   return (
     <div className="min-h-screen flex bg-gray-50">
       {/* Sidebar - Hidden on mobile */}
@@ -44,52 +67,51 @@ const CampaignAnalyticsPage: React.FC = () => {
                 <ArrowLeft className="h-4 w-4 mr-1" /> Back to campaign
               </Link>
               
-              <AnalyticsHeader 
-                title={`${campaign?.name || 'Campaign'} Analytics`}
-                description="View detailed performance data for this campaign"
-                isLoading={isLoadingAnalytics}
+              <AnalyticsHeader
+                heading={`${campaign?.name || 'Campaign'} Analytics`}
+                subheading="View detailed performance data for this campaign"
+                loading={isLoadingAnalytics}
               />
             </div>
             
             {/* Top Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               <TopStatsCard
-                title="Total Clicks"
+                label="Total Clicks"
                 value={analyticsData?.totalClicks || 0}
                 icon={<Calendar className="text-blue-600" />}
-                isLoading={isLoadingAnalytics}
+                loading={isLoadingAnalytics}
               />
             </div>
             
             {/* Charts */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-              <ChartCard title="Clicks Over Time" isLoading={isLoadingAnalytics}>
+              <ChartCard heading="Clicks Over Time">
                 <TimeSeriesChart 
-                  data={analyticsData?.clicksByDay || []}
-                  isLoading={isLoadingAnalytics} 
+                  data={timeSeriesData}
+                  loading={isLoadingAnalytics} 
                 />
               </ChartCard>
               
-              <ChartCard title="Device Types" isLoading={isLoadingAnalytics}>
+              <ChartCard heading="Device Types">
                 <DeviceChart 
-                  data={analyticsData?.deviceTypes || []}
-                  isLoading={isLoadingAnalytics}
+                  data={deviceData}
+                  loading={isLoadingAnalytics}
                 />
               </ChartCard>
             </div>
             
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <ChartCard title="Top Locations" isLoading={isLoadingAnalytics}>
+              <ChartCard heading="Top Locations">
                 <LocationChart 
-                  data={analyticsData?.topLocations || []}
-                  isLoading={isLoadingAnalytics}
+                  data={locationData}
+                  loading={isLoadingAnalytics}
                 />
               </ChartCard>
               
-              <ChartCard title="Top Referrers" isLoading={isLoadingAnalytics}>
+              <ChartCard heading="Top Referrers">
                 <ReferrerChart 
-                  data={analyticsData?.topReferrers || []}
-                  isLoading={isLoadingAnalytics}
+                  data={referrerData}
                 />
               </ChartCard>
             </div>

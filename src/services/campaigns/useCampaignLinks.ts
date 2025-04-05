@@ -27,7 +27,7 @@ export const useCampaignLinks = (campaignId?: string) => {
         throw error;
       }
       
-      return data || [];
+      return data as LinkData[] || [];
     },
     enabled: !!user?.id && !!campaignId,
   });
