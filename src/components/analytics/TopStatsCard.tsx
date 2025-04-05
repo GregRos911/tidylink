@@ -4,44 +4,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { CalendarDays, MapPin } from 'lucide-react';
 
 interface TopStatsCardProps {
-  topDate?: { date: string; count: number } | null;
-  topLocation?: { location: string; count: number } | null;
-  title?: string;
-  label?: string; // Allow 'label' as an alternative to 'title'
-  value?: number;
-  icon?: React.ReactNode;
-  loading?: boolean;
+  topDate: { date: string; count: number } | null;
+  topLocation: { location: string; count: number } | null;
 }
 
-const TopStatsCard: React.FC<TopStatsCardProps> = ({ 
-  topDate, 
-  topLocation, 
-  title, 
-  label, 
-  value, 
-  icon,
-  loading 
-}) => {
-  // If it's a single stat card
-  if ((title || label) && value !== undefined) {
-    const displayTitle = title || label || '';
-    
-    return (
-      <Card>
-        <CardHeader>
-          <div className="flex items-center space-x-2">
-            {icon && icon}
-            <CardTitle className="text-lg font-medium">{displayTitle}</CardTitle>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{value}</div>
-        </CardContent>
-      </Card>
-    );
-  }
-  
-  // Original dual stats card view
+const TopStatsCard: React.FC<TopStatsCardProps> = ({ topDate, topLocation }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <Card>

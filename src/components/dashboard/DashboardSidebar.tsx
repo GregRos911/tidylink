@@ -17,13 +17,13 @@ const DashboardSidebar: React.FC = () => {
     { icon: Home, label: 'Home', href: '/dashboard' },
     { icon: LinkIcon, label: 'Links', href: '/links' },
     { icon: QrCode, label: 'QR Codes', href: '/qr-codes' },
-    { icon: BarChart2, label: 'Analytics', href: '/analytics' },
-    { icon: LayoutGrid, label: 'Campaigns', href: '/campaigns' }, // Unlocked now
+    { icon: BarChart2, label: 'Analytics', href: '/analytics' }, // Unlocked now
+    { icon: LayoutGrid, label: 'Campaigns', href: '/campaigns', locked: true },
     { icon: Globe, label: 'Custom Domains', href: '/domains', locked: true },
     { icon: Settings, label: 'Settings', href: '/settings' },
   ];
   
-  const isActive = (href: string) => location.pathname === href || location.pathname.startsWith(`${href}/`);
+  const isActive = (href: string) => location.pathname === href;
   
   return (
     <aside className="hidden md:flex flex-col w-60 bg-white border-r shrink-0">

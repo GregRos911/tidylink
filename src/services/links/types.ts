@@ -1,25 +1,19 @@
 
-// Types for link related data and operations
+// Types for link data
 export interface LinkData {
   id: string;
+  user_id: string;
   original_url: string;
   short_url: string;
+  custom_backhalf?: string;
   created_at: string;
-  user_id: string;
   clicks: number;
-  custom_backhalf: string | null;
-  qr_code_design_id: string | null;
-  campaign_id: string | null;
-  utm_source: string | null;
-  utm_medium: string | null;
-  utm_campaign: string | null;
-  utm_term: string | null;
-  utm_content: string | null;
+  qr_code_design_id?: string; // Added this property for QR code support
 }
 
+// Parameters for creating a link
 export interface CreateLinkParams {
   originalUrl: string;
   customBackhalf?: string;
   generateQrCode?: boolean;
-  campaignId?: string;
 }

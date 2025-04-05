@@ -1,61 +1,54 @@
 
 import React from 'react';
+import { ReferrerDataPoint } from '@/services/analytics/useAnalyticsData';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import ChartCard from './ChartCard';
 
-export interface ReferrerDataPoint {
-  referrer: string;
-  count: number;
-  name?: string; // For backward compatibility
-  value?: number; // For backward compatibility
-}
-
 interface ReferrerChartProps {
   data: ReferrerDataPoint[];
-  loading?: boolean;
 }
 
-const ReferrerChart: React.FC<ReferrerChartProps> = ({ data, loading }) => {
+const ReferrerChart: React.FC<ReferrerChartProps> = ({ data }) => {
   const isEmpty = !data || data.length === 0;
   
-  // Transform data to ensure it has the correct format
-  const transformedData = data.map(item => ({
-    referrer: item.referrer || item.name || 'Unknown',
-    count: item.count || item.value || 0
-  }));
-  
   // Sort and limit data to the top 5-7 referrers for clarity
-  const processedData = [...transformedData]
+  const processedData = [...data]
     .sort((a, b) => b.count - a.count)
     .slice(0, 7);
   
   return (
-    <ResponsiveContainer width="100%" height="100%">
-      <BarChart
-        data={processedData}
-        layout="vertical"
-        margin={{ top: 5, right: 30, left: 60, bottom: 5 }}
-      >
-        <XAxis type="number" />
-        <YAxis 
-          dataKey="referrer" 
-          type="category" 
-          width={70}
-          tickFormatter={(value) => value.length > 10 ? `${value.substring(0, 10)}...` : value}
-        />
-        <Tooltip 
-          formatter={(value) => [`${value} visits`, 'Visits']}
-          labelFormatter={(label) => `Referrer: ${label}`}
-        />
-        <Bar 
-          dataKey="count" 
-          name="Visits"
-          fill="#8B5CF6" 
-          radius={[0, 4, 4, 0]}
-          animationDuration={1500}
-        />
-      </BarChart>
-    </ResponsiveContainer>
+    <ChartCard 
+      title="Traffic by Referrer" 
+      description="Where your traffic is coming from" 
+      isEmpty={isEmpty}
+    >
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart
+          data={processedData}
+          layout="vertical"
+          margin={{ top: 5, right: 30, left: 60, bottom: 5 }}
+        >
+          <XAxis type="number" />
+          <YAxis 
+            dataKey="referrer" 
+            type="category" 
+            width={70}
+            tickFormatter={(value) => value.length > 10 ? `${value.substring(0, 10)}...` : value}
+          />
+          <Tooltip 
+            formatter={(value) => [`${value} visits`, 'Visits']}
+            labelFormatter={(label) => `Referrer: ${label}`}
+          />
+          <Bar 
+            dataKey="count" 
+            name="Visits"
+            fill="#8B5CF6" 
+            radius={[0, 4, 4, 0]}
+            animationDuration={1500}
+          />
+        </BarChart>
+      </ResponsiveContainer>
+    </ChartCard>
   );
 };
 
