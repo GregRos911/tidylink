@@ -1,31 +1,22 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
 import { CampaignData } from '../CampaignComposer';
 import { Campaign } from '@/services/campaigns/types';
-import { useCampaignLinks, useCreateUTMLink } from '@/services/campaigns';
+import { useCampaignLinks } from '@/services/campaigns';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { LinkIcon, Link2Icon, Plus } from 'lucide-react';
+import { LinkIcon } from 'lucide-react';
+import { newLinkSchema, NewLinkFormValues } from './link-step/linkFormSchema';
+import ExistingLinksList from './link-step/ExistingLinksList';
+import NewLinkForm from './link-step/NewLinkForm';
 
 interface SelectLinkStepProps {
   campaignData: CampaignData;
   updateCampaignData: (data: Partial<CampaignData>) => void;
   campaign: Campaign;
 }
-
-const newLinkSchema = z.object({
-  url: z.string().url('Please enter a valid URL'),
-  utmSource: z.string().min(1, 'Source is required'),
-  utmMedium: z.string().min(1, 'Medium is required'),
-  utmCampaign: z.string().min(1, 'Campaign name is required'),
-  utmContent: z.string().optional(),
-  customBackhalf: z.string().optional(),
-});
 
 const SelectLinkStep: React.FC<SelectLinkStepProps> = ({
   campaignData,
@@ -38,7 +29,7 @@ const SelectLinkStep: React.FC<SelectLinkStepProps> = ({
   
   const { data: links, isLoading: isLoadingLinks } = useCampaignLinks(campaign.id);
   
-  const form = useForm<z.infer<typeof newLinkSchema>>({
+  const form = useForm<NewLinkFormValues>({
     resolver: zodResolver(newLinkSchema),
     defaultValues: {
       url: campaignData.newLink?.url || '',
@@ -51,7 +42,7 @@ const SelectLinkStep: React.FC<SelectLinkStepProps> = ({
   });
   
   // Update parent form data when this form changes
-  React.useEffect(() => {
+  useEffect(() => {
     if (linkOption === 'new') {
       const subscription = form.watch((value) => {
         updateCampaignData({
@@ -124,33 +115,12 @@ const SelectLinkStep: React.FC<SelectLinkStepProps> = ({
             </label>
             {linkOption === 'existing' && (
               <div className="mt-3">
-                {isLoadingLinks ? (
-                  <p className="text-sm text-gray-500">Loading links...</p>
-                ) : links && links.length > 0 ? (
-                  <div className="grid gap-3">
-                    {links.map(link => (
-                      <div 
-                        key={link.id}
-                        className={`
-                          flex items-center border rounded-md p-2 cursor-pointer 
-                          ${campaignData.selectedLinkId === link.id ? 'bg-gray-100 border-gray-400' : 'hover:bg-gray-50'}
-                        `}
-                        onClick={() => handleExistingLinkSelect(link.id)}
-                      >
-                        <Link2Icon className="h-4 w-4 text-gray-500 flex-shrink-0" />
-                        <div className="ml-3 flex-1 min-w-0">
-                          <p className="font-medium text-sm truncate">{link.original_url}</p>
-                          <p className="text-xs text-gray-500 truncate">{link.short_url}</p>
-                        </div>
-                        <div className="ml-2 flex-shrink-0 text-xs text-gray-500">
-                          {link.clicks} clicks
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-sm text-gray-500">No links found for this campaign. Create a new one.</p>
-                )}
+                <ExistingLinksList 
+                  links={links}
+                  isLoading={isLoadingLinks}
+                  selectedLinkId={campaignData.selectedLinkId}
+                  onSelectLink={handleExistingLinkSelect}
+                />
               </div>
             )}
           </div>
@@ -165,100 +135,7 @@ const SelectLinkStep: React.FC<SelectLinkStepProps> = ({
             
             {linkOption === 'new' && (
               <div className="mt-3">
-                <Form {...form}>
-                  <form className="space-y-3">
-                    <FormField
-                      control={form.control}
-                      name="url"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-xs">Destination URL</FormLabel>
-                          <FormControl>
-                            <Input {...field} placeholder="https://yourdomain.com/landing-page" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <div className="grid grid-cols-2 gap-3">
-                      <FormField
-                        control={form.control}
-                        name="utmSource"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-xs">Source</FormLabel>
-                            <FormControl>
-                              <Input {...field} placeholder="email" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name="utmMedium"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-xs">Medium</FormLabel>
-                            <FormControl>
-                              <Input {...field} placeholder="email" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-3">
-                      <FormField
-                        control={form.control}
-                        name="utmCampaign"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-xs">Campaign Name</FormLabel>
-                            <FormControl>
-                              <Input {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name="utmContent"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-xs">Content (optional)</FormLabel>
-                            <FormControl>
-                              <Input {...field} placeholder="campaign_email" value={field.value || ''} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    
-                    <FormField
-                      control={form.control}
-                      name="customBackhalf"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-xs">Custom Back-half (optional)</FormLabel>
-                          <FormControl>
-                            <Input {...field} placeholder="summer-sale" value={field.value || ''} />
-                          </FormControl>
-                          <FormMessage />
-                          <p className="text-xs text-gray-500 mt-1">
-                            Leave blank to generate automatically
-                          </p>
-                        </FormItem>
-                      )}
-                    />
-                  </form>
-                </Form>
+                <NewLinkForm form={form} />
               </div>
             )}
           </div>
