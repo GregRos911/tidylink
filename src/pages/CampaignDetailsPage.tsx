@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Plus } from 'lucide-react';
+import { ArrowLeft, Plus, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
 import DashboardTopBar from '@/components/dashboard/DashboardTopBar';
@@ -9,10 +9,12 @@ import { useCampaignLinks } from '@/services/campaigns';
 import { useUserCampaigns } from '@/services/campaigns';
 import CreateUTMLinkModal from '@/components/campaigns/CreateUTMLinkModal';
 import CampaignLinksTable from '@/components/campaigns/CampaignLinksTable';
+import SendCampaignEmailsModal from '@/components/campaigns/SendCampaignEmailsModal';
 
 const CampaignDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showEmailModal, setShowEmailModal] = useState(false);
   
   const { data: campaigns } = useUserCampaigns();
   const campaign = campaigns?.find(c => c.id === id);
@@ -55,6 +57,15 @@ const CampaignDetailsPage: React.FC = () => {
                 
                 <div className="flex gap-3">
                   <Button 
+                    onClick={() => setShowEmailModal(true)}
+                    variant="outline"
+                    className="border-brand-blue text-brand-blue border"
+                    disabled={!links || links.length === 0}
+                  >
+                    <Mail className="mr-2 h-4 w-4" /> Send Emails
+                  </Button>
+                  
+                  <Button 
                     onClick={() => setShowCreateModal(true)}
                     className="bg-brand-blue hover:bg-brand-blue/90"
                   >
@@ -85,6 +96,15 @@ const CampaignDetailsPage: React.FC = () => {
         <CreateUTMLinkModal 
           isOpen={showCreateModal}
           onClose={() => setShowCreateModal(false)}
+          campaign={campaign}
+        />
+      )}
+
+      {/* Send Campaign Emails Modal */}
+      {campaign && (
+        <SendCampaignEmailsModal
+          isOpen={showEmailModal}
+          onClose={() => setShowEmailModal(false)}
           campaign={campaign}
         />
       )}
