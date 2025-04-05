@@ -1,13 +1,12 @@
 
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import ChartCard from './ChartCard';
 
 export interface ReferrerDataPoint {
   referrer: string;
   count: number;
-  name?: string; // For backward compatibility
-  value?: number; // For backward compatibility
+  name?: string;
+  value?: number;
 }
 
 interface ReferrerChartProps {
@@ -17,6 +16,14 @@ interface ReferrerChartProps {
 
 const ReferrerChart: React.FC<ReferrerChartProps> = ({ data, loading }) => {
   const isEmpty = !data || data.length === 0;
+  
+  if (isEmpty) {
+    return (
+      <div className="flex items-center justify-center h-full text-gray-500">
+        <p>No data available for this chart</p>
+      </div>
+    );
+  }
   
   // Transform data to ensure it has the correct format
   const transformedData = data.map(item => ({

@@ -1,14 +1,12 @@
 
 import React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
-import ChartCard from './ChartCard';
 
-// Update the interface to support both formats
 export interface DeviceDataPoint {
   device: string;
   count: number;
   percentage?: number;
-  device_type?: string; // Support for backward compatibility
+  device_type?: string;
 }
 
 interface DeviceChartProps {
@@ -20,6 +18,14 @@ const COLORS = ['#2767FF', '#8B5CF6', '#D946EF', '#10B981', '#F59E0B', '#EF4444'
 
 const DeviceChart: React.FC<DeviceChartProps> = ({ data, loading }) => {
   const isEmpty = !data || data.length === 0;
+  
+  if (isEmpty) {
+    return (
+      <div className="flex items-center justify-center h-full text-gray-500">
+        <p>No data available for this chart</p>
+      </div>
+    );
+  }
   
   // Transform data to ensure it has the correct format
   const transformedData = data.map(item => ({

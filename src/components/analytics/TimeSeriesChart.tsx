@@ -2,7 +2,6 @@
 import React from 'react';
 import { AnalyticsDataPoint } from '@/services/analytics/useAnalyticsData';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import ChartCard from './ChartCard';
 
 interface TimeSeriesChartProps {
   data: AnalyticsDataPoint[];
@@ -11,6 +10,14 @@ interface TimeSeriesChartProps {
 
 const TimeSeriesChart: React.FC<TimeSeriesChartProps> = ({ data, loading }) => {
   const isEmpty = !data || data.length === 0;
+  
+  if (isEmpty) {
+    return (
+      <div className="flex items-center justify-center h-full text-gray-500">
+        <p>No data available for this chart</p>
+      </div>
+    );
+  }
   
   return (
     <ResponsiveContainer width="100%" height="100%">

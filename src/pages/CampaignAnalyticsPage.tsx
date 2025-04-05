@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Calendar } from 'lucide-react';
 import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
@@ -10,11 +10,12 @@ import TimeSeriesChart from '@/components/analytics/TimeSeriesChart';
 import DeviceChart from '@/components/analytics/DeviceChart';
 import LocationChart from '@/components/analytics/LocationChart';
 import ReferrerChart from '@/components/analytics/ReferrerChart';
-import AnalyticsHeader from '@/components/analytics/AnalyticsHeader';
 import ChartCard from '@/components/analytics/ChartCard';
+import { DateRange } from '@/services/analytics/useAnalyticsData';
 
 const CampaignAnalyticsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const [dateRange, setDateRange] = useState<DateRange>('30');
   const { data: campaigns } = useUserCampaigns();
   const campaign = campaigns?.find(c => c.id === id);
   
@@ -48,15 +49,22 @@ const CampaignAnalyticsPage: React.FC = () => {
   
   // Transform location data to match the expected format
   const locationData = analyticsData?.topLocations.map(item => ({
-    location: item.location_country,
+    location: item.location_country || 'Unknown',
     count: item.count
   })) || [];
   
   // Transform referrer data to match the expected format
   const referrerData = analyticsData?.topReferrers.map(item => ({
-    referrer: item.referrer,
+    referrer: item.referrer || 'Direct',
     count: item.count
   })) || [];
+  
+  const isEmpty = !analyticsData || (
+    timeSeriesData.length === 0 && 
+    deviceData.length === 0 && 
+    locationData.length === 0 && 
+    referrerData.length === 0
+  );
   
   return (
     <div className="min-h-screen flex bg-gray-50">
@@ -79,7 +87,6 @@ const CampaignAnalyticsPage: React.FC = () => {
                 <ArrowLeft className="h-4 w-4 mr-1" /> Back to campaign
               </Link>
               
-              {/* Using dateRange="30" as a default since it's required by AnalyticsHeader */}
               <div className="mb-6">
                 <h2 className="text-2xl font-bold text-gray-900">{campaign?.name || 'Campaign'} Analytics</h2>
                 <p className="text-gray-500">View detailed performance data for this campaign</p>
@@ -87,32 +94,51 @@ const CampaignAnalyticsPage: React.FC = () => {
             </div>
             
             {/* Top Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <TopStatsCard
-                label="Total Clicks"
-                value={analyticsData?.totalClicks || 0}
-                icon={<Calendar className="text-blue-600" />}
-                loading={isLoadingAnalytics}
-              />
+            <div className="grid grid-cols-1 md:grid-cols-1 gap-4 mb-6">
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg font-medium">Total Clicks</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{analyticsData?.totalClicks || 0}</div>
+                  <CardDescription>All campaign link clicks</CardDescription>
+                </CardContent>
+              </Card>
             </div>
             
             {/* Charts */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-              <ChartCard title="Clicks Over Time">
+              <ChartCard 
+                title="Traffic Over Time"
+                description="Clicks by date"
+                isEmpty={timeSeriesData.length === 0}
+              >
                 <TimeSeriesChart data={timeSeriesData} />
               </ChartCard>
               
-              <ChartCard title="Device Types">
+              <ChartCard 
+                title="Traffic by Device"
+                description="Distribution across device types"
+                isEmpty={deviceData.length === 0}
+              >
                 <DeviceChart data={deviceData} />
               </ChartCard>
             </div>
             
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <ChartCard title="Top Locations">
+              <ChartCard 
+                title="Traffic by Location"
+                description="Where your visitors are from"
+                isEmpty={locationData.length === 0}
+              >
                 <LocationChart data={locationData} />
               </ChartCard>
               
-              <ChartCard title="Top Referrers">
+              <ChartCard 
+                title="Traffic by Referrer"
+                description="Where your traffic is coming from"
+                isEmpty={referrerData.length === 0}
+              >
                 <ReferrerChart data={referrerData} />
               </ChartCard>
             </div>
@@ -122,5 +148,8 @@ const CampaignAnalyticsPage: React.FC = () => {
     </div>
   );
 };
+
+// Import the Card components at the top level to avoid React hook ordering issues
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default CampaignAnalyticsPage;

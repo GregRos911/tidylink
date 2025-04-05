@@ -12,13 +12,12 @@ interface ChartCardProps {
   isEmpty?: boolean;
   emptyMessage?: string;
   className?: string;
-  // Support both title and heading for flexibility
   heading?: string;
 }
 
 const ChartCard: React.FC<ChartCardProps> = ({ 
   title, 
-  heading, // Allow heading as an alternative to title
+  heading,
   description, 
   children, 
   onDownload, 

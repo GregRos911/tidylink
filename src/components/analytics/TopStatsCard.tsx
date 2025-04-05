@@ -7,7 +7,7 @@ interface TopStatsCardProps {
   topDate?: { date: string; count: number } | null;
   topLocation?: { location: string; count: number } | null;
   title?: string;
-  label?: string; // Allow 'label' as an alternative to 'title'
+  label?: string;
   value?: number;
   icon?: React.ReactNode;
   loading?: boolean;

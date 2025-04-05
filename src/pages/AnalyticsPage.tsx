@@ -9,6 +9,7 @@ import DeviceChart from '@/components/analytics/DeviceChart';
 import ReferrerChart from '@/components/analytics/ReferrerChart';
 import LocationChart from '@/components/analytics/LocationChart';
 import TopStatsCard from '@/components/analytics/TopStatsCard';
+import ChartCard from '@/components/analytics/ChartCard';
 
 const AnalyticsPage: React.FC = () => {
   const [showCreateLinkCard, setShowCreateLinkCard] = useState(false);
@@ -63,10 +64,37 @@ const AnalyticsPage: React.FC = () => {
                 />
                 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-                  <TimeSeriesChart data={analyticsData?.byDate || []} />
-                  <DeviceChart data={analyticsData?.byDevice || []} />
-                  <ReferrerChart data={analyticsData?.byReferrer || []} />
-                  <LocationChart data={analyticsData?.byLocation || []} />
+                  <ChartCard 
+                    title="Traffic Over Time" 
+                    description="Clicks and scans by date"
+                    isEmpty={!analyticsData?.byDate.length}
+                  >
+                    <TimeSeriesChart data={analyticsData?.byDate || []} />
+                  </ChartCard>
+                  
+                  <ChartCard 
+                    title="Traffic by Device" 
+                    description="Distribution across device types"
+                    isEmpty={!analyticsData?.byDevice.length}
+                  >
+                    <DeviceChart data={analyticsData?.byDevice || []} />
+                  </ChartCard>
+                  
+                  <ChartCard 
+                    title="Traffic by Referrer" 
+                    description="Where your traffic is coming from"
+                    isEmpty={!analyticsData?.byReferrer.length}
+                  >
+                    <ReferrerChart data={analyticsData?.byReferrer || []} />
+                  </ChartCard>
+                  
+                  <ChartCard 
+                    title="Traffic by Location" 
+                    description="Where your visitors are from"
+                    isEmpty={!analyticsData?.byLocation.length}
+                  >
+                    <LocationChart data={analyticsData?.byLocation || []} />
+                  </ChartCard>
                 </div>
               </>
             )}

@@ -1,12 +1,11 @@
 
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import ChartCard from './ChartCard';
 
 export interface LocationDataPoint {
   location: string;
   count: number;
-  location_country?: string; // For backward compatibility
+  location_country?: string;
 }
 
 interface LocationChartProps {
@@ -16,6 +15,14 @@ interface LocationChartProps {
 
 const LocationChart: React.FC<LocationChartProps> = ({ data, loading }) => {
   const isEmpty = !data || data.length === 0;
+  
+  if (isEmpty) {
+    return (
+      <div className="flex items-center justify-center h-full text-gray-500">
+        <p>No data available for this chart</p>
+      </div>
+    );
+  }
   
   // Transform data to ensure it has the correct format
   const transformedData = data.map(item => ({
