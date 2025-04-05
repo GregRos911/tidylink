@@ -31,7 +31,7 @@ const LinkShortener: React.FC = () => {
         <div className="text-center p-4">
           <div className="flex justify-center mb-6">
             <TypingAnimation 
-              texts={["Build Trust.", "Secure Links."]} 
+              texts={["Build Trust.", "Create Secure Signals"]} 
               typingSpeed={80}
               pauseTime={1500}
               fadeTime={600}
