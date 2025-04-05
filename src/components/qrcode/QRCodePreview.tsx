@@ -115,20 +115,68 @@ const QRCodePreview: React.FC<QRCodePreviewProps> = ({
 
   // Calculate opacity based on frame darkness (10-100)
   const frameOpacity = design.frameDarkness ? design.frameDarkness / 100 : 0.5;
+  const frameColor = `rgba(0, 0, 0, ${frameOpacity})`;
+  
+  // Get frame styles based on the selected frame type
+  const getFrameStyles = () => {
+    if (!design.frameStyle) return {};
+    
+    const baseStyles = {
+      position: 'absolute',
+      inset: 0,
+      borderWidth: '4px',
+      borderStyle: 'solid',
+      borderColor: frameColor
+    } as React.CSSProperties;
+    
+    switch (design.frameStyle) {
+      case 'simple':
+        return baseStyles;
+      case 'rounded':
+        return {
+          ...baseStyles,
+          borderRadius: '16px'
+        };
+      case 'scanme-bottom':
+      case 'scanme-top':
+      case 'scanme-cursive':
+        return {
+          ...baseStyles,
+          borderRadius: '8px'
+        };
+      default:
+        return {};
+    }
+  };
   
   return (
     <div className="relative flex items-center justify-center bg-white p-4 rounded-md">
-      <div ref={ref} className="flex items-center justify-center min-h-[250px] min-w-[250px]">
+      {/* Frame container */}
+      {design.frameStyle && (
+        <div 
+          className="absolute inset-8 pointer-events-none"
+          style={getFrameStyles()}
+        />
+      )}
+      
+      {/* QR Code container */}
+      <div ref={ref} className="flex items-center justify-center min-h-[250px] min-w-[250px] z-10">
         <Loader2 className="h-10 w-10 animate-spin text-brand-blue" />
       </div>
       
-      {/* This would be where you'd add frame styling if selected */}
-      {design.frameStyle && (
+      {/* Scan me text */}
+      {design.frameStyle && design.frameStyle.includes('scanme') && (
         <div 
           className="absolute bottom-2 left-0 right-0 text-center text-xs font-medium"
-          style={{ opacity: frameOpacity }}
+          style={{ 
+            opacity: frameOpacity,
+            fontWeight: design.frameStyle === 'scanme-cursive' ? 'normal' : 'bold',
+            fontFamily: design.frameStyle === 'scanme-cursive' ? 'cursive, serif' : 'inherit',
+            bottom: design.frameStyle === 'scanme-top' ? 'auto' : '12px',
+            top: design.frameStyle === 'scanme-top' ? '12px' : 'auto'
+          }}
         >
-          {design.frameStyle.includes('scanme') && 'SCAN ME'}
+          SCAN ME
         </div>
       )}
     </div>

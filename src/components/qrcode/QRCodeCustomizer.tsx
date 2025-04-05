@@ -402,7 +402,7 @@ const QRCodeCustomizer: React.FC<QRCodeCustomizerProps> = ({
                       </div>
                     </div>
                     <p className="text-sm text-gray-500 mt-2">
-                      Adjust the darkness of your frame to make it more visible against different backgrounds
+                      Adjust the darkness of your frame and text to make them more visible against different backgrounds
                     </p>
                   </div>
                 )}
