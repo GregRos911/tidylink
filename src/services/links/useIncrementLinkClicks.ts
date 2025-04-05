@@ -35,23 +35,24 @@ export const useIncrementLinkClicks = () => {
       
       if (updateError) throw updateError;
       
-      // 2. Record analytics data
-      const { data: analyticsData, error: analyticsError } = await supabase
-        .from('link_analytics')
-        .insert([{
-          link_id: linkId,
-          user_id: userId,
-          device_type: deviceType || 'Unknown',
-          referrer: referrer || null,
-          location_country: locationCountry || null,
-          location_city: locationCity || null,
-          is_qr_scan: false
-        }])
-        .select();
+      // 2. Record analytics data using RPC instead of direct table access
+      try {
+        const { error: analyticsError } = await supabase.rpc('insert_link_analytics', {
+          p_link_id: linkId,
+          p_user_id: userId,
+          p_device_type: deviceType || 'Unknown',
+          p_referrer: referrer || null,
+          p_location_country: locationCountry || null,
+          p_location_city: locationCity || null,
+          p_is_qr_scan: false
+        });
+        
+        if (analyticsError) throw analyticsError;
+      } catch (error) {
+        console.error('Error recording analytics:', error);
+      }
       
-      if (analyticsError) throw analyticsError;
-      
-      return { updatedLink, analyticsData };
+      return { updatedLink };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['links'] });

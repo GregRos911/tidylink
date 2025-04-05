@@ -1,7 +1,10 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from "../integrations/supabase/client";
 import { useUser } from "@clerk/clerk-react";
+import { Loader2 } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
 const getDeviceType = () => {
   const ua = navigator.userAgent;
@@ -75,13 +78,18 @@ const RedirectPage: React.FC = () => {
           
           await supabase.from('links').update({ clicks: (link.clicks || 0) + 1 }).eq('id', link.id);
           
-          await supabase.from('link_analytics').insert([{
-            link_id: link.id,
-            user_id: link.user_id,
-            device_type: deviceType,
-            referrer: referrer,
-            is_qr_scan: false
-          }]);
+          // We'll store analytics data but handle the case if link_analytics isn't in types yet
+          try {
+            await supabase.rpc('insert_link_analytics', {
+              p_link_id: link.id,
+              p_user_id: link.user_id,
+              p_device_type: deviceType,
+              p_referrer: referrer,
+              p_is_qr_scan: false
+            });
+          } catch (analyticsError) {
+            console.error('Error logging analytics:', analyticsError);
+          }
           
           const timer = setInterval(() => {
             setCountdown(prev => {
@@ -97,12 +105,19 @@ const RedirectPage: React.FC = () => {
           return () => clearInterval(timer);
         } else {
           console.log('Link not found for ID:', id);
-          toast.error('Link not found');
+          toast({
+            title: "Link not found",
+            description: "The requested link does not exist or has expired."
+          });
           navigate('/');
         }
       } catch (error) {
         console.error('Error fetching link:', error);
-        toast.error('Link not found or has expired');
+        toast({
+          title: "Error",
+          description: "Link not found or has expired",
+          variant: "destructive"
+        });
         navigate('/');
       } finally {
         setIsLoading(false);

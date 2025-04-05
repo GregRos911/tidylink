@@ -60,18 +60,11 @@ export const useAnalyticsData = (dateRange: DateRange = '30') => {
         throw new Error('User not authenticated');
       }
       
-      // Base query
-      let query = supabase
-        .from('link_analytics')
-        .select('*')
-        .eq('user_id', userId);
-      
-      // Apply date filter if needed
-      if (startDate) {
-        query = query.gte('created_at', startDate);
-      }
-      
-      const { data, error } = await query;
+      // Use RPC function to get analytics data
+      const { data, error } = await supabase.rpc('get_user_analytics', {
+        p_user_id: userId,
+        p_start_date: startDate
+      });
       
       if (error) {
         console.error('Error fetching analytics:', error);
@@ -89,7 +82,7 @@ export const useAnalyticsData = (dateRange: DateRange = '30') => {
 // Process raw analytics data for chart display
 const processAnalyticsData = (data: any[]): AnalyticsData => {
   // Default empty data structure
-  if (!data.length) {
+  if (!data || !data.length) {
     return {
       byDate: [],
       byDevice: [],
