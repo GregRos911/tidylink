@@ -76,19 +76,25 @@ const RedirectPage: React.FC = () => {
           const deviceType = getDeviceType();
           const referrer = getReferrer();
           
+          // Increment clicks count
           await supabase.from('links').update({ clicks: (link.clicks || 0) + 1 }).eq('id', link.id);
           
-          // Use RPC function instead of direct table access
+          // Store analytics directly in the database
+          // This avoids the RPC TypeScript issue
           try {
-            await supabase.rpc('insert_link_analytics', {
-              p_link_id: link.id,
-              p_user_id: link.user_id,
-              p_device_type: deviceType,
-              p_referrer: referrer,
-              p_location_country: null,
-              p_location_city: null,
-              p_is_qr_scan: false
-            });
+            const { error: analyticsError } = await supabase
+              .from('link_analytics')
+              .insert({
+                link_id: link.id,
+                user_id: link.user_id,
+                device_type: deviceType,
+                referrer: referrer,
+                location_country: null,
+                location_city: null,
+                is_qr_scan: false
+              });
+              
+            if (analyticsError) throw analyticsError;
           } catch (analyticsError) {
             console.error('Error logging analytics:', analyticsError);
           }

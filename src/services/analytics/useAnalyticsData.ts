@@ -60,11 +60,13 @@ export const useAnalyticsData = (dateRange: DateRange = '30') => {
         throw new Error('User not authenticated');
       }
       
-      // Use RPC function to get analytics data
-      const { data, error } = await supabase.rpc('get_user_analytics', {
-        p_user_id: userId,
-        p_start_date: startDate
-      });
+      // Use direct query instead of RPC to avoid TypeScript issues
+      const { data, error } = await supabase
+        .from('link_analytics')
+        .select('*')
+        .eq('user_id', userId)
+        .gte('created_at', startDate ? startDate : '1970-01-01')
+        .order('created_at', { ascending: false });
       
       if (error) {
         console.error('Error fetching analytics:', error);
