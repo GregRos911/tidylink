@@ -27,23 +27,35 @@ const CampaignAnalyticsPage: React.FC = () => {
   const timeSeriesData = analyticsData?.clicksByDay.map(item => ({
     date: item.date,
     clicks: item.clicks,
-    scans: 0,
-    total: item.clicks
+    scans: 0, // Set default scans to 0
+    total: item.clicks // Total is equal to clicks since we don't have scans
   })) || [];
   
+  // Transform device data to match the expected format
   const deviceData = analyticsData?.deviceTypes.map(item => ({
     device: item.device_type,
-    percentage: item.count
+    count: item.count,
+    percentage: 0 // Add percentage field
   })) || [];
   
+  // Update percentage values for device data
+  const totalDeviceCount = deviceData.reduce((sum, item) => sum + item.count, 0);
+  deviceData.forEach(item => {
+    item.percentage = totalDeviceCount > 0 
+      ? Math.round((item.count / totalDeviceCount) * 100) 
+      : 0;
+  });
+  
+  // Transform location data to match the expected format
   const locationData = analyticsData?.topLocations.map(item => ({
     location: item.location_country,
     count: item.count
   })) || [];
   
+  // Transform referrer data to match the expected format
   const referrerData = analyticsData?.topReferrers.map(item => ({
-    name: item.referrer,
-    value: item.count
+    referrer: item.referrer,
+    count: item.count
   })) || [];
   
   return (
@@ -67,11 +79,11 @@ const CampaignAnalyticsPage: React.FC = () => {
                 <ArrowLeft className="h-4 w-4 mr-1" /> Back to campaign
               </Link>
               
-              <AnalyticsHeader
-                heading={`${campaign?.name || 'Campaign'} Analytics`}
-                subheading="View detailed performance data for this campaign"
-                loading={isLoadingAnalytics}
-              />
+              {/* Using dateRange="30" as a default since it's required by AnalyticsHeader */}
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold text-gray-900">{campaign?.name || 'Campaign'} Analytics</h2>
+                <p className="text-gray-500">View detailed performance data for this campaign</p>
+              </div>
             </div>
             
             {/* Top Stats Cards */}
@@ -86,33 +98,22 @@ const CampaignAnalyticsPage: React.FC = () => {
             
             {/* Charts */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-              <ChartCard heading="Clicks Over Time">
-                <TimeSeriesChart 
-                  data={timeSeriesData}
-                  loading={isLoadingAnalytics} 
-                />
+              <ChartCard title="Clicks Over Time">
+                <TimeSeriesChart data={timeSeriesData} />
               </ChartCard>
               
-              <ChartCard heading="Device Types">
-                <DeviceChart 
-                  data={deviceData}
-                  loading={isLoadingAnalytics}
-                />
+              <ChartCard title="Device Types">
+                <DeviceChart data={deviceData} />
               </ChartCard>
             </div>
             
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <ChartCard heading="Top Locations">
-                <LocationChart 
-                  data={locationData}
-                  loading={isLoadingAnalytics}
-                />
+              <ChartCard title="Top Locations">
+                <LocationChart data={locationData} />
               </ChartCard>
               
-              <ChartCard heading="Top Referrers">
-                <ReferrerChart 
-                  data={referrerData}
-                />
+              <ChartCard title="Top Referrers">
+                <ReferrerChart data={referrerData} />
               </ChartCard>
             </div>
           </div>

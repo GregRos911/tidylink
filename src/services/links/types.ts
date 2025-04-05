@@ -20,4 +20,6 @@ export interface LinkData {
 export interface CreateLinkParams {
   originalUrl: string;
   customBackhalf?: string;
+  generateQrCode?: boolean;
+  campaignId?: string;
 }
