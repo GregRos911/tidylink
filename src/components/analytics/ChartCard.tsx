@@ -12,10 +12,13 @@ interface ChartCardProps {
   isEmpty?: boolean;
   emptyMessage?: string;
   className?: string;
+  // Support both title and heading for flexibility
+  heading?: string;
 }
 
 const ChartCard: React.FC<ChartCardProps> = ({ 
   title, 
+  heading, // Allow heading as an alternative to title
   description, 
   children, 
   onDownload, 
@@ -23,13 +26,16 @@ const ChartCard: React.FC<ChartCardProps> = ({
   emptyMessage = "No data available for this chart",
   className = ""
 }) => {
+  // Use heading if provided, otherwise fall back to title
+  const displayTitle = heading || title;
+
   // Function to handle download (could be implemented to export chart as image or CSV)
   const handleDownload = () => {
     if (onDownload) {
       onDownload();
     } else {
       // Default fallback for download functionality
-      console.log('Download triggered for chart:', title);
+      console.log('Download triggered for chart:', displayTitle);
       alert('Download functionality not implemented for this chart');
     }
   };
@@ -38,7 +44,7 @@ const ChartCard: React.FC<ChartCardProps> = ({
     <Card className={`h-full ${className}`}>
       <CardHeader className="pb-2 flex flex-row items-start justify-between">
         <div>
-          <CardTitle className="text-lg font-medium">{title}</CardTitle>
+          <CardTitle className="text-lg font-medium">{displayTitle}</CardTitle>
           {description && <CardDescription>{description}</CardDescription>}
         </div>
         
@@ -50,7 +56,7 @@ const ChartCard: React.FC<ChartCardProps> = ({
           disabled={isEmpty}
         >
           <Download className="h-4 w-4" />
-          <span className="sr-only">Download {title} data</span>
+          <span className="sr-only">Download {displayTitle} data</span>
         </Button>
       </CardHeader>
       

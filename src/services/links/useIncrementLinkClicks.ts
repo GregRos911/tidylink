@@ -16,15 +16,17 @@ export const useIncrementLinkClicks = () => {
       locationCity?: string;
     }) => {
       // 1. Increment the clicks count in the links table
-      const { data: linkData, error: linkError } = await supabase
+      const { data, error: fetchError } = await supabase
         .from('links')
-        .select('clicks')
+        .select('clicks, campaign_id')
         .eq('id', linkId)
-        .single();
+        .maybeSingle();
       
-      if (linkError) throw linkError;
+      if (fetchError) throw fetchError;
+      if (!data) throw new Error('Link not found');
       
-      const newClicks = (linkData.clicks || 0) + 1;
+      const newClicks = (data.clicks || 0) + 1;
+      const campaignId = data.campaign_id;
       
       const { data: updatedLink, error: updateError } = await supabase
         .from('links')
@@ -55,11 +57,17 @@ export const useIncrementLinkClicks = () => {
         console.error('Error recording analytics:', error);
       }
       
-      return { updatedLink };
+      return { updatedLink, campaignId };
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['links'] });
       queryClient.invalidateQueries({ queryKey: ['analytics'] });
+      
+      // If the link belongs to a campaign, invalidate campaign-related queries
+      if (data.campaignId) {
+        queryClient.invalidateQueries({ queryKey: ['campaign-links', data.campaignId] });
+        queryClient.invalidateQueries({ queryKey: ['campaign-analytics', data.campaignId] });
+      }
     }
   });
 };

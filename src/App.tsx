@@ -16,6 +16,9 @@ import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import QRCodeBuilderPage from "./pages/QRCodeBuilderPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
+import CampaignsPage from "./pages/CampaignsPage";
+import CampaignDetailsPage from "./pages/CampaignDetailsPage";
+import CampaignAnalyticsPage from "./pages/CampaignAnalyticsPage";
 
 const queryClient = new QueryClient();
 
@@ -58,6 +61,22 @@ const App = () => (
           <Route path="/analytics" element={
             <ProtectedRoute>
               <AnalyticsPage />
+            </ProtectedRoute>
+          } />
+          {/* New Campaign Routes */}
+          <Route path="/campaigns" element={
+            <ProtectedRoute>
+              <CampaignsPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/campaigns/:id" element={
+            <ProtectedRoute>
+              <CampaignDetailsPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/campaigns/:id/analytics" element={
+            <ProtectedRoute>
+              <CampaignAnalyticsPage />
             </ProtectedRoute>
           } />
           <Route path="/settings" element={
