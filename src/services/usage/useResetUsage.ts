@@ -4,7 +4,7 @@ import { useUser } from "@clerk/clerk-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-// Hook to reset usage
+// Hook to reset usage and clear analytics data
 export const useResetUsage = () => {
   const queryClient = useQueryClient();
   const { user } = useUser();
@@ -14,9 +14,10 @@ export const useResetUsage = () => {
       if (!user?.id) throw new Error('User not authenticated');
       
       try {
-        console.log('Resetting usage for user ID:', user.id);
+        console.log('Resetting usage and analytics for user ID:', user.id);
         
-        const { data, error } = await supabase
+        // Reset usage stats
+        const { data: usageData, error: usageError } = await supabase
           .from('usage')
           .update({
             links_used: 0,
@@ -28,19 +29,33 @@ export const useResetUsage = () => {
           .select()
           .single();
         
-        if (error) {
-          console.error('Error resetting usage:', error);
-          throw error;
+        if (usageError) {
+          console.error('Error resetting usage:', usageError);
+          throw usageError;
         }
-        return data;
+        
+        // Delete all analytics data for this user
+        const { error: analyticsError } = await supabase
+          .from('link_analytics')
+          .delete()
+          .eq('user_id', user.id);
+          
+        if (analyticsError) {
+          console.error('Error deleting analytics:', analyticsError);
+          throw analyticsError;
+        }
+        
+        return usageData;
       } catch (error: any) {
-        console.error('Error resetting usage:', error);
-        toast.error(error.message || 'Failed to reset usage stats');
+        console.error('Error resetting data:', error);
+        toast.error(error.message || 'Failed to reset data');
         throw error;
       }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['usage', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['analytics', user?.id] });
+      toast.success('All usage stats and analytics data have been reset successfully!');
     }
   });
 };
