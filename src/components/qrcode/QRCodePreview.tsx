@@ -15,6 +15,7 @@ interface QRCodePreviewProps {
     customText: string | null;
     frameStyle: string | null;
     logoUrl: string | null;
+    frameDarkness?: number;
   };
   size?: number;
 }
@@ -111,6 +112,9 @@ const QRCodePreview: React.FC<QRCodePreviewProps> = ({
       default: return 'square';
     }
   }
+
+  // Calculate opacity based on frame darkness (10-100)
+  const frameOpacity = design.frameDarkness ? design.frameDarkness / 100 : 0.5;
   
   return (
     <div className="relative flex items-center justify-center bg-white p-4 rounded-md">
@@ -120,7 +124,10 @@ const QRCodePreview: React.FC<QRCodePreviewProps> = ({
       
       {/* This would be where you'd add frame styling if selected */}
       {design.frameStyle && (
-        <div className="absolute bottom-2 left-0 right-0 text-center text-xs font-medium">
+        <div 
+          className="absolute bottom-2 left-0 right-0 text-center text-xs font-medium"
+          style={{ opacity: frameOpacity }}
+        >
           {design.frameStyle.includes('scanme') && 'SCAN ME'}
         </div>
       )}

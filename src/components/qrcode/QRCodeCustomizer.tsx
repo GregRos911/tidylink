@@ -6,7 +6,7 @@ import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Lock, Upload, X, Image, Facebook, Instagram, Twitter, Linkedin, Globe } from 'lucide-react';
+import { Lock, Upload, X, Image, Facebook, Instagram, Twitter, Linkedin, Globe, SlidersHorizontal } from 'lucide-react';
 import { toast } from 'sonner';
 import { LinkData } from '@/services/links';
 import QRCodePreview from './QRCodePreview';
@@ -14,6 +14,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Slider } from '@/components/ui/slider';
 
 interface QRCodeDesign {
   pattern: string;
@@ -26,6 +27,7 @@ interface QRCodeDesign {
   frameStyle: string | null;
   logoUrl: string | null;
   name: string;
+  frameDarkness: number;
 }
 
 interface QRCodeCustomizerProps {
@@ -40,6 +42,7 @@ const QRCodeCustomizer: React.FC<QRCodeCustomizerProps> = ({
   selectedLinkData
 }) => {
   const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [showPremiumAlert, setShowPremiumAlert] = useState(false);
   
   // Color presets
   const colorPresets = [
@@ -118,6 +121,14 @@ const QRCodeCustomizer: React.FC<QRCodeCustomizerProps> = ({
     }
   };
   
+  const handleFrameDarknessChange = (value: number[]) => {
+    onDesignChange({ ...design, frameDarkness: value[0] });
+  };
+  
+  const handlePremiumFeatureClick = () => {
+    setShowPremiumAlert(true);
+  };
+  
   return (
     <div className="grid md:grid-cols-5 gap-6">
       {/* QR Code Preview */}
@@ -152,7 +163,10 @@ const QRCodeCustomizer: React.FC<QRCodeCustomizerProps> = ({
               <TabsList className="w-full mb-4">
                 <TabsTrigger value="style" className="flex-1">Style</TabsTrigger>
                 <TabsTrigger value="colors" className="flex-1">Colors</TabsTrigger>
-                <TabsTrigger value="logo" className="flex-1">Logo & Icon</TabsTrigger>
+                <TabsTrigger value="logo" className="flex-1 relative">
+                  Logo & Icon
+                  <Lock className="h-4 w-4 ml-1 text-amber-500 inline-block" />
+                </TabsTrigger>
                 <TabsTrigger value="frame" className="flex-1">Frame</TabsTrigger>
               </TabsList>
               
@@ -323,57 +337,23 @@ const QRCodeCustomizer: React.FC<QRCodeCustomizerProps> = ({
                 </div>
               </TabsContent>
               
-              {/* Logo & Icon Tab */}
+              {/* Logo & Icon Tab - Now Premium */}
               <TabsContent value="logo" className="space-y-6">
-                <div>
-                  <h3 className="text-lg font-medium mb-3">Add a Logo or Center Icon</h3>
-                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-                    {centerIcons.map((icon) => (
-                      <div
-                        key={icon.id || 'none'}
-                        className={`
-                          border rounded-md p-4 flex items-center justify-center cursor-pointer
-                          ${design.centerIcon === icon.id ? 'border-brand-blue' : 'border-gray-200'}
-                        `}
-                        onClick={() => onDesignChange({ ...design, centerIcon: icon.id })}
-                      >
-                        {icon.icon}
-                      </div>
-                    ))}
+                <div className="flex flex-col items-center justify-center py-10">
+                  <div className="text-center mb-6">
+                    <Lock className="h-16 w-16 text-amber-500 mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold mb-2">Premium Feature</h3>
+                    <p className="text-gray-600 max-w-md mx-auto">
+                      Adding logos and icons to your QR codes is available with our premium plans.
+                      Upgrade today to access this and other premium features.
+                    </p>
                   </div>
-                  
-                  {design.centerIcon === 'upload' && (
-                    <div className="mt-4">
-                      <Label htmlFor="logo-upload" className="block mb-2">Upload Logo</Label>
-                      <div className="border-2 border-dashed border-gray-300 rounded-md p-4 text-center">
-                        <Input 
-                          id="logo-upload" 
-                          type="file" 
-                          accept="image/*"
-                          className="hidden"
-                          onChange={handleLogoUpload}
-                        />
-                        <Label htmlFor="logo-upload" className="cursor-pointer block">
-                          <Image className="h-8 w-8 mx-auto mb-2 text-gray-400" />
-                          <p className="text-sm text-gray-500 mb-1">PNG, JPG up to 5MB</p>
-                          <p className="text-xs text-gray-400">1:1 aspect ratio recommended</p>
-                        </Label>
-                      </div>
-                    </div>
-                  )}
-                  
-                  {design.centerIcon === 'custom-text' && (
-                    <div className="mt-4">
-                      <Label htmlFor="custom-text" className="block mb-2">Custom Text</Label>
-                      <Input 
-                        id="custom-text" 
-                        placeholder="Enter text (max 5 chars)" 
-                        maxLength={5}
-                        value={design.customText || ''}
-                        onChange={(e) => onDesignChange({ ...design, customText: e.target.value })}
-                      />
-                    </div>
-                  )}
+                  <Button 
+                    onClick={() => toast.info("Premium upgrade coming soon!")}
+                    className="bg-gradient-to-r from-amber-400 to-amber-600 hover:from-amber-500 hover:to-amber-700"
+                  >
+                    Upgrade to Premium
+                  </Button>
                 </div>
               </TabsContent>
               
@@ -400,11 +380,56 @@ const QRCodeCustomizer: React.FC<QRCodeCustomizerProps> = ({
                     ))}
                   </div>
                 </div>
+                
+                {/* Frame Darkness Slider - Only visible when a frame is selected */}
+                {design.frameStyle && (
+                  <div className="mt-4">
+                    <div className="flex justify-between items-center mb-2">
+                      <h3 className="text-lg font-medium">Frame Darkness</h3>
+                      <SlidersHorizontal className="h-5 w-5 text-gray-500" />
+                    </div>
+                    <div className="py-4">
+                      <Slider
+                        defaultValue={[design.frameDarkness || 50]}
+                        min={10}
+                        max={100}
+                        step={5}
+                        onValueChange={handleFrameDarknessChange}
+                      />
+                      <div className="flex justify-between mt-1">
+                        <span className="text-xs text-gray-500">Lighter</span>
+                        <span className="text-xs text-gray-500">Darker</span>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-500 mt-2">
+                      Adjust the darkness of your frame to make it more visible against different backgrounds
+                    </p>
+                  </div>
+                )}
               </TabsContent>
             </Tabs>
           </CardContent>
         </Card>
       </div>
+      
+      {/* Premium Feature Alert Dialog */}
+      <AlertDialog open={showPremiumAlert} onOpenChange={setShowPremiumAlert}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Premium Feature</AlertDialogTitle>
+            <AlertDialogDescription>
+              Logo and icon customization is available with our premium plans.
+              Upgrade today to access this and other premium features.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Maybe Later</AlertDialogCancel>
+            <AlertDialogAction onClick={() => toast.info("Premium upgrade coming soon!")}>
+              Upgrade
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

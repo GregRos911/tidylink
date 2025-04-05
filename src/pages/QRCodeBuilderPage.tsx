@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
 import DashboardTopBar from '@/components/dashboard/DashboardTopBar';
@@ -39,7 +38,8 @@ const QRCodeBuilderPage: React.FC = () => {
     customText: null,
     frameStyle: null,
     logoUrl: null,
-    name: 'My QR Code'
+    name: 'My QR Code',
+    frameDarkness: 50
   });
   
   const handleGoBack = () => {
