@@ -1,14 +1,14 @@
 
 import React from 'react';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
 import { CampaignData } from '../CampaignComposer';
 import { Campaign } from '@/services/campaigns/types';
-import { InfoIcon } from 'lucide-react';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import EmailInfoAlert from './sender-step/EmailInfoAlert';
+import FormFieldWithTooltip from './sender-step/FormFieldWithTooltip';
+import { senderFormSchema, SenderFormValues } from './sender-step/senderFormSchema';
 
 interface SenderInfoStepProps {
   campaignData: CampaignData;
@@ -16,18 +16,12 @@ interface SenderInfoStepProps {
   campaign: Campaign;
 }
 
-const formSchema = z.object({
-  fromName: z.string().min(2, 'Name is required'),
-  fromEmail: z.string().email('Valid email is required'),
-  subject: z.string().min(1, 'Subject is required'),
-});
-
 const SenderInfoStep: React.FC<SenderInfoStepProps> = ({
   campaignData,
   updateCampaignData
 }) => {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<SenderFormValues>({
+    resolver: zodResolver(senderFormSchema),
     defaultValues: {
       fromName: campaignData.fromName,
       fromEmail: campaignData.fromEmail,
@@ -50,77 +44,26 @@ const SenderInfoStep: React.FC<SenderInfoStepProps> = ({
   
   return (
     <div className="space-y-4">
-      <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4 mb-4">
-        <div className="flex items-start">
-          <div className="flex-shrink-0">
-            <InfoIcon className="h-5 w-5 text-yellow-500" />
-          </div>
-          <div className="ml-3">
-            <h3 className="text-sm font-medium text-yellow-800">Important</h3>
-            <p className="text-sm text-yellow-700 mt-1">
-              To prevent your emails from landing in spam, make sure:
-            </p>
-            <ul className="list-disc list-inside text-sm text-yellow-700 mt-1">
-              <li>You've verified your domain with Resend</li>
-              <li>Your 'From' email matches your verified domain</li>
-              <li>Your email content is relevant to recipients</li>
-            </ul>
-          </div>
-        </div>
-      </div>
+      <EmailInfoAlert />
       
       <Form {...form}>
         <form className="space-y-4">
-          <FormField
+          <FormFieldWithTooltip 
             control={form.control}
             name="fromName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="flex items-center">
-                  Sender Name 
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <InfoIcon className="h-4 w-4 ml-2 text-gray-400" />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p className="w-60">This is the name that will appear as the sender in the recipient's inbox.</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="Your Company" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Sender Name"
+            tooltipText="This is the name that will appear as the sender in the recipient's inbox."
+            placeholder="Your Company"
           />
           
-          <FormField
+          <FormFieldWithTooltip 
             control={form.control}
             name="fromEmail"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="flex items-center">
-                  Sender Email
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <InfoIcon className="h-4 w-4 ml-2 text-gray-400" />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p className="w-80">This email must be from a domain you've verified with Resend. Using non-verified domains may cause your emails to be marked as spam.</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="noreply@yourdomain.com" type="email" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Sender Email"
+            tooltipText="This email must be from a domain you've verified with Resend. Using non-verified domains may cause your emails to be marked as spam."
+            placeholder="noreply@yourdomain.com"
+            type="email"
+            tooltipWidth="w-80"
           />
           
           <FormField
