@@ -4,19 +4,12 @@ import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { CampaignData } from '../CampaignComposer';
-import { Campaign } from '@/services/campaigns/types';
 import EmailInfoAlert from './sender-step/EmailInfoAlert';
 import FormFieldWithTooltip from './sender-step/FormFieldWithTooltip';
 import { senderFormSchema, SenderFormValues } from './sender-step/senderFormSchema';
+import { ComposerStepProps } from './types';
 
-interface SenderInfoStepProps {
-  campaignData: CampaignData;
-  updateCampaignData: (data: Partial<CampaignData>) => void;
-  campaign: Campaign;
-}
-
-const SenderInfoStep: React.FC<SenderInfoStepProps> = ({
+const SenderInfoStep: React.FC<ComposerStepProps> = ({
   campaignData,
   updateCampaignData
 }) => {

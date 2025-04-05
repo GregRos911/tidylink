@@ -5,22 +5,15 @@ import { Textarea } from '@/components/ui/textarea';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { CampaignData } from '../CampaignComposer';
-import { Campaign } from '@/services/campaigns/types';
+import { ComposerStepProps } from './types';
 import { AlertCircle, FileText, Tag } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-
-interface ComposeMessageStepProps {
-  campaignData: CampaignData;
-  updateCampaignData: (data: Partial<CampaignData>) => void;
-  campaign: Campaign;
-}
 
 const formSchema = z.object({
   message: z.string().min(1, 'Message content is required'),
 });
 
-const ComposeMessageStep: React.FC<ComposeMessageStepProps> = ({
+const ComposeMessageStep: React.FC<ComposerStepProps> = ({
   campaignData,
   updateCampaignData
 }) => {

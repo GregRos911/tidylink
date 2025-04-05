@@ -3,22 +3,15 @@ import React, { useState, useEffect } from 'react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { CampaignData } from '../CampaignComposer';
-import { Campaign } from '@/services/campaigns/types';
 import { useCampaignLinks } from '@/services/campaigns';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { LinkIcon } from 'lucide-react';
 import { newLinkSchema, NewLinkFormValues } from './link-step/linkFormSchema';
 import ExistingLinksList from './link-step/ExistingLinksList';
 import NewLinkForm from './link-step/NewLinkForm';
+import { ComposerStepProps } from './types';
 
-interface SelectLinkStepProps {
-  campaignData: CampaignData;
-  updateCampaignData: (data: Partial<CampaignData>) => void;
-  campaign: Campaign;
-}
-
-const SelectLinkStep: React.FC<SelectLinkStepProps> = ({
+const SelectLinkStep: React.FC<ComposerStepProps> = ({
   campaignData,
   updateCampaignData,
   campaign

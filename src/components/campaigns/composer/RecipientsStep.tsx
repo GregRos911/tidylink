@@ -1,8 +1,7 @@
 
 import React, { useState } from 'react';
 import { Input } from '@/components/ui/input';
-import { CampaignData } from '../CampaignComposer';
-import { Campaign } from '@/services/campaigns/types';
+import { ComposerStepProps } from './types';
 import { 
   AlertCircle, 
   FileUp, 
@@ -16,13 +15,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
-interface RecipientsStepProps {
-  campaignData: CampaignData;
-  updateCampaignData: (data: Partial<CampaignData>) => void;
-  campaign: Campaign;
-}
-
-const RecipientsStep: React.FC<RecipientsStepProps> = ({
+const RecipientsStep: React.FC<ComposerStepProps> = ({
   campaignData,
   updateCampaignData
 }) => {

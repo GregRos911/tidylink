@@ -1,18 +1,11 @@
 
 import React from 'react';
-import { CampaignData } from '../CampaignComposer';
-import { Campaign } from '@/services/campaigns/types';
+import { ComposerStepProps } from './types';
 import { useCampaignLinks } from '@/services/campaigns';
-import { AlertCircle, Mail, User, Link, Users, Check } from 'lucide-react';
+import { AlertCircle, Mail, Link, Check } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
-interface PreviewStepProps {
-  campaignData: CampaignData;
-  updateCampaignData: (data: Partial<CampaignData>) => void;
-  campaign: Campaign;
-}
-
-const PreviewStep: React.FC<PreviewStepProps> = ({
+const PreviewStep: React.FC<ComposerStepProps> = ({
   campaignData,
   campaign
 }) => {
