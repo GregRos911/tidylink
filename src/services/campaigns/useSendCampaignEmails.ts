@@ -4,11 +4,24 @@ import { useUser } from "@clerk/clerk-react";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+interface NewLinkData {
+  url: string;
+  utmSource: string;
+  utmMedium: string;
+  utmCampaign: string;
+  utmContent?: string;
+  customBackhalf?: string;
+}
+
 interface SendCampaignEmailsParams {
   campaignId: string;
   emails: string[];
   subject: string;
   message?: string;
+  fromName?: string;
+  fromEmail?: string;
+  linkId?: string;
+  newLinkData?: NewLinkData;
 }
 
 interface SendCampaignEmailsResult {
@@ -26,7 +39,11 @@ export const useSendCampaignEmails = () => {
       campaignId,
       emails,
       subject,
-      message
+      message,
+      fromName,
+      fromEmail,
+      linkId,
+      newLinkData
     }: SendCampaignEmailsParams): Promise<SendCampaignEmailsResult> => {
       if (!user?.id) throw new Error('User not authenticated');
       
@@ -45,6 +62,10 @@ export const useSendCampaignEmails = () => {
             subject,
             message,
             userId: user.id,
+            fromName,
+            fromEmail,
+            linkId,
+            newLinkData
           }),
         });
         

@@ -9,12 +9,12 @@ import { useCampaignLinks } from '@/services/campaigns';
 import { useUserCampaigns } from '@/services/campaigns';
 import CreateUTMLinkModal from '@/components/campaigns/CreateUTMLinkModal';
 import CampaignLinksTable from '@/components/campaigns/CampaignLinksTable';
-import SendCampaignEmailsModal from '@/components/campaigns/SendCampaignEmailsModal';
+import CampaignComposer from '@/components/campaigns/CampaignComposer';
 
 const CampaignDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [showComposerModal, setShowComposerModal] = useState(false);
   
   const { data: campaigns } = useUserCampaigns();
   const campaign = campaigns?.find(c => c.id === id);
@@ -57,12 +57,12 @@ const CampaignDetailsPage: React.FC = () => {
                 
                 <div className="flex gap-3">
                   <Button 
-                    onClick={() => setShowEmailModal(true)}
+                    onClick={() => setShowComposerModal(true)}
                     variant="outline"
                     className="border-brand-blue text-brand-blue border"
-                    disabled={!links || links.length === 0}
+                    disabled={!campaign}
                   >
-                    <Mail className="mr-2 h-4 w-4" /> Send Emails
+                    <Mail className="mr-2 h-4 w-4" /> Campaign Composer
                   </Button>
                   
                   <Button 
@@ -100,11 +100,11 @@ const CampaignDetailsPage: React.FC = () => {
         />
       )}
 
-      {/* Send Campaign Emails Modal */}
+      {/* Campaign Composer Modal */}
       {campaign && (
-        <SendCampaignEmailsModal
-          isOpen={showEmailModal}
-          onClose={() => setShowEmailModal(false)}
+        <CampaignComposer
+          isOpen={showComposerModal}
+          onClose={() => setShowComposerModal(false)}
           campaign={campaign}
         />
       )}
