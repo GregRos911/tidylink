@@ -32,7 +32,7 @@ const SharingOptions: React.FC<SharingOptionsProps> = ({
           <Switch
             checked={generateQrCode}
             onCheckedChange={setGenerateQrCode}
-            disabled={false} {/* Always enabled now */}
+            disabled={false} /* Always enabled now */
           />
         </div>
       </div>
