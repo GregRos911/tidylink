@@ -9,6 +9,33 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      campaigns: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       link_analytics: {
         Row: {
           created_at: string
@@ -55,6 +82,7 @@ export type Database = {
       }
       links: {
         Row: {
+          campaign_id: string | null
           clicks: number
           created_at: string
           custom_backhalf: string | null
@@ -63,8 +91,14 @@ export type Database = {
           qr_code_design_id: string | null
           short_url: string
           user_id: string
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          utm_term: string | null
         }
         Insert: {
+          campaign_id?: string | null
           clicks?: number
           created_at?: string
           custom_backhalf?: string | null
@@ -73,8 +107,14 @@ export type Database = {
           qr_code_design_id?: string | null
           short_url: string
           user_id: string
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
         }
         Update: {
+          campaign_id?: string | null
           clicks?: number
           created_at?: string
           custom_backhalf?: string | null
@@ -83,8 +123,20 @@ export type Database = {
           qr_code_design_id?: string | null
           short_url?: string
           user_id?: string
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "links_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "links_qr_code_design_id_fkey"
             columns: ["qr_code_design_id"]

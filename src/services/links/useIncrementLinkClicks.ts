@@ -18,13 +18,14 @@ export const useIncrementLinkClicks = () => {
       // 1. Increment the clicks count in the links table
       const { data: linkData, error: linkError } = await supabase
         .from('links')
-        .select('clicks')
+        .select('clicks, campaign_id')
         .eq('id', linkId)
         .single();
       
       if (linkError) throw linkError;
       
       const newClicks = (linkData.clicks || 0) + 1;
+      const campaignId = linkData.campaign_id;
       
       const { data: updatedLink, error: updateError } = await supabase
         .from('links')
@@ -55,11 +56,17 @@ export const useIncrementLinkClicks = () => {
         console.error('Error recording analytics:', error);
       }
       
-      return { updatedLink };
+      return { updatedLink, campaignId };
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['links'] });
       queryClient.invalidateQueries({ queryKey: ['analytics'] });
+      
+      // If the link belongs to a campaign, invalidate campaign-related queries
+      if (data.campaignId) {
+        queryClient.invalidateQueries({ queryKey: ['campaign-links', data.campaignId] });
+        queryClient.invalidateQueries({ queryKey: ['campaign-analytics', data.campaignId] });
+      }
     }
   });
 };
