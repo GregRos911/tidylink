@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
 import DashboardTopBar from '@/components/dashboard/DashboardTopBar';
@@ -66,6 +67,12 @@ const QRCodeBuilderPage: React.FC = () => {
   const handleLinkCreated = (linkId: string) => {
     // Set the selected link to the newly created link
     setSelectedLink(linkId);
+  };
+
+  // Handle customize button click
+  const handleCustomize = () => {
+    // Close the modal and return to the customizer
+    setShowPreviewModal(false);
   };
   
   return (
@@ -144,6 +151,7 @@ const QRCodeBuilderPage: React.FC = () => {
         <QRCodePreviewModal
           isOpen={showPreviewModal}
           onClose={() => setShowPreviewModal(false)}
+          onCustomize={handleCustomize}
           qrCodeData={generatedQRCodeData}
         />
       )}
