@@ -27,7 +27,6 @@ const RedirectPage: React.FC = () => {
   const [countdown, setCountdown] = useState(3);
   const [originalUrl, setOriginalUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [notFound, setNotFound] = useState(false);
   const user = useUser();
 
   useEffect(() => {
@@ -39,34 +38,39 @@ const RedirectPage: React.FC = () => {
     const fetchLink = async () => {
       try {
         setIsLoading(true);
-        const baseUrl = window.location.origin;
-        const shortUrl = `${baseUrl}/r/${id}`;
+        console.log('Looking up redirect for ID:', id);
         
-        console.log('Looking for link with short_url:', shortUrl);
-        
-        let { data: link, error } = await supabase
+        // First try to find by custom_backhalf (more likely to be what users are clicking)
+        let { data: customLink, error: customError } = await supabase
           .from('links')
           .select('*')
-          .eq('short_url', shortUrl)
+          .eq('custom_backhalf', id)
           .maybeSingle();
         
-        if (error) {
-          console.error('Error when searching by short_url:', error);
+        if (customError) {
+          console.error('Error when searching by custom_backhalf:', customError);
         }
         
+        let link = customLink;
+        
+        // If not found by custom_backhalf, try the full short_url
         if (!link) {
-          console.log('Link not found by short_url, trying custom_backhalf:', id);
-          const { data: customLink, error: customError } = await supabase
+          const baseUrl = window.location.origin;
+          const shortUrl = `${baseUrl}/r/${id}`;
+          
+          console.log('Not found by custom_backhalf, trying short_url:', shortUrl);
+          
+          const { data: urlLink, error } = await supabase
             .from('links')
             .select('*')
-            .eq('custom_backhalf', id)
+            .eq('short_url', shortUrl)
             .maybeSingle();
           
-          if (customError) {
-            console.error('Error when searching by custom_backhalf:', customError);
+          if (error) {
+            console.error('Error when searching by short_url:', error);
           }
           
-          link = customLink;
+          link = urlLink;
         }
         
         if (link) {
@@ -80,7 +84,6 @@ const RedirectPage: React.FC = () => {
           await supabase.from('links').update({ clicks: (link.clicks || 0) + 1 }).eq('id', link.id);
           
           // Store analytics directly in the database
-          // This avoids the RPC TypeScript issue
           try {
             const { error: analyticsError } = await supabase
               .from('link_analytics')
@@ -117,7 +120,7 @@ const RedirectPage: React.FC = () => {
             title: "Link not found",
             description: "The requested link does not exist or has expired."
           });
-          navigate('/');
+          setIsLoading(false);
         }
       } catch (error) {
         console.error('Error fetching link:', error);
@@ -126,8 +129,6 @@ const RedirectPage: React.FC = () => {
           description: "Link not found or has expired",
           variant: "destructive"
         });
-        navigate('/');
-      } finally {
         setIsLoading(false);
       }
     };
@@ -135,7 +136,7 @@ const RedirectPage: React.FC = () => {
     fetchLink();
   }, [id, navigate, user]);
   
-  if (isLoading) {
+  if (isLoading && !originalUrl) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">

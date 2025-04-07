@@ -15,9 +15,12 @@ const QRCodeImage: React.FC<QRCodeImageProps> = ({ link }) => {
     );
   }
 
+  // Ensure we're using the absolute URL for the QR code
+  const qrCodeUrl = link.short_url;
+  
   return (
     <img 
-      src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(link.short_url)}`}
+      src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrCodeUrl)}`}
       alt="QR Code"
       className="h-48 w-48"
     />
