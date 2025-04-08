@@ -24,3 +24,4 @@ enabled = true
 [edge-functions]
 [edge-functions.send-campaign-emails]
 [edge-functions.redirect]
+verify_jwt = false
