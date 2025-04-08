@@ -163,6 +163,7 @@ const processAnalyticsData = (data: any[]): AnalyticsData => {
   // Group by location (country if available, otherwise city)
   const byLocationMap = new Map<string, number>();
   data.forEach(item => {
+    // Prioritize country, fall back to city or use 'Unknown' if both are missing
     const location = item.location_country || item.location_city || 'Unknown';
     byLocationMap.set(location, (byLocationMap.get(location) || 0) + 1);
   });
@@ -172,7 +173,7 @@ const processAnalyticsData = (data: any[]): AnalyticsData => {
     .map(([location, count]) => ({ location, count }))
     .sort((a, b) => b.count - a.count);
   
-  // Find top location
+  // Find top location - make sure we actually set it from the sorted data
   const topLocation = byLocation.length > 0 
     ? { location: byLocation[0].location, count: byLocation[0].count }
     : null;

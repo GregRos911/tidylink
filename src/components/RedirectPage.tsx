@@ -83,6 +83,7 @@ const RedirectPage: React.FC = () => {
               user_id: link.user_id,
               device_type: deviceType,
               referrer: referrerDomain,
+              location_country: 'Unknown', // We can't get location from client side reliably
               is_qr_scan: false
             });
             
