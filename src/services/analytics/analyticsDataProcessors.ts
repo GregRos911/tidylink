@@ -1,34 +1,13 @@
 
 import { LocationDataPoint } from '@/components/analytics/LocationChart';
-
-export interface AnalyticsDataPoint {
-  date: string;
-  clicks: number;
-  scans: number;
-  total: number;
-}
-
-export interface DeviceDataPoint {
-  device: string;
-  count: number;
-  percentage: number;
-}
-
-export interface ReferrerDataPoint {
-  referrer: string;
-  count: number;
-}
-
-export interface AnalyticsData {
-  byDate: AnalyticsDataPoint[];
-  byDevice: DeviceDataPoint[];
-  byReferrer: ReferrerDataPoint[];
-  byLocation: LocationDataPoint[];
-  topDate: { date: string; count: number } | null;
-  topLocation: { location: string; count: number } | null;
-  totalClicks: number;
-  totalScans: number;
-}
+import { 
+  AnalyticsDataPoint,
+  DeviceDataPoint,
+  ReferrerDataPoint,
+  AnalyticsData,
+  TopDateInfo,
+  TopLocationInfo
+} from './types';
 
 /**
  * Process raw analytics data for time series chart
@@ -64,11 +43,18 @@ export const processDateData = (data: any[]): AnalyticsDataPoint[] => {
 /**
  * Find top performing date based on total engagements
  */
-export const findTopDate = (dateData: AnalyticsDataPoint[]): { date: string; count: number } | null => {
-  return dateData.length > 0 
-    ? dateData.reduce((max, current) => 
-        current.total > max.total ? current : max, dateData[0])
-    : null;
+export const findTopDate = (dateData: AnalyticsDataPoint[]): TopDateInfo | null => {
+  if (dateData.length === 0) {
+    return null;
+  }
+  
+  const topDateItem = dateData.reduce((max, current) => 
+    current.total > max.total ? current : max, dateData[0]);
+  
+  return {
+    date: topDateItem.date,
+    count: topDateItem.total
+  };
 };
 
 /**
@@ -114,7 +100,7 @@ export const processReferrerData = (data: any[]): ReferrerDataPoint[] => {
  */
 export const processLocationData = (data: any[]): { 
   locationData: LocationDataPoint[],
-  topLocation: { location: string; count: number } | null
+  topLocation: TopLocationInfo | null
 } => {
   // Log location data for debugging
   const locationDetails = data.map(item => ({

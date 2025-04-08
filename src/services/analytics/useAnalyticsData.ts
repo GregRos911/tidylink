@@ -3,9 +3,8 @@ import { useState, useMemo } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { useUser } from "@clerk/clerk-react";
 import { useQuery } from "@tanstack/react-query";
-import { DateRange } from './types';
+import { DateRange, AnalyticsData } from './types';
 import { 
-  AnalyticsData,
   processDateData,
   processDeviceData, 
   processReferrerData,
@@ -13,13 +12,14 @@ import {
   findTopDate
 } from './analyticsDataProcessors';
 
+// Re-export the types properly using 'export type' syntax for isolatedModules
 export { DateRange } from './types';
 export type { 
   AnalyticsDataPoint,
   DeviceDataPoint,
   ReferrerDataPoint,
   AnalyticsData
-} from './analyticsDataProcessors';
+} from './types';
 
 export const useAnalyticsData = (dateRange: DateRange = '30') => {
   const { user } = useUser();
@@ -88,7 +88,7 @@ export const useAnalyticsData = (dateRange: DateRange = '30') => {
         byDevice,
         byReferrer,
         byLocation,
-        topDate: topDate ? { date: topDate.date, count: topDate.total } : null,
+        topDate,
         topLocation,
         totalClicks,
         totalScans
