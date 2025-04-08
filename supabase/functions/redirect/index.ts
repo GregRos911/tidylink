@@ -80,7 +80,7 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY') as string;
     const supabase = createClient(supabaseUrl, supabaseKey);
     
-    // First try to find by custom_backhalf (more likely to be what users are clicking)
+    // First try to find by custom_backhalf
     let { data: customLink, error: customError } = await supabase
       .from('links')
       .select('*')
@@ -95,24 +95,49 @@ serve(async (req) => {
     
     // If not found by custom_backhalf, try the full short_url
     if (!link) {
-      // Reconstruct the full short URL to check
-      // Note: This logic might need to be adjusted based on your actual URL structure
+      // Try different URL formats to match what might be stored in the database
       const baseUrl = url.origin;
-      const shortUrl = `${baseUrl}/r/${id}`;
+      const possibleUrls = [
+        `${baseUrl}/r/${id}`,
+        `${baseUrl}/go/${id}`,
+        id // Try the raw ID as last resort
+      ];
       
-      console.log('Not found by custom_backhalf, trying short_url:', shortUrl);
+      console.log('Not found by custom_backhalf, trying possible short_urls:', possibleUrls);
       
-      const { data: urlLink, error } = await supabase
-        .from('links')
-        .select('*')
-        .eq('short_url', shortUrl)
-        .maybeSingle();
-      
-      if (error) {
-        console.error('Error when searching by short_url:', error);
+      for (const shortUrl of possibleUrls) {
+        const { data: urlLink, error } = await supabase
+          .from('links')
+          .select('*')
+          .eq('short_url', shortUrl)
+          .maybeSingle();
+        
+        if (error) {
+          console.error(`Error when searching by short_url (${shortUrl}):`, error);
+        }
+        
+        if (urlLink) {
+          link = urlLink;
+          break;
+        }
       }
       
-      link = urlLink;
+      // If still not found, try as a partial match
+      if (!link) {
+        const { data: partialLinks, error: partialError } = await supabase
+          .from('links')
+          .select('*')
+          .ilike('short_url', `%${id}%`)
+          .limit(1);
+        
+        if (partialError) {
+          console.error('Error when doing partial search:', partialError);
+        }
+        
+        if (partialLinks && partialLinks.length > 0) {
+          link = partialLinks[0];
+        }
+      }
     }
     
     if (!link) {

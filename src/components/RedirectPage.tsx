@@ -18,6 +18,7 @@ const RedirectPage: React.FC = () => {
     
     // Construct the redirect URL using the edge function
     const redirectUrl = `${window.location.origin}/functions/v1/redirect/${id}`;
+    console.log('Redirecting to:', redirectUrl);
     
     // Redirect to the edge function URL
     window.location.href = redirectUrl;
