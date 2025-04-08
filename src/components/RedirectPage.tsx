@@ -24,7 +24,7 @@ const RedirectPage: React.FC = () => {
         // First try to find by custom_backhalf
         let { data: link, error: linkError } = await supabase
           .from('links')
-          .select('original_url, clicks, id')
+          .select('original_url, clicks, id, user_id')
           .eq('custom_backhalf', id)
           .maybeSingle();
         
@@ -32,7 +32,7 @@ const RedirectPage: React.FC = () => {
         if (!link) {
           const { data: urlLink, error: urlError } = await supabase
             .from('links')
-            .select('original_url, clicks, id')
+            .select('original_url, clicks, id, user_id')
             .ilike('short_url', `%/${id}`)
             .maybeSingle();
           
@@ -52,6 +52,43 @@ const RedirectPage: React.FC = () => {
             .from('links')
             .update({ clicks: (link.clicks || 0) + 1 })
             .eq('id', link.id);
+            
+          // Record analytics data
+          const userAgent = navigator.userAgent;
+          const referrer = document.referrer;
+          
+          // Determine device type
+          let deviceType = 'Desktop';
+          if (/(tablet|ipad|playbook|silk)|(android(?!.*mobi))/i.test(userAgent)) {
+            deviceType = 'Tablet';
+          } else if (/Mobile|Android|iP(hone|od)|IEMobile|BlackBerry|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)/.test(userAgent)) {
+            deviceType = 'Mobile';
+          }
+          
+          // Get referrer domain
+          let referrerDomain = 'Direct';
+          if (referrer) {
+            try {
+              referrerDomain = new URL(referrer).hostname;
+            } catch (e) {
+              console.error('Error parsing referrer:', e);
+            }
+          }
+          
+          // Insert analytics record
+          const { error: analyticsError } = await supabase
+            .from('link_analytics')
+            .insert({
+              link_id: link.id,
+              user_id: link.user_id,
+              device_type: deviceType,
+              referrer: referrerDomain,
+              is_qr_scan: false
+            });
+            
+          if (analyticsError) {
+            console.error('Error recording analytics:', analyticsError);
+          }
         }
         
         // Redirect to the original URL
