@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Loader2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const RedirectPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -15,41 +16,60 @@ const RedirectPage: React.FC = () => {
       navigate('/');
       return;
     }
-    
-    // Construct the full URL to the edge function with proper URL format
-    const supabaseUrl = "https://oeapevrjjgoinczpzfbt.supabase.co";
-    const redirectUrl = `${supabaseUrl}/functions/v1/redirect/${id}`;
-    
-    console.log('Redirecting to:', redirectUrl);
-    
-    // Try fetching the redirect URL first to check if it's working
-    fetch(redirectUrl, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    })
-    .then(response => {
-      if (response.ok || response.status === 302) {
-        // If successful or redirect status, proceed with the redirection
-        window.location.href = redirectUrl;
-      } else {
-        // If there's an error, handle it
-        return response.json().then(data => {
-          throw new Error(data.message || 'Failed to redirect');
+
+    const fetchOriginalUrl = async () => {
+      try {
+        console.log('Looking up link with ID:', id);
+        
+        // First try to find by custom_backhalf
+        let { data: link, error: linkError } = await supabase
+          .from('links')
+          .select('original_url, clicks')
+          .eq('custom_backhalf', id)
+          .maybeSingle();
+        
+        // If not found by custom_backhalf, try with short_url
+        if (!link) {
+          const { data: urlLink, error: urlError } = await supabase
+            .from('links')
+            .select('original_url, clicks, id')
+            .ilike('short_url', `%/${id}`)
+            .maybeSingle();
+          
+          if (urlError) throw new Error(urlError.message);
+          link = urlLink;
+        }
+        
+        if (!link) {
+          throw new Error('Link not found');
+        }
+        
+        console.log('Link found:', link);
+        
+        // Increment click count directly (now possible with RLS policy)
+        if (link.id) {
+          await supabase
+            .from('links')
+            .update({ clicks: (link.clicks || 0) + 1 })
+            .eq('id', link.id);
+        }
+        
+        // Redirect to the original URL
+        window.location.href = link.original_url;
+        
+      } catch (err: any) {
+        console.error('Redirect error:', err);
+        setIsLoading(false);
+        setError(`Redirect failed: ${err.message}`);
+        toast({
+          title: "Redirect failed",
+          description: "The link may be invalid or our servers may be experiencing issues.",
+          variant: "destructive"
         });
       }
-    })
-    .catch(err => {
-      console.error('Redirect error:', err);
-      setIsLoading(false);
-      setError(`Redirect failed: ${err.message}`);
-      toast({
-        title: "Redirect failed",
-        description: err.message || "The link may be invalid or our servers may be experiencing issues.",
-        variant: "destructive"
-      });
-    });
+    };
+    
+    fetchOriginalUrl();
     
     // Set a timeout to show an error message if the redirect doesn't happen
     const timeout = setTimeout(() => {
