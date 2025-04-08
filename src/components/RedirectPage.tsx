@@ -75,20 +75,60 @@ const RedirectPage: React.FC = () => {
             }
           }
           
-          // Insert analytics record
-          const { error: analyticsError } = await supabase
-            .from('link_analytics')
-            .insert({
-              link_id: link.id,
-              user_id: link.user_id,
-              device_type: deviceType,
-              referrer: referrerDomain,
-              location_country: 'Unknown', // We can't get location from client side reliably
-              is_qr_scan: false
-            });
+          try {
+            // Try to get IP address via a public API
+            // This is a best-effort approach as client-side IP detection is unreliable
+            // The edge function is the primary way we'll get location data
+            const ipResponse = await fetch('https://api.ipify.org?format=json');
+            if (ipResponse.ok) {
+              const ipData = await ipResponse.json();
+              console.log('Client IP detected:', ipData.ip);
+              
+              // Get location data using ip-api.com (free tier, no API key needed)
+              const geoResponse = await fetch(`https://ipinfo.io/${ipData.ip}/json`);
+              if (geoResponse.ok) {
+                const geoData = await geoResponse.json();
+                
+                // Insert analytics record with location data
+                await supabase
+                  .from('link_analytics')
+                  .insert({
+                    link_id: link.id,
+                    user_id: link.user_id,
+                    device_type: deviceType,
+                    referrer: referrerDomain,
+                    location_country: geoData.country || 'Unknown',
+                    location_city: geoData.city || 'Unknown',
+                    is_qr_scan: false
+                  });
+                  
+                console.log('Analytics recorded with location data from client');
+              } else {
+                throw new Error('Failed to get location data');
+              }
+            } else {
+              throw new Error('Failed to get IP address');
+            }
+          } catch (analyticsError) {
+            // If location detection fails, still log analytics but with Unknown location
+            console.error('Error getting location data:', analyticsError);
             
-          if (analyticsError) {
-            console.error('Error recording analytics:', analyticsError);
+            // Insert analytics record without location data
+            const { error: insertError } = await supabase
+              .from('link_analytics')
+              .insert({
+                link_id: link.id,
+                user_id: link.user_id,
+                device_type: deviceType,
+                referrer: referrerDomain,
+                location_country: 'Unknown',
+                location_city: 'Unknown',
+                is_qr_scan: false
+              });
+              
+            if (insertError) {
+              console.error('Error recording analytics:', insertError);
+            }
           }
         }
         

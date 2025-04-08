@@ -73,6 +73,8 @@ export const useAnalyticsData = (dateRange: DateRange = '30') => {
         throw error;
       }
       
+      console.log('Raw analytics data:', data);
+      
       // Process the data for different chart types
       const processedData = processAnalyticsData(data || []);
       return processedData;
@@ -96,6 +98,8 @@ const processAnalyticsData = (data: any[]): AnalyticsData => {
       totalScans: 0
     };
   }
+  
+  console.log('Processing analytics data, count:', data.length);
   
   // Total counts
   const totalClicks = data.filter(item => !item.is_qr_scan).length;
@@ -160,6 +164,12 @@ const processAnalyticsData = (data: any[]): AnalyticsData => {
     .map(([referrer, count]) => ({ referrer, count }))
     .sort((a, b) => b.count - a.count);
   
+  // Log raw location data to debug
+  console.log('Location data in analytics:', data.map(item => ({
+    country: item.location_country,
+    city: item.location_city
+  })));
+  
   // Group by location (country if available, otherwise city)
   const byLocationMap = new Map<string, number>();
   data.forEach(item => {
@@ -172,6 +182,8 @@ const processAnalyticsData = (data: any[]): AnalyticsData => {
   const byLocation = Array.from(byLocationMap.entries())
     .map(([location, count]) => ({ location, count }))
     .sort((a, b) => b.count - a.count);
+  
+  console.log('Processed location data:', byLocation);
   
   // Find top location - make sure we actually set it from the sorted data
   const topLocation = byLocation.length > 0 
