@@ -24,15 +24,22 @@ const LocationChart: React.FC<LocationChartProps> = ({ data, loading }) => {
     );
   }
   
-  // Transform data to ensure it has the correct format and filter out "Unknown" locations
-  // if there are other valid locations available
+  // Transform data to ensure it has the correct format
   const transformedData = data.map(item => ({
     location: item.location || item.location_country || 'Unknown',
     count: item.count || 0
   }));
   
+  // Check if we have any non-Unknown locations
+  const hasKnownLocations = transformedData.some(item => item.location !== 'Unknown');
+  
+  // If we have known locations, filter out the Unknown ones
+  const filteredData = hasKnownLocations 
+    ? transformedData.filter(item => item.location !== 'Unknown')
+    : transformedData;
+  
   // Sort and limit data to top locations
-  const processedData = [...transformedData]
+  const processedData = [...filteredData]
     .sort((a, b) => b.count - a.count)
     .slice(0, 7);
   

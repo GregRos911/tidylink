@@ -71,13 +71,13 @@ const TopStatsCard: React.FC<TopStatsCardProps> = ({
           </div>
         </CardHeader>
         <CardContent>
-          {topLocation ? (
+          {topLocation && topLocation.location !== 'Unknown' ? (
             <>
               <div className="text-2xl font-bold">{topLocation.location}</div>
               <CardDescription>{topLocation.count} engagements</CardDescription>
             </>
           ) : (
-            <div className="text-gray-500">No data available</div>
+            <div className="text-gray-500">No location data available yet</div>
           )}
         </CardContent>
       </Card>

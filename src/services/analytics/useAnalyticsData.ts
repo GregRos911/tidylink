@@ -164,22 +164,25 @@ const processAnalyticsData = (data: any[]): AnalyticsData => {
     .map(([referrer, count]) => ({ referrer, count }))
     .sort((a, b) => b.count - a.count);
   
-  // Log all location data for debugging
-  console.log('Location data in analytics:', data.map(item => ({
-    country: item.location_country,
-    city: item.location_city
-  })));
+  // Log location data for debugging
+  const locationDetails = data.map(item => ({
+    country: item.location_country || 'null',
+    city: item.location_city || 'null'
+  }));
+  console.log('Location data in analytics:', locationDetails);
   
   // Group by location (country if available, otherwise city)
   const byLocationMap = new Map<string, number>();
   data.forEach(item => {
     // Make sure we use a meaningful location value, prioritizing country
     let location = 'Unknown';
-    if (item.location_country && item.location_country !== 'Unknown') {
+    
+    if (item.location_country && item.location_country !== 'Unknown' && item.location_country !== 'null') {
       location = item.location_country;
-    } else if (item.location_city && item.location_city !== 'Unknown') {
+    } else if (item.location_city && item.location_city !== 'Unknown' && item.location_city !== 'null') {
       location = item.location_city;
     }
+    
     byLocationMap.set(location, (byLocationMap.get(location) || 0) + 1);
   });
   
@@ -190,10 +193,22 @@ const processAnalyticsData = (data: any[]): AnalyticsData => {
   
   console.log('Processed location data:', byLocation);
   
-  // Find top location - set it from the sorted data
-  const topLocation = byLocation.length > 0 
-    ? { location: byLocation[0].location, count: byLocation[0].count }
-    : null;
+  // Find top location - prefer non-Unknown locations if available
+  let topLocation = null;
+  if (byLocation.length > 0) {
+    const nonUnknownLocations = byLocation.filter(item => item.location !== 'Unknown');
+    if (nonUnknownLocations.length > 0) {
+      topLocation = { 
+        location: nonUnknownLocations[0].location, 
+        count: nonUnknownLocations[0].count 
+      };
+    } else {
+      topLocation = { 
+        location: byLocation[0].location, 
+        count: byLocation[0].count 
+      };
+    }
+  }
   
   console.log('Top location:', topLocation);
   
