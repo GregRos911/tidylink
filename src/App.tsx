@@ -95,6 +95,11 @@ const App = () => (
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+        
+        {/* Beta Version Label */}
+        <div className="fixed bottom-2 left-2 text-xs text-gray-500 bg-white bg-opacity-70 px-2 py-1 rounded-md shadow-sm z-50">
+          Beta Version 1.0
+        </div>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
