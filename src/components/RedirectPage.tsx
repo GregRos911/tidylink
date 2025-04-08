@@ -24,7 +24,7 @@ const RedirectPage: React.FC = () => {
         // First try to find by custom_backhalf
         let { data: link, error: linkError } = await supabase
           .from('links')
-          .select('original_url, clicks')
+          .select('original_url, clicks, id')
           .eq('custom_backhalf', id)
           .maybeSingle();
         
