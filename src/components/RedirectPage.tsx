@@ -16,8 +16,10 @@ const RedirectPage: React.FC = () => {
       return;
     }
     
-    // Construct the redirect URL using the edge function
-    const redirectUrl = `${window.location.origin}/functions/v1/redirect/${id}`;
+    // Construct the full URL to the edge function with proper URL format
+    const supabaseUrl = "https://oeapevrjjgoinczpzfbt.supabase.co";
+    const redirectUrl = `${supabaseUrl}/functions/v1/redirect/${id}`;
+    
     console.log('Redirecting to:', redirectUrl);
     
     // Redirect to the edge function URL
