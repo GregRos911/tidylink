@@ -22,8 +22,34 @@ const RedirectPage: React.FC = () => {
     
     console.log('Redirecting to:', redirectUrl);
     
-    // Redirect to the edge function URL
-    window.location.href = redirectUrl;
+    // Try fetching the redirect URL first to check if it's working
+    fetch(redirectUrl, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(response => {
+      if (response.ok || response.status === 302) {
+        // If successful or redirect status, proceed with the redirection
+        window.location.href = redirectUrl;
+      } else {
+        // If there's an error, handle it
+        return response.json().then(data => {
+          throw new Error(data.message || 'Failed to redirect');
+        });
+      }
+    })
+    .catch(err => {
+      console.error('Redirect error:', err);
+      setIsLoading(false);
+      setError(`Redirect failed: ${err.message}`);
+      toast({
+        title: "Redirect failed",
+        description: err.message || "The link may be invalid or our servers may be experiencing issues.",
+        variant: "destructive"
+      });
+    });
     
     // Set a timeout to show an error message if the redirect doesn't happen
     const timeout = setTimeout(() => {
