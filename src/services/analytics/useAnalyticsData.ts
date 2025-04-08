@@ -13,7 +13,7 @@ import {
 } from './analyticsDataProcessors';
 
 // Re-export the types properly using 'export type' syntax for isolatedModules
-export { DateRange } from './types';
+export type { DateRange } from './types';
 export type { 
   AnalyticsDataPoint,
   DeviceDataPoint,
