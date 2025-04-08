@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { useForm } from "react-hook-form"
-import { toast } from "@/components/ui/sonner"
+import { toast } from "sonner"
 
 const SignIn = () => {
   const { isSignedIn } = useAuth()
