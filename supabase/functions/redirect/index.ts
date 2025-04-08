@@ -75,10 +75,22 @@ serve(async (req) => {
     
     console.log(`Processing redirect for ID: ${id}`);
     
-    // Create Supabase client
+    // Create Supabase client with anonymous key - no JWT required
     const supabaseUrl = Deno.env.get('SUPABASE_URL') as string;
-    const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY') as string;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') as string;
+    
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.error('Missing Supabase environment variables');
+      return new Response(JSON.stringify({ error: 'Server configuration error' }), { 
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      });
+    }
+    
+    // Create client with anon key - explicitly not requiring auth
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      auth: { persistSession: false }
+    });
     
     // First try to find by custom_backhalf
     let { data: customLink, error: customError } = await supabase
