@@ -164,7 +164,7 @@ const processAnalyticsData = (data: any[]): AnalyticsData => {
     .map(([referrer, count]) => ({ referrer, count }))
     .sort((a, b) => b.count - a.count);
   
-  // Log raw location data to debug
+  // Log all location data for debugging
   console.log('Location data in analytics:', data.map(item => ({
     country: item.location_country,
     city: item.location_city
@@ -173,8 +173,13 @@ const processAnalyticsData = (data: any[]): AnalyticsData => {
   // Group by location (country if available, otherwise city)
   const byLocationMap = new Map<string, number>();
   data.forEach(item => {
-    // Prioritize country, fall back to city or use 'Unknown' if both are missing
-    const location = item.location_country || item.location_city || 'Unknown';
+    // Make sure we use a meaningful location value, prioritizing country
+    let location = 'Unknown';
+    if (item.location_country && item.location_country !== 'Unknown') {
+      location = item.location_country;
+    } else if (item.location_city && item.location_city !== 'Unknown') {
+      location = item.location_city;
+    }
     byLocationMap.set(location, (byLocationMap.get(location) || 0) + 1);
   });
   
@@ -185,10 +190,12 @@ const processAnalyticsData = (data: any[]): AnalyticsData => {
   
   console.log('Processed location data:', byLocation);
   
-  // Find top location - make sure we actually set it from the sorted data
+  // Find top location - set it from the sorted data
   const topLocation = byLocation.length > 0 
     ? { location: byLocation[0].location, count: byLocation[0].count }
     : null;
+  
+  console.log('Top location:', topLocation);
   
   return {
     byDate,

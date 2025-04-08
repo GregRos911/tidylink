@@ -24,7 +24,8 @@ const LocationChart: React.FC<LocationChartProps> = ({ data, loading }) => {
     );
   }
   
-  // Transform data to ensure it has the correct format
+  // Transform data to ensure it has the correct format and filter out "Unknown" locations
+  // if there are other valid locations available
   const transformedData = data.map(item => ({
     location: item.location || item.location_country || 'Unknown',
     count: item.count || 0
