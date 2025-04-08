@@ -3,6 +3,9 @@ import React from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DateRange } from '@/services/analytics/useAnalyticsData';
+import { Button } from '@/components/ui/button';
+import { RefreshCcw } from 'lucide-react';
+import { useResetUsage } from '@/services/usage';
 
 interface AnalyticsHeaderProps {
   dateRange: DateRange;
@@ -17,11 +20,29 @@ const AnalyticsHeader: React.FC<AnalyticsHeaderProps> = ({
   totalClicks,
   totalScans
 }) => {
+  const resetMutation = useResetUsage();
+  
+  const handleReset = () => {
+    if (confirm("Are you sure you want to reset all your analytics data? This action cannot be undone.")) {
+      resetMutation.mutate();
+    }
+  };
+
   return (
     <div className="mb-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
         <h2 className="text-2xl font-bold text-gray-900">Analytics Dashboard</h2>
-        <div className="mt-2 md:mt-0">
+        <div className="flex items-center gap-2 mt-2 md:mt-0">
+          <Button 
+            variant="outline"
+            size="sm"
+            onClick={handleReset} 
+            disabled={resetMutation.isPending}
+            className="flex items-center gap-1"
+          >
+            <RefreshCcw className="h-4 w-4" />
+            Reset Analytics
+          </Button>
           <Select value={dateRange} onValueChange={(value) => setDateRange(value as DateRange)}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Select timeframe" />

@@ -21,6 +21,28 @@ const getReferrer = () => {
   return document.referrer ? new URL(document.referrer).hostname : "Direct";
 };
 
+// Function to fetch user's location using their IP address
+const getLocationFromIP = async () => {
+  try {
+    // Using ipinfo.io's free tier (no API key needed for basic usage)
+    const response = await fetch('https://ipinfo.io/json');
+    if (!response.ok) {
+      throw new Error('Failed to fetch location data');
+    }
+    const data = await response.json();
+    return {
+      country: data.country,
+      city: data.city
+    };
+  } catch (error) {
+    console.error('Error fetching location:', error);
+    return {
+      country: null,
+      city: null
+    };
+  }
+};
+
 const RedirectPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -80,6 +102,9 @@ const RedirectPage: React.FC = () => {
           const deviceType = getDeviceType();
           const referrer = getReferrer();
           
+          // Get location data
+          const location = await getLocationFromIP();
+          
           // Increment clicks count
           await supabase.from('links').update({ clicks: (link.clicks || 0) + 1 }).eq('id', link.id);
           
@@ -92,8 +117,8 @@ const RedirectPage: React.FC = () => {
                 user_id: link.user_id,
                 device_type: deviceType,
                 referrer: referrer,
-                location_country: null,
-                location_city: null,
+                location_country: location.country,
+                location_city: location.city,
                 is_qr_scan: false
               });
               
