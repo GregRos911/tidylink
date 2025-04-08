@@ -89,7 +89,9 @@ const App = () => (
               <DashboardPage />
             </ProtectedRoute>
           } />
+          {/* Routes for redirection */}
           <Route path="/r/:id" element={<RedirectPage />} />
+          <Route path="/go/:id" element={<RedirectPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -15,8 +15,10 @@ const QRCodeImage: React.FC<QRCodeImageProps> = ({ link }) => {
     );
   }
 
-  // Ensure we're using the absolute URL for the QR code
-  const qrCodeUrl = link.short_url;
+  // Use either the short_url directly or construct a URL using the custom_backhalf
+  const qrCodeUrl = link.custom_backhalf 
+    ? `${window.location.origin}/go/${link.custom_backhalf}`
+    : link.short_url.replace('/r/', '/go/');
   
   return (
     <img 
