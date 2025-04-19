@@ -1,5 +1,5 @@
 
-# Tidylink - URL Shortener & QR Code Generator
+# Tidylink - Create short URL links & Generate QR codes
 
 ## Project Overview
 
