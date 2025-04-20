@@ -8,7 +8,7 @@ import { toast } from "sonner";
 // Accepts entire plan object
 interface LastCheckout {
   plan: string;
-  priceId: string;
+  priceId: string | null;
   sessionId?: string;
   result?: any;
   error?: string;
@@ -22,7 +22,7 @@ export function useHandlePlanSelection() {
   const [lastCheckout, setLastCheckout] = useState<LastCheckout | null>(null);
 
   // Accept the whole plan object so we can directly pull the priceId
-  const handlePlanSelection = async (plan: { name: string; priceId: string }) => {
+  const handlePlanSelection = async (plan: { name: string; priceId: string | null }) => {
     if (!isSignedIn) {
       navigate("/sign-up");
       return;
@@ -43,11 +43,6 @@ export function useHandlePlanSelection() {
       }
 
       const priceId = plan.priceId;
-      if (!priceId) {
-        toast.error("Invalid plan selected");
-        throw new Error("Invalid plan selected");
-      }
-
       setLastCheckout({ plan: plan.name, priceId, sessionId: session.id });
 
       const userEmail = session.user.primaryEmailAddress?.emailAddress;
@@ -62,6 +57,14 @@ export function useHandlePlanSelection() {
         userId: session.user.id,
         userEmail: userEmail
       });
+
+      // Handle free plan separately
+      if (priceId === null) {
+        toast.success("Free plan activated! You have 7 days to try our service.");
+        navigate("/dashboard?success=true&plan=free");
+        setIsLoading(null);
+        return;
+      }
 
       const { data, error } = await supabase.functions.invoke("create-checkout", {
         body: {
