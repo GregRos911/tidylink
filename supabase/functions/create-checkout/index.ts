@@ -89,7 +89,11 @@ serve(async (req) => {
     }
 
     // Get origin for success/cancel URLs
-    const origin = req.headers.get("origin") || "https://tidylink.io";
+    // First try the origin header, then referer, finally fall back to tidylink.io
+    const origin = req.headers.get("origin") || 
+                  req.headers.get("referer")?.replace(/\/$/, "") || 
+                  "https://tidylink.io";
+    
     logStep("Using origin for redirect URLs", { origin });
     
     // Create checkout session
@@ -113,7 +117,13 @@ serve(async (req) => {
       throw new Error("Failed to create checkout session URL");
     }
 
-    logStep("Successfully created checkout session", { sessionUrl: session.url });
+    logStep("Successfully created checkout session", { 
+      sessionId: session.id,
+      sessionUrl: session.url,
+      customerEmail: userEmail?.substring(0, 3) + "...",
+      customerId
+    });
+    
     return new Response(JSON.stringify({ 
       url: session.url,
       sessionId: session.id

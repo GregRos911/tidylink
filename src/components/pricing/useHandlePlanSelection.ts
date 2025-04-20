@@ -33,12 +33,14 @@ export function useHandlePlanSelection() {
     try {
       if (!session) {
         toast.error("You must be signed in to purchase a plan.");
+        setIsLoading(null);
         return;
       }
 
       const token = await session.getToken();
       if (!token) {
         toast.error("Authentication token not available");
+        setIsLoading(null);
         throw new Error("Authentication token not available");
       }
 
@@ -48,6 +50,7 @@ export function useHandlePlanSelection() {
       const userEmail = session.user.primaryEmailAddress?.emailAddress;
       if (!userEmail) {
         toast.error("User email not available");
+        setIsLoading(null);
         throw new Error("User email not available");
       }
 
@@ -60,6 +63,7 @@ export function useHandlePlanSelection() {
 
       // Handle free plan separately - no need to call Stripe
       if (plan.priceId === null) {
+        console.log("Processing free plan activation");
         toast.success("Free plan activated! You have 7 days to try our service.");
         navigate("/dashboard?success=true&plan=free");
         setIsLoading(null);
@@ -67,6 +71,7 @@ export function useHandlePlanSelection() {
       }
 
       // For paid plans, create a Stripe checkout session
+      console.log("Calling create-checkout function with:", { priceId, clerkUserId: session.user.id, userEmail });
       const { data, error } = await supabase.functions.invoke("create-checkout", {
         body: {
           priceId,
@@ -85,7 +90,7 @@ export function useHandlePlanSelection() {
 
       if (error) {
         console.error("Function error:", error);
-        toast.error(`Payment setup error: ${error.message}`);
+        toast.error(`Payment setup error: ${error.message || "Unknown error"}`);
         setIsLoading(null);
         return;
       }
@@ -98,8 +103,15 @@ export function useHandlePlanSelection() {
         return;
       }
 
+      // Set a timeout to ensure the toast is visible before redirect
+      toast.success("Redirecting to checkout...");
+      
       // Redirect to Stripe checkout page
-      window.location.href = data.url;
+      setTimeout(() => {
+        console.log("Redirecting to:", data.url);
+        window.location.href = data.url;
+      }, 1000);
+      
     } catch (error: any) {
       console.error("Error creating checkout session:", error);
       toast.error(error.message || "Failed to start checkout process. Please try again.");
