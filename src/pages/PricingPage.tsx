@@ -5,7 +5,7 @@ import { Link as LinkIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '@clerk/clerk-react';
+import { useAuth, useSession } from '@clerk/clerk-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from "sonner";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -17,13 +17,15 @@ const DEBUG = true;
 const PricingPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isSignedIn, getToken } = useAuth();
+  const { isSignedIn } = useAuth();
+  const { session } = useSession();
   const [isLoading, setIsLoading] = React.useState<string | null>(null);
 
   // New: store debug info
   const [lastCheckout, setLastCheckout] = React.useState<{
     plan: string;
     priceId: string;
+    sessionId?: string;
     result?: any;
     error?: string;
   } | null>(null);
@@ -49,10 +51,11 @@ const PricingPage: React.FC = () => {
     setLastCheckout(null);
 
     try {
-      // Get auth token - this is crucial for authenticated requests
-      const token = await getToken({ template: "supabase" });
+      // Get session token from Clerk directly
+      const sessionId = session?.id;
+      const token = await session?.getToken();
 
-      if (!token) {
+      if (!token || !sessionId) {
         toast.error("Authentication token not available");
         throw new Error("Authentication token not available");
       }
@@ -71,21 +74,29 @@ const PricingPage: React.FC = () => {
       }
 
       // DEBUG: show what we're sending to the function
-      setLastCheckout({ plan, priceId });
+      setLastCheckout({ plan, priceId, sessionId });
 
       // Always set origin if missing: fallback for SSR/IFRAME debugging
       const origin = window?.location?.origin || "https://tidylink.io";
 
       // Pass token and origin explicitly
       const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { priceId },
+        body: { 
+          priceId,
+          clerkUserId: session.user.id,
+          userEmail: session.user.primaryEmailAddress?.emailAddress
+        },
         headers: {
           Authorization: `Bearer ${token}`,
           origin: origin
         }
       });
 
-      setLastCheckout({ plan, priceId, result: data, error: error?.message });
+      setLastCheckout(prev => ({ 
+        ...prev!, 
+        result: data, 
+        error: error?.message 
+      }));
 
       if (error) {
         console.error('Function error:', error);
@@ -109,7 +120,7 @@ const PricingPage: React.FC = () => {
       console.error('Error creating checkout session:', error);
       toast.error(error.message || 'Failed to start checkout process. Please try again.');
       setLastCheckout((prev) => ({
-        ...prev,
+        ...prev!,
         error: error.message || String(error)
       }));
     } finally {
@@ -215,6 +226,7 @@ const PricingPage: React.FC = () => {
               <strong>[DEBUG]</strong> Last Checkout Attempt:<br />
               Plan: {lastCheckout.plan} <br />
               Price ID: {lastCheckout.priceId}<br />
+              Session ID: {lastCheckout.sessionId}<br />
               {lastCheckout.error && (
                 <span className="text-red-600">Error: {lastCheckout.error}</span>
               )}

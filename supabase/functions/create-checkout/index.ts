@@ -14,65 +14,66 @@ serve(async (req) => {
   }
 
   try {
-    const { priceId } = await req.json();
+    const { priceId, clerkUserId, userEmail } = await req.json();
     
     if (!priceId) {
       throw new Error("Price ID is required");
     }
+
+    if (!clerkUserId || !userEmail) {
+      throw new Error("User ID and email are required");
+    }
     
-    // Create Supabase client with anon key - this is crucial for auth to work properly
-    const supabaseClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? ""
-    );
-
-    // Get authorization header
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      throw new Error("No authorization header provided");
-    }
-
-    // Get user from auth header
-    const token = authHeader.replace("Bearer ", "");
-    const { data, error } = await supabaseClient.auth.getUser(token);
-    
-    if (error || !data.user) {
-      console.error("Auth error:", error);
-      throw new Error("User not authenticated");
-    }
-
-    const user = data.user;
-    if (!user.email) {
-      throw new Error("User email not available");
-    }
-
-    console.log("User authenticated:", user.email);
+    console.log("Processing checkout for user:", clerkUserId, "with email:", userEmail);
 
     // Initialize Stripe
-    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
+    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
+    if (!stripeKey) {
+      throw new Error("STRIPE_SECRET_KEY is not set");
+    }
+
+    const stripe = new Stripe(stripeKey, {
       apiVersion: "2023-10-16",
     });
 
     // Check if customer exists
-    const customers = await stripe.customers.list({ email: user.email, limit: 1 });
+    console.log("Checking if customer exists with email:", userEmail);
+    const customers = await stripe.customers.list({ email: userEmail, limit: 1 });
     let customerId = customers.data[0]?.id;
 
     // Create customer if doesn't exist
     if (!customerId) {
-      const customer = await stripe.customers.create({ email: user.email });
+      console.log("Creating new customer with email:", userEmail);
+      const customer = await stripe.customers.create({ 
+        email: userEmail,
+        metadata: {
+          clerkUserId: clerkUserId
+        }
+      });
       customerId = customer.id;
+      console.log("Created new customer with ID:", customerId);
+    } else {
+      console.log("Using existing customer with ID:", customerId);
     }
 
+    // Get origin for success/cancel URLs
+    const origin = req.headers.get("origin") || "https://tidylink.io";
+    console.log("Using origin for redirect URLs:", origin);
+
     // Create checkout session with proper error handling
+    console.log("Creating checkout session with price ID:", priceId);
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       line_items: [{ price: priceId, quantity: 1 }],
       mode: "subscription",
-      success_url: `${req.headers.get("origin")}/dashboard?success=true`,
-      cancel_url: `${req.headers.get("origin")}/pricing?canceled=true`,
+      success_url: `${origin}/dashboard?success=true`,
+      cancel_url: `${origin}/pricing?canceled=true`,
       allow_promotion_codes: true,
       subscription_data: {
         trial_period_days: 14,
+        metadata: {
+          clerkUserId: clerkUserId
+        }
       },
     });
 
@@ -80,6 +81,7 @@ serve(async (req) => {
       throw new Error("Failed to create checkout session URL");
     }
 
+    console.log("Successfully created checkout session with URL:", session.url);
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
