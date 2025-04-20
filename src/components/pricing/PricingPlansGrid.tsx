@@ -22,7 +22,7 @@ interface PricingPlansGridProps {
 }
 
 const getAccountAgeInDays = (createdAt: number | string) => {
-  const created = typeof createdAt === "string" ? new Date(createdAt) : new Date(Number(createdAt));
+  const created = typeof createdAt === "string" ? new Date(createdAt) : new Date(createdAt);
   const now = new Date();
   const diffMs = now.getTime() - created.getTime();
   return Math.floor(diffMs / (1000 * 60 * 60 * 24));
@@ -35,7 +35,7 @@ const PricingPlansGrid: React.FC<PricingPlansGridProps> = ({
 }) => {
   const { user } = useUser();
   const accountAge =
-    user?.createdAt ? getAccountAgeInDays(user.createdAt) : 0;
+    user?.createdAt ? getAccountAgeInDays(new Date(user.createdAt).getTime()) : 0;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-16">
@@ -74,8 +74,8 @@ const PricingPlansGrid: React.FC<PricingPlansGridProps> = ({
                   {freePlanExpired
                     ? "Free trial expired"
                     : isLoading === plan.name
-                    ? 'Processing...'
-                    : plan.buttonText}
+                      ? 'Processing...'
+                      : plan.buttonText}
                 </Button>
                 <div className="space-y-4">
                   <p className="font-medium">Plan includes:</p>
@@ -98,4 +98,3 @@ const PricingPlansGrid: React.FC<PricingPlansGridProps> = ({
 };
 
 export default PricingPlansGrid;
-

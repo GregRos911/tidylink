@@ -28,7 +28,7 @@ const pricingPlans = [
       "Link & QR code redirects",
       "Advanced QR code customizations"
     ],
-    buttonText: "Start a free trial",
+    buttonText: "Get started",
     color: "from-blue-100 to-blue-200",
     highlighted: false
   },
@@ -45,7 +45,7 @@ const pricingPlans = [
       "Team collaboration features",
       "Branded links"
     ],
-    buttonText: "Start a free trial",
+    buttonText: "Get started",
     color: "from-purple-100 to-purple-200",
     highlighted: true
   },
@@ -61,7 +61,7 @@ const pricingPlans = [
       "SSO and advanced security",
       "Custom contract & SLA"
     ],
-    buttonText: "Contact Sales",
+    buttonText: "Get started",
     color: "from-pink-100 to-pink-200",
     highlighted: false
   }
