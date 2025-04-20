@@ -14,6 +14,7 @@ import PricingCustomSolution from "@/components/pricing/PricingCustomSolution";
 
 const DEBUG = true;
 
+// These IDs must match your Stripe test mode price IDs
 const pricingPlans = [
   {
     name: 'FREE',
@@ -117,14 +118,19 @@ const PricingPage: React.FC = () => {
     setLastCheckout(null);
 
     try {
-      const sessionId = session?.id;
-      const token = await session?.getToken();
+      if (!session) {
+        toast.error("You must be signed in to purchase a plan.");
+        return;
+      }
 
-      if (!token || !sessionId) {
+      const token = await session.getToken();
+
+      if (!token) {
         toast.error("Authentication token not available");
         throw new Error("Authentication token not available");
       }
 
+      // Using test mode price IDs - these should match your Stripe test price IDs
       const priceIds: Record<string, string> = {
         'STARTER': 'price_1PEwbDDm3KR6H5Yn1cg3jnCT',
         'GROWTH': 'price_1PEwbWDm3KR6H5YnMVuEFmGc',
@@ -137,21 +143,35 @@ const PricingPage: React.FC = () => {
         throw new Error('Invalid plan selected');
       }
 
-      setLastCheckout({ plan, priceId, sessionId });
+      setLastCheckout({ 
+        plan, 
+        priceId, 
+        sessionId: session.id 
+      });
 
-      const origin = window?.location?.origin || "https://tidylink.io";
+      const userEmail = session.user.primaryEmailAddress?.emailAddress;
+      if (!userEmail) {
+        toast.error('User email not available');
+        throw new Error('User email not available');
+      }
+
+      console.log("Initiating checkout for:", {
+        plan,
+        priceId,
+        userId: session.user.id,
+        userEmail: userEmail
+      });
+
       const { data, error } = await supabase.functions.invoke('create-checkout', {
         body: {
           priceId,
           clerkUserId: session.user.id,
-          userEmail: session.user.primaryEmailAddress?.emailAddress
-        },
-        headers: {
-          Authorization: `Bearer ${token}`,
-          origin: origin
+          userEmail: userEmail
         }
       });
 
+      console.log("Checkout response:", { data, error });
+      
       setLastCheckout(prev => ({
         ...prev!,
         result: data,

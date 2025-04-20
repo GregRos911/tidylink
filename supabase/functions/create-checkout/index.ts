@@ -31,7 +31,10 @@ serve(async (req) => {
       throw new Error("User ID and email are required");
     }
     
-    logStep("Processing checkout", { clerkUserId, userEmail: userEmail.substring(0, 3) + "..." });
+    logStep("Processing checkout", { 
+      clerkUserId, 
+      userEmail: userEmail ? userEmail.substring(0, 3) + "..." : "undefined" 
+    });
 
     // Initialize Stripe with proper error handling
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
@@ -79,7 +82,7 @@ serve(async (req) => {
       });
 
       // Check if customer exists
-      logStep("Checking if customer exists with email", { email: userEmail.substring(0, 3) + "..." });
+      logStep("Checking if customer exists with email", { email: userEmail ? userEmail.substring(0, 3) + "..." : "undefined" });
       const customers = await stripe.customers.list({ email: userEmail, limit: 1 });
       let customerId = customers.data[0]?.id;
 
