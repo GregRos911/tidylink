@@ -5,9 +5,9 @@ import { Card } from "@/components/ui/card";
 
 interface PricingPlan {
   name: string;
-  description: string;
+  priceId: string;
   price: string;
-  period: string;
+  description: string;
   features: string[];
   buttonText: string;
   color: string;
@@ -17,7 +17,7 @@ interface PricingPlan {
 interface PricingPlansGridProps {
   plans: PricingPlan[];
   isLoading: string | null;
-  handlePlanSelection: (plan: string) => void;
+  handlePlanSelection: (plan: PricingPlan) => void;
 }
 
 const PricingPlansGrid: React.FC<PricingPlansGridProps> = ({
@@ -26,7 +26,7 @@ const PricingPlansGrid: React.FC<PricingPlansGridProps> = ({
   handlePlanSelection,
 }) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-16">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-16">
       {plans.map((plan, index) => (
         <div key={index} className="relative">
           {plan.highlighted && (
@@ -43,12 +43,11 @@ const PricingPlansGrid: React.FC<PricingPlansGridProps> = ({
               <p className="text-base mb-4">{plan.description}</p>
               <div className="mb-6">
                 <span className="text-4xl font-bold">{plan.price}</span>
-                <span className="text-muted-foreground ml-1">{plan.period}</span>
               </div>
               <Button
                 className={`w-full mb-6 ${plan.highlighted ? 'bg-gradient-to-r from-brand-blue via-brand-purple to-brand-pink hover:opacity-90 transition-opacity' : ''}`}
                 variant={plan.highlighted ? 'default' : 'outline'}
-                onClick={() => handlePlanSelection(plan.name)}
+                onClick={() => handlePlanSelection(plan)}
                 disabled={isLoading === plan.name}
               >
                 {isLoading === plan.name ? 'Processing...' : plan.buttonText}

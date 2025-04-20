@@ -5,6 +5,7 @@ import { useAuth, useSession } from "@clerk/clerk-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
+// Accepts entire plan object
 interface LastCheckout {
   plan: string;
   priceId: string;
@@ -20,12 +21,13 @@ export function useHandlePlanSelection() {
   const [isLoading, setIsLoading] = useState<string | null>(null);
   const [lastCheckout, setLastCheckout] = useState<LastCheckout | null>(null);
 
-  const handlePlanSelection = async (plan: string) => {
+  // Accept the whole plan object so we can directly pull the priceId
+  const handlePlanSelection = async (plan: { name: string; priceId: string }) => {
     if (!isSignedIn) {
       navigate("/sign-up");
       return;
     }
-    setIsLoading(plan);
+    setIsLoading(plan.name);
     setLastCheckout(null);
 
     try {
@@ -40,20 +42,13 @@ export function useHandlePlanSelection() {
         throw new Error("Authentication token not available");
       }
 
-      const priceIds: Record<string, string> = {
-        // Replace with your actual Stripe price IDs
-        'STARTER': 'price_example123starter',
-        'GROWTH': 'price_example456growth',
-        'ENTERPRISE': 'price_example789enterprise'
-      };
-
-      const priceId = priceIds[plan];
+      const priceId = plan.priceId;
       if (!priceId) {
         toast.error("Invalid plan selected");
         throw new Error("Invalid plan selected");
       }
 
-      setLastCheckout({ plan, priceId, sessionId: session.id });
+      setLastCheckout({ plan: plan.name, priceId, sessionId: session.id });
 
       const userEmail = session.user.primaryEmailAddress?.emailAddress;
       if (!userEmail) {
@@ -62,7 +57,7 @@ export function useHandlePlanSelection() {
       }
 
       console.log("Initiating checkout for:", {
-        plan,
+        plan: plan.name,
         priceId,
         userId: session.user.id,
         userEmail: userEmail
