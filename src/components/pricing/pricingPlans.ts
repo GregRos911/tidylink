@@ -1,6 +1,21 @@
 
 const pricingPlans = [
   {
+    name: "Free Plan",
+    priceId: null, // Free tier does not use Stripe
+    price: "$0",
+    description: "Try all features free for 1 week. After that, you'll need to upgrade to a paid plan.",
+    features: [
+      "Up to 7 short links per week",
+      "Up to 5 QR codes",
+      "Basic analytics",
+      "All starter features for 1 week"
+    ],
+    buttonText: "Start free trial (1 week)",
+    color: "from-neutral-100 to-neutral-200",
+    highlighted: false
+  },
+  {
     name: "Starter Plan",
     priceId: "price_1RG74DKsMMugzAZwjxqj0tY3",
     price: "$5/mo",
