@@ -42,6 +42,23 @@ serve(async (req) => {
       );
     }
 
+    // Additional validation for API key format
+    if (!stripeKey.startsWith('sk_')) {
+      console.error("Invalid STRIPE_SECRET_KEY format");
+      return new Response(
+        JSON.stringify({ 
+          error: "Server configuration error. Incorrect API key format.",
+          details: "STRIPE_SECRET_KEY should start with 'sk_'" 
+        }), 
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 500,
+        }
+      );
+    }
+
+    console.log("Using Stripe API key:", stripeKey.substring(0, 7) + "..." + stripeKey.substring(stripeKey.length - 4));
+
     const stripe = new Stripe(stripeKey, {
       apiVersion: "2023-10-16",
     });
