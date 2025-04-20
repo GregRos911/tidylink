@@ -26,10 +26,20 @@ serve(async (req) => {
     
     console.log("Processing checkout for user:", clerkUserId, "with email:", userEmail);
 
-    // Initialize Stripe
+    // Initialize Stripe with proper error handling
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeKey) {
-      throw new Error("STRIPE_SECRET_KEY is not set");
+      console.error("STRIPE_SECRET_KEY environment variable is not set");
+      return new Response(
+        JSON.stringify({ 
+          error: "Server configuration error. Please contact support.",
+          details: "STRIPE_SECRET_KEY is not set" 
+        }), 
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 500,
+        }
+      );
     }
 
     const stripe = new Stripe(stripeKey, {
