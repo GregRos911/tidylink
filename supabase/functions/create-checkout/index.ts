@@ -57,7 +57,14 @@ serve(async (req) => {
       );
     }
 
+    // Log sanitized key for debugging (only part of the key)
     console.log("Using Stripe API key:", stripeKey.substring(0, 7) + "..." + stripeKey.substring(stripeKey.length - 4));
+
+    // Check if using live mode in development
+    if (stripeKey.startsWith('sk_live') && !req.headers.get("origin")?.includes("tidylink.io")) {
+      console.warn("WARNING: Using live mode Stripe key in development environment");
+      // We'll continue but log warning - don't block as it might be intentional
+    }
 
     const stripe = new Stripe(stripeKey, {
       apiVersion: "2023-10-16",
