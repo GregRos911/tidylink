@@ -81,6 +81,26 @@ serve(async (req) => {
         apiVersion: "2023-10-16",
       });
 
+      // Validate the price ID before proceeding
+      try {
+        // Attempt to retrieve the price to verify it exists
+        logStep("Verifying price ID exists", { priceId });
+        await stripe.prices.retrieve(priceId);
+        logStep("Price ID verified successfully");
+      } catch (priceError) {
+        console.error("Invalid price ID:", priceError);
+        return new Response(
+          JSON.stringify({ 
+            error: "Invalid price ID. Please check your price configuration.",
+            details: priceError.message
+          }), 
+          {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            status: 400,
+          }
+        );
+      }
+
       // Check if customer exists
       logStep("Checking if customer exists with email", { email: userEmail ? userEmail.substring(0, 3) + "..." : "undefined" });
       const customers = await stripe.customers.list({ email: userEmail, limit: 1 });

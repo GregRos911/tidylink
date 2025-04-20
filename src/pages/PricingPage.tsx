@@ -14,7 +14,7 @@ import PricingCustomSolution from "@/components/pricing/PricingCustomSolution";
 
 const DEBUG = true;
 
-// These IDs must match your Stripe test mode price IDs
+// These IDs should match your actual Stripe test mode price IDs - replace these with your real ones
 const pricingPlans = [
   {
     name: 'FREE',
@@ -130,11 +130,12 @@ const PricingPage: React.FC = () => {
         throw new Error("Authentication token not available");
       }
 
-      // Using test mode price IDs - these should match your Stripe test price IDs
+      // Use your actual Stripe test mode price IDs here - these are examples only
       const priceIds: Record<string, string> = {
-        'STARTER': 'price_1PEwbDDm3KR6H5Yn1cg3jnCT',
-        'GROWTH': 'price_1PEwbWDm3KR6H5YnMVuEFmGc',
-        'ENTERPRISE': 'price_1PEwbrDm3KR6H5YnCwvLLgbp'
+        // Replace these with your actual Stripe price IDs from your Stripe dashboard
+        'STARTER': 'price_example123starter', // Replace with your actual price ID
+        'GROWTH': 'price_example456growth',   // Replace with your actual price ID 
+        'ENTERPRISE': 'price_example789enterprise' // Replace with your actual price ID
       };
 
       const priceId = priceIds[plan];
