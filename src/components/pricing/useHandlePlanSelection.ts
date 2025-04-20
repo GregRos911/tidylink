@@ -58,14 +58,15 @@ export function useHandlePlanSelection() {
         userEmail: userEmail
       });
 
-      // Handle free plan separately
-      if (priceId === null) {
+      // Handle free plan separately - no need to call Stripe
+      if (plan.priceId === null) {
         toast.success("Free plan activated! You have 7 days to try our service.");
         navigate("/dashboard?success=true&plan=free");
         setIsLoading(null);
         return;
       }
 
+      // For paid plans, create a Stripe checkout session
       const { data, error } = await supabase.functions.invoke("create-checkout", {
         body: {
           priceId,
@@ -84,20 +85,20 @@ export function useHandlePlanSelection() {
 
       if (error) {
         console.error("Function error:", error);
-        if (error.message?.toLowerCase().includes("stripe")) {
-          toast.error("Payment setup error. Please check your Stripe credentials.");
-        } else {
-          toast.error(`Function error: ${error.message}`);
-        }
+        toast.error(`Payment setup error: ${error.message}`);
+        setIsLoading(null);
         return;
       }
 
+      // Make sure we have a URL before redirecting
       if (!data?.url) {
-        console.error("No URL returned:", data);
-        toast.error("No checkout URL returned from server");
+        console.error("No checkout URL returned:", data);
+        toast.error("Failed to create checkout session. Please try again.");
+        setIsLoading(null);
         return;
       }
 
+      // Redirect to Stripe checkout page
       window.location.href = data.url;
     } catch (error: any) {
       console.error("Error creating checkout session:", error);
@@ -106,7 +107,6 @@ export function useHandlePlanSelection() {
         ...prev!,
         error: error.message || String(error),
       }));
-    } finally {
       setIsLoading(null);
     }
   };
