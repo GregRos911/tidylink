@@ -1,3 +1,4 @@
+
 import React from 'react';
 import Nav from '@/components/Nav';
 import { Link as LinkIcon } from 'lucide-react';
@@ -7,11 +8,25 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@clerk/clerk-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from "sonner";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useLocation } from "react-router-dom";
 
 const PricingPage: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { isSignedIn } = useAuth();
   const [isLoading, setIsLoading] = React.useState<string | null>(null);
+
+  // Check for URL params
+  React.useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+    if (queryParams.get('canceled') === 'true') {
+      toast.info('Checkout was canceled. You can try again when you\'re ready.');
+    }
+    if (queryParams.get('success') === 'true') {
+      toast.success('Your subscription has been activated! Enjoy your premium features.');
+    }
+  }, [location]);
 
   const handlePlanSelection = async (plan: string) => {
     if (!isSignedIn) {
@@ -22,10 +37,11 @@ const PricingPage: React.FC = () => {
     setIsLoading(plan);
 
     try {
+      // Use actual Stripe test price IDs
       const priceIds: Record<string, string> = {
-        'STARTER': 'price_starter',
-        'GROWTH': 'price_growth',
-        'ENTERPRISE': 'price_enterprise'
+        'STARTER': 'price_1PEwbDDm3KR6H5Yn1cg3jnCT',
+        'GROWTH': 'price_1PEwbWDm3KR6H5YnMVuEFmGc',
+        'ENTERPRISE': 'price_1PEwbrDm3KR6H5YnCwvLLgbp'
       };
 
       const priceId = priceIds[plan];
@@ -33,12 +49,24 @@ const PricingPage: React.FC = () => {
         throw new Error('Invalid plan selected');
       }
 
-      const { data: { url }, error } = await supabase.functions.invoke('create-checkout', {
+      console.log(`Starting checkout for plan ${plan} with priceId: ${priceId}`);
+      
+      const { data, error } = await supabase.functions.invoke('create-checkout', {
         body: { priceId }
       });
 
-      if (error) throw error;
-      if (url) window.location.href = url;
+      if (error) {
+        console.error('Function error:', error);
+        throw new Error(`Function error: ${error.message}`);
+      }
+
+      if (!data?.url) {
+        console.error('No URL returned:', data);
+        throw new Error('No checkout URL returned from server');
+      }
+
+      // Redirect to Stripe checkout
+      window.location.href = data.url;
     } catch (error) {
       console.error('Error creating checkout session:', error);
       toast.error('Failed to start checkout process. Please try again.');
@@ -123,6 +151,15 @@ const PricingPage: React.FC = () => {
       
       <main className="flex-1">
         <section className="container py-12 md:py-20">
+          {location.search.includes('canceled=true') && (
+            <Alert className="mb-6">
+              <AlertTitle>Checkout Canceled</AlertTitle>
+              <AlertDescription>
+                You've canceled the checkout process. You can try again when you're ready.
+              </AlertDescription>
+            </Alert>
+          )}
+          
           <div className="text-center mb-12">
             <h1 className="text-3xl md:text-5xl font-bold tracking-tight mb-4">Pricing that grows with your needs.</h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">

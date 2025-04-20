@@ -16,6 +16,10 @@ serve(async (req) => {
   try {
     const { priceId } = await req.json();
     
+    if (!priceId) {
+      throw new Error("Price ID is required");
+    }
+    
     // Create Supabase client
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
@@ -46,7 +50,7 @@ serve(async (req) => {
       customerId = customer.id;
     }
 
-    // Create checkout session
+    // Create checkout session with proper error handling
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       line_items: [{ price: priceId, quantity: 1 }],
@@ -59,11 +63,16 @@ serve(async (req) => {
       },
     });
 
+    if (!session.url) {
+      throw new Error("Failed to create checkout session URL");
+    }
+
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });
   } catch (error) {
+    console.error("Checkout error:", error);
     return new Response(JSON.stringify({ error: error.message }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 400,
