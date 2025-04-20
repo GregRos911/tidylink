@@ -20,20 +20,33 @@ serve(async (req) => {
       throw new Error("Price ID is required");
     }
     
-    // Create Supabase client
+    // Create Supabase client with anon key - this is crucial for auth to work properly
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_ANON_KEY") ?? ""
     );
 
+    // Get authorization header
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      throw new Error("No authorization header provided");
+    }
+
     // Get user from auth header
-    const authHeader = req.headers.get("Authorization")!;
     const token = authHeader.replace("Bearer ", "");
-    const { data: { user }, error: userError } = await supabaseClient.auth.getUser(token);
+    const { data, error } = await supabaseClient.auth.getUser(token);
     
-    if (userError || !user?.email) {
+    if (error || !data.user) {
+      console.error("Auth error:", error);
       throw new Error("User not authenticated");
     }
+
+    const user = data.user;
+    if (!user.email) {
+      throw new Error("User email not available");
+    }
+
+    console.log("User authenticated:", user.email);
 
     // Initialize Stripe
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {

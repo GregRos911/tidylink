@@ -14,7 +14,7 @@ import { useLocation } from "react-router-dom";
 const PricingPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isSignedIn } = useAuth();
+  const { isSignedIn, getToken } = useAuth();
   const [isLoading, setIsLoading] = React.useState<string | null>(null);
 
   // Check for URL params
@@ -37,6 +37,13 @@ const PricingPage: React.FC = () => {
     setIsLoading(plan);
 
     try {
+      // Get auth token - this is crucial for authenticated requests
+      const token = await getToken({ template: "supabase" });
+      
+      if (!token) {
+        throw new Error("Authentication token not available");
+      }
+
       // Use actual Stripe test price IDs
       const priceIds: Record<string, string> = {
         'STARTER': 'price_1PEwbDDm3KR6H5Yn1cg3jnCT',
@@ -51,8 +58,12 @@ const PricingPage: React.FC = () => {
 
       console.log(`Starting checkout for plan ${plan} with priceId: ${priceId}`);
       
+      // Pass token explicitly to the function call
       const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { priceId }
+        body: { priceId },
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       });
 
       if (error) {
