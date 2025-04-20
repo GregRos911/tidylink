@@ -11,11 +11,22 @@ import { toast } from "sonner";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useLocation } from "react-router-dom";
 
+// Add developer DEBUG section
+const DEBUG = true;
+
 const PricingPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isSignedIn, getToken } = useAuth();
   const [isLoading, setIsLoading] = React.useState<string | null>(null);
+
+  // New: store debug info
+  const [lastCheckout, setLastCheckout] = React.useState<{
+    plan: string;
+    priceId: string;
+    result?: any;
+    error?: string;
+  } | null>(null);
 
   // Check for URL params
   React.useEffect(() => {
@@ -35,12 +46,14 @@ const PricingPage: React.FC = () => {
     }
 
     setIsLoading(plan);
+    setLastCheckout(null);
 
     try {
       // Get auth token - this is crucial for authenticated requests
       const token = await getToken({ template: "supabase" });
-      
+
       if (!token) {
+        toast.error("Authentication token not available");
         throw new Error("Authentication token not available");
       }
 
@@ -53,34 +66,52 @@ const PricingPage: React.FC = () => {
 
       const priceId = priceIds[plan];
       if (!priceId) {
+        toast.error('Invalid plan selected');
         throw new Error('Invalid plan selected');
       }
 
-      console.log(`Starting checkout for plan ${plan} with priceId: ${priceId}`);
-      
-      // Pass token explicitly to the function call
+      // DEBUG: show what we're sending to the function
+      setLastCheckout({ plan, priceId });
+
+      // Always set origin if missing: fallback for SSR/IFRAME debugging
+      const origin = window?.location?.origin || "https://tidylink.io";
+
+      // Pass token and origin explicitly
       const { data, error } = await supabase.functions.invoke('create-checkout', {
         body: { priceId },
         headers: {
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
+          origin: origin
         }
       });
 
+      setLastCheckout({ plan, priceId, result: data, error: error?.message });
+
       if (error) {
         console.error('Function error:', error);
-        throw new Error(`Function error: ${error.message}`);
+        if (error.message?.toLowerCase().includes("stripe")) {
+          toast.error('Payment setup error. Please check your Stripe credentials.');
+        } else {
+          toast.error(`Function error: ${error.message}`);
+        }
+        return;
       }
 
       if (!data?.url) {
         console.error('No URL returned:', data);
-        throw new Error('No checkout URL returned from server');
+        toast.error('No checkout URL returned from server');
+        return;
       }
 
       // Redirect to Stripe checkout
       window.location.href = data.url;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating checkout session:', error);
-      toast.error('Failed to start checkout process. Please try again.');
+      toast.error(error.message || 'Failed to start checkout process. Please try again.');
+      setLastCheckout((prev) => ({
+        ...prev,
+        error: error.message || String(error)
+      }));
     } finally {
       setIsLoading(null);
     }
@@ -159,7 +190,7 @@ const PricingPage: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Nav />
-      
+
       <main className="flex-1">
         <section className="container py-12 md:py-20">
           {location.search.includes('canceled=true') && (
@@ -170,14 +201,31 @@ const PricingPage: React.FC = () => {
               </AlertDescription>
             </Alert>
           )}
-          
+
           <div className="text-center mb-12">
             <h1 className="text-3xl md:text-5xl font-bold tracking-tight mb-4">Pricing that grows with your needs.</h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
               Millions of users worldwide trust Tidylink for their link management. Choose the plan that's right for you.
             </p>
           </div>
-          
+
+          {/* Add a developer DEBUG info section for troubleshooting */}
+          {DEBUG && lastCheckout && (
+            <div className="mb-6 p-4 rounded bg-yellow-50 border border-yellow-300 text-yellow-900 text-sm">
+              <strong>[DEBUG]</strong> Last Checkout Attempt:<br />
+              Plan: {lastCheckout.plan} <br />
+              Price ID: {lastCheckout.priceId}<br />
+              {lastCheckout.error && (
+                <span className="text-red-600">Error: {lastCheckout.error}</span>
+              )}
+              {lastCheckout.result && (
+                <span>
+                  <br />Result: <pre className="whitespace-pre-wrap">{JSON.stringify(lastCheckout.result, null, 2)}</pre>
+                </span>
+              )}
+            </div>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-16">
             {pricingPlans.map((plan, index) => (
               <div key={index} className="relative">
