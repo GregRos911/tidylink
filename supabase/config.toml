@@ -1,27 +1,8 @@
 
 project_id = "oeapevrjjgoinczpzfbt"
 
-[api]
-enabled = true
-port = 54321
-schemas = ["public", "storage", "graphql_public"]
+[functions.create-checkout]
+verify_jwt = true
 
-[db]
-port = 54322
-
-[studio]
-port = 54323
-
-[inbucket]
-port = 54324
-
-[auth]
-enabled = true
-
-[storage]
-enabled = true
-
-[edge-functions]
-[edge-functions.send-campaign-emails]
-[edge-functions.redirect]
-verify_jwt = false
+[functions.check-subscription]
+verify_jwt = true

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Nav from '@/components/Nav';
 import { Link as LinkIcon } from 'lucide-react';
@@ -6,18 +5,45 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@clerk/clerk-react';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from "sonner";
 
 const PricingPage: React.FC = () => {
   const navigate = useNavigate();
   const { isSignedIn } = useAuth();
+  const [isLoading, setIsLoading] = React.useState<string | null>(null);
 
-  const handlePlanSelection = (plan: string) => {
-    if (isSignedIn) {
-      // If already signed in, navigate to dashboard
-      navigate('/dashboard');
-    } else {
-      // If not signed in, navigate to sign up
+  const handlePlanSelection = async (plan: string) => {
+    if (!isSignedIn) {
       navigate('/sign-up');
+      return;
+    }
+
+    setIsLoading(plan);
+
+    try {
+      const priceIds: Record<string, string> = {
+        'STARTER': 'price_starter',
+        'GROWTH': 'price_growth',
+        'ENTERPRISE': 'price_enterprise'
+      };
+
+      const priceId = priceIds[plan];
+      if (!priceId) {
+        throw new Error('Invalid plan selected');
+      }
+
+      const { data: { url }, error } = await supabase.functions.invoke('create-checkout', {
+        body: { priceId }
+      });
+
+      if (error) throw error;
+      if (url) window.location.href = url;
+    } catch (error) {
+      console.error('Error creating checkout session:', error);
+      toast.error('Failed to start checkout process. Please try again.');
+    } finally {
+      setIsLoading(null);
     }
   };
 
@@ -128,8 +154,9 @@ const PricingPage: React.FC = () => {
                       className={`w-full mb-6 ${plan.highlighted ? 'bg-gradient-to-r from-brand-blue via-brand-purple to-brand-pink hover:opacity-90 transition-opacity' : ''}`}
                       variant={plan.highlighted ? 'default' : 'outline'}
                       onClick={() => handlePlanSelection(plan.name)}
+                      disabled={isLoading === plan.name}
                     >
-                      {plan.buttonText}
+                      {isLoading === plan.name ? 'Processing...' : plan.buttonText}
                     </Button>
                     
                     <div className="space-y-4">
