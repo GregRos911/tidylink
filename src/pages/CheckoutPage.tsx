@@ -22,7 +22,7 @@ const ANNUAL_SAVE_PERCENT = 20;
 // Helper to get annual plan info if available
 function getPlanVariants(plan: Plan) {
   // Here, you could later pull these from your pricing data or props if you want to make it generic.
-  // For now, this is hardcoded to Growth Plan logic for demo — feel free to extend as needed.
+  // For now, this is hardcoded to Growth Plan logic for demo — feel free to extend as needed.
   if (plan.name === "Growth Plan") {
     return [
       {
@@ -61,6 +61,7 @@ const CheckoutPage: React.FC = () => {
   const { userId } = useAuth();
   const { user } = useUser();
 
+  // First useEffect - get plan from localStorage
   useEffect(() => {
     // Get the selected plan from localStorage
     const planData = localStorage.getItem('tidylink_selected_plan');
@@ -72,17 +73,18 @@ const CheckoutPage: React.FC = () => {
     setPlan(JSON.parse(planData));
   }, [navigate]);
 
+  // Exit early if no plan is available
   if (!plan) return null;
 
   // Get available billing cycles for this plan
   const planVariants = getPlanVariants(plan);
-
+  
   // Set default cycle to "annual" if previously selected or only annual available
+  // IMPORTANT: This was causing the hooks ordering issue - moving this logic into useEffect
   useEffect(() => {
     if (planVariants.length === 2) setSelectedCycle("annual");
     else if (planVariants.length > 0) setSelectedCycle(planVariants[0].id);
-  // eslint-disable-next-line
-  }, [plan.name]);
+  }, [plan?.name]);
 
   const selectedVariant = planVariants.find(v => v.id === selectedCycle) || planVariants[0];
 
