@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -6,6 +5,9 @@ import { toast } from "sonner";
 import PayPalButton from "@/components/payment/PayPalButton";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth, useUser } from "@clerk/clerk-react";
+import BillingCycleSelector from "@/components/checkout/BillingCycleSelector";
+import PlanFeatures from "@/components/checkout/PlanFeatures";
+import CheckoutPaymentButtons from "@/components/checkout/CheckoutPaymentButtons";
 
 interface Plan {
   name: string;
@@ -19,9 +21,7 @@ interface Plan {
 
 const ANNUAL_SAVE_PERCENT = 20;
 
-// Helper to get annual plan info if available
 function getPlanVariants(plan: Plan) {
-  // Starter Plan
   if (plan.name === "Starter Plan") {
     return [
       {
@@ -35,13 +35,11 @@ function getPlanVariants(plan: Plan) {
         label: "Pay annually",
         price: "$48/year",
         rawAmount: 48,
-        priceId: "price_1RG7APKsMMugzAZwq6vWGzPl", // Annual Starter price ID (placeholder)
+        priceId: "price_1RG7APKsMMugzAZwq6vWGzPl",
         badge: `Save ${ANNUAL_SAVE_PERCENT}%`
       }
     ];
-  }
-  // Growth Plan
-  else if (plan.name === "Growth Plan") {
+  } else if (plan.name === "Growth Plan") {
     return [
       {
         id: "monthly",
@@ -54,13 +52,11 @@ function getPlanVariants(plan: Plan) {
         label: "Pay annually",
         price: "$192/year",
         rawAmount: 192,
-        priceId: "price_1RG79rKsMMugzAZwlSoQptTJ", // Growth Annual price ID
+        priceId: "price_1RG79rKsMMugzAZwlSoQptTJ",
         badge: `Save ${ANNUAL_SAVE_PERCENT}%`
       }
     ];
-  }
-  // Enterprise Plan
-  else if (plan.name === "Enterprise Plan") {
+  } else if (plan.name === "Enterprise Plan") {
     return [
       {
         id: "monthly",
@@ -73,13 +69,11 @@ function getPlanVariants(plan: Plan) {
         label: "Pay annually",
         price: "$1440/year",
         rawAmount: 1440,
-        priceId: "price_1RG7BbKsMMugzAZwljjrP6Fv", // Enterprise Annual price ID (placeholder)
+        priceId: "price_1RG7BbKsMMugzAZwljjrP6Fv",
         badge: `Save ${ANNUAL_SAVE_PERCENT}%`
       }
     ];
-  }
-  // Free Plan or any other plan
-  else {
+  } else {
     return [
       {
         id: "monthly",
@@ -100,9 +94,7 @@ const CheckoutPage: React.FC = () => {
   const { userId } = useAuth();
   const { user } = useUser();
 
-  // First useEffect - get plan from localStorage
   useEffect(() => {
-    // Get the selected plan from localStorage
     const planData = localStorage.getItem('tidylink_selected_plan');
     if (!planData) {
       toast.error("No plan selected, returning to pricing.");
@@ -113,11 +105,9 @@ const CheckoutPage: React.FC = () => {
     const parsedPlan = JSON.parse(planData);
     setPlan(parsedPlan);
     
-    // Get variants right away once we have a plan
     const variants = getPlanVariants(parsedPlan);
     setPlanVariants(variants);
     
-    // Set default cycle
     if (variants.length === 2) {
       setSelectedCycle("annual");
     } else if (variants.length > 0) {
@@ -125,18 +115,15 @@ const CheckoutPage: React.FC = () => {
     }
   }, [navigate]);
 
-  // If no plan is available, we render empty until redirect happens
   if (!plan) return null;
 
   const selectedVariant = planVariants.find(v => v.id === selectedCycle) || planVariants[0];
 
-  // Extract numeric price for PayPal
   const priceNumeric = (() => {
     const match = selectedVariant.price.match(/[\d,.]+/);
     return match ? match[0].replace(/,/g, "") : "0.00";
   })();
 
-  // Handler for starting Stripe payment
   const handleStripePayment = async () => {
     try {
       setIsLoading(true);
@@ -145,7 +132,6 @@ const CheckoutPage: React.FC = () => {
         setIsLoading(false);
         return;
       }
-      // Call Edge Function to create Stripe Checkout session
       const { data, error } = await supabase.functions.invoke("create-checkout", {
         body: {
           priceId: selectedVariant.priceId,
@@ -159,7 +145,7 @@ const CheckoutPage: React.FC = () => {
         setIsLoading(false);
         return;
       }
-      window.location.href = data.url; // Redirect user to Stripe payment page
+      window.location.href = data.url;
     } catch (err: any) {
       toast.error("Unexpected error during Stripe payment.");
       setIsLoading(false);
@@ -170,76 +156,24 @@ const CheckoutPage: React.FC = () => {
     <div className="bg-gray-50 min-h-screen flex flex-col items-center justify-center py-8">
       <div className="w-full max-w-xl bg-white rounded-lg shadow-xl p-8 relative">
         <h2 className="font-bold text-2xl mb-1">{plan.name}</h2>
-        {/* Billing cycle selector */}
-        <div className="mb-5">
-          <div className="font-semibold mb-3">Billing cycle</div>
-          <div className="flex gap-4 w-full">
-            {planVariants.map(variant => (
-              <button
-                key={variant.id}
-                onClick={() => setSelectedCycle(variant.id)}
-                className={`
-                  flex-1 py-4 px-4 rounded-lg border transition 
-                  ${selectedCycle === variant.id
-                    ? "border-blue-600 ring-2 ring-blue-200 bg-blue-50"
-                    : "border-gray-300 bg-white hover:bg-gray-50"}
-                  flex flex-col items-start relative
-                `}
-                style={{ minWidth: 0 }}
-                disabled={isLoading}
-                type="button"
-              >
-                <div className="flex items-center gap-2 text-lg font-semibold">
-                  {variant.label}
-                  {variant.badge && (
-                    <span className="text-xs font-bold bg-green-100 text-green-700 rounded px-2 py-0.5 ml-2">
-                      {variant.badge}
-                    </span>
-                  )}
-                </div>
-                <div className="mt-1 text-2xl font-bold">{variant.price}</div>
-              </button>
-            ))}
-          </div>
-        </div>
-        {/* Plan description/features */}
-        <div className="mb-4 text-gray-600">{plan.description}</div>
-        <div className="mb-5">
-          <ul className="list-disc pl-5 space-y-2">
-            {plan.features.map((feature, idx) => (
-              <li key={idx} className="text-gray-700">{feature}</li>
-            ))}
-          </ul>
-        </div>
-        {/* Terms of service */}
+        <BillingCycleSelector
+          planVariants={planVariants}
+          selectedCycle={selectedCycle}
+          setSelectedCycle={setSelectedCycle}
+          isLoading={isLoading}
+        />
+        <PlanFeatures
+          description={plan.description}
+          features={plan.features}
+        />
         <div className="bg-gray-100 p-4 rounded mb-6 text-xs">
           By clicking below, you agree to our Terms of Service and Privacy Policy.
         </div>
-        {/* Payment buttons: PayPal SDK and Stripe */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center w-full">
-          {/* PayPal SDK button */}
-          <div className="w-full sm:w-1/2">
-            <PayPalButton
-              amount={priceNumeric}
-              onSuccess={() => {
-                toast.success("PayPal payment successful! (Demo)");
-                // Add real logic here!
-              }}
-              disabled={isLoading}
-            />
-          </div>
-          {/* Stripe button */}
-          <div className="w-full sm:w-1/2">
-            <Button
-              className="flex items-center justify-center bg-[#635bff] hover:bg-[#3e33d1] text-white font-bold w-full py-3 rounded transition-colors text-lg"
-              onClick={handleStripePayment}
-              disabled={isLoading}
-              type="button"
-            >
-              Pay with Stripe
-            </Button>
-          </div>
-        </div>
+        <CheckoutPaymentButtons
+          priceNumeric={priceNumeric}
+          isLoading={isLoading}
+          handleStripePayment={handleStripePayment}
+        />
         <Button
           className="mt-6 w-full"
           variant="outline"
