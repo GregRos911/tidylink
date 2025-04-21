@@ -16,7 +16,7 @@ const DEBUG = true;
 
 const PricingPage: React.FC = () => {
   const location = useLocation();
-  const { handlePlanSelection, isLoading, lastCheckout } = useHandlePlanSelection();
+  const { handlePlanSelection, isLoading, lastCheckout, handlePayPalSelection } = useHandlePlanSelection();
 
   React.useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
@@ -43,6 +43,7 @@ const PricingPage: React.FC = () => {
             plans={pricingPlans}
             isLoading={isLoading}
             handlePlanSelection={handlePlanSelection}
+            handlePayPalSelection={handlePayPalSelection}
           />
 
           <PricingCustomSolution />

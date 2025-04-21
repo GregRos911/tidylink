@@ -123,5 +123,86 @@ export function useHandlePlanSelection() {
     }
   };
 
-  return { handlePlanSelection, isLoading, lastCheckout };
+  // PayPal payment flow
+  const handlePayPalSelection = async (plan: { name: string; priceId: string | null }) => {
+    if (!isSignedIn) {
+      navigate("/sign-up");
+      return;
+    }
+    setIsLoading(plan.name);
+    setLastCheckout(null);
+
+    try {
+      if (!session) {
+        toast.error("You must be signed in to purchase a plan.");
+        setIsLoading(null);
+        return;
+      }
+      const token = await session.getToken();
+      if (!token) {
+        toast.error("Authentication token not available");
+        setIsLoading(null);
+        throw new Error("Authentication token not available");
+      }
+      const priceId = plan.priceId;
+      setLastCheckout({ plan: plan.name, priceId, sessionId: session.id });
+
+      const userEmail = session.user.primaryEmailAddress?.emailAddress;
+      if (!userEmail) {
+        toast.error("User email not available");
+        setIsLoading(null);
+        throw new Error("User email not available");
+      }
+
+      console.log("Initiating PayPal checkout for:", {
+        plan: plan.name,
+        priceId,
+        userId: session.user.id,
+        userEmail: userEmail
+      });
+
+      // Call the edge function to create a PayPal order
+      const { data, error } = await supabase.functions.invoke("create-paypal-order", {
+        body: {
+          priceId,
+          clerkUserId: session.user.id,
+          userEmail: userEmail,
+        },
+      });
+
+      setLastCheckout((prev) => ({
+        ...prev!,
+        result: data,
+        error: error?.message,
+      }));
+
+      if (error) {
+        console.error("PayPal function error:", error);
+        toast.error(`PayPal payment error: ${error.message || "Unknown error"}`);
+        setIsLoading(null);
+        return;
+      }
+      if (!data?.url) {
+        console.error("No PayPal approval URL returned:", data);
+        toast.error("Failed to create PayPal order. Please try again.");
+        setIsLoading(null);
+        return;
+      }
+      toast.success("Redirecting to PayPal...");
+      setTimeout(() => {
+        window.location.href = data.url;
+      }, 1000);
+
+    } catch (error: any) {
+      console.error("Error creating PayPal order:", error);
+      toast.error(error.message || "Failed to start PayPal payment. Please try again.");
+      setLastCheckout((prev) => ({
+        ...prev!,
+        error: error.message || String(error),
+      }));
+      setIsLoading(null);
+    }
+  };
+
+  return { handlePlanSelection, isLoading, lastCheckout, handlePayPalSelection };
 }

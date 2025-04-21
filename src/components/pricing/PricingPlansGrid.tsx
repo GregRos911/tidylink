@@ -3,6 +3,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useUser } from "@clerk/clerk-react";
+import { toast } from "sonner";
 
 interface PricingPlan {
   name: string;
@@ -19,6 +20,7 @@ interface PricingPlansGridProps {
   plans: PricingPlan[];
   isLoading: string | null;
   handlePlanSelection: (plan: PricingPlan) => void;
+  handlePayPalSelection?: (plan: PricingPlan) => void;
 }
 
 const getAccountAgeInDays = (createdAt: number | string) => {
@@ -32,6 +34,7 @@ const PricingPlansGrid: React.FC<PricingPlansGridProps> = ({
   plans,
   isLoading,
   handlePlanSelection,
+  handlePayPalSelection,
 }) => {
   const { user } = useUser();
   const accountAge =
@@ -66,7 +69,7 @@ const PricingPlansGrid: React.FC<PricingPlansGridProps> = ({
                   <span className="text-4xl font-bold">{plan.price}</span>
                 </div>
                 <Button
-                  className={`w-full mb-6 ${plan.highlighted ? 'bg-gradient-to-r from-brand-blue via-brand-purple to-brand-pink hover:opacity-90 transition-opacity' : ''}`}
+                  className={`w-full mb-2 ${plan.highlighted ? 'bg-gradient-to-r from-brand-blue via-brand-purple to-brand-pink hover:opacity-90 transition-opacity' : ''}`}
                   variant={plan.highlighted ? 'default' : 'outline'}
                   onClick={() => !freePlanExpired && handlePlanSelection(plan)}
                   disabled={isLoading === plan.name || freePlanExpired}
@@ -77,6 +80,23 @@ const PricingPlansGrid: React.FC<PricingPlansGridProps> = ({
                       ? 'Processing...'
                       : plan.buttonText}
                 </Button>
+                {/* PayPal Button: only show on paid plans */}
+                {!isFree && (
+                  <Button
+                    className="w-full mb-6"
+                    variant="outline"
+                    onClick={() => {
+                      if (handlePayPalSelection) {
+                        handlePayPalSelection(plan);
+                      } else {
+                        toast.error("PayPal payment is not available.");
+                      }
+                    }}
+                    disabled={isLoading === plan.name}
+                  >
+                    Pay with PayPal
+                  </Button>
+                )}
                 <div className="space-y-4">
                   <p className="font-medium">Plan includes:</p>
                   <ul className="space-y-3">
