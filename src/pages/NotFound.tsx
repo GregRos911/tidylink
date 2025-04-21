@@ -1,18 +1,33 @@
 
-import { useLocation, Link } from "react-router-dom";
+import { useLocation, Link, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { LinkIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 const NotFound = () => {
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
+    // Check if this is a Stripe return by examining the referrer
+    const isFromStripe = document.referrer && document.referrer.includes("stripe.com");
+    
+    // Log the 404 attempt for debugging
     console.error(
       "404 Error: User attempted to access non-existent route:",
-      location.pathname
+      location.pathname,
+      { referrer: document.referrer, isFromStripe }
     );
-  }, [location.pathname]);
+
+    // Auto-redirect to pricing page if coming from Stripe
+    if (isFromStripe) {
+      toast.info("Redirecting you back to our pricing page...");
+      setTimeout(() => {
+        navigate("/pricing?canceled=true");
+      }, 1500);
+    }
+  }, [location.pathname, navigate]);
 
   // Check if this is a Stripe return
   const isFromStripe = document.referrer && document.referrer.includes("stripe.com");
@@ -29,6 +44,7 @@ const NotFound = () => {
           <div className="mb-8">
             <p className="text-lg text-gray-600 mb-6">
               It looks like you were returning from Stripe. You can continue to our pricing page or dashboard.
+              {isFromStripe && <span className="block mt-2 text-sm text-blue-500">Redirecting you automatically...</span>}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild variant="outline">
