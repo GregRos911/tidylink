@@ -96,7 +96,8 @@ serve(async (req) => {
     
     logStep("Using origin for redirect URLs", { origin });
     
-    // Create checkout session
+    // Create checkout session with absolute URLs for both success and cancel paths
+    // This helps with Netlify SPA routing
     logStep("Creating checkout session", { priceId });
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
