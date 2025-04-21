@@ -42,124 +42,29 @@ serve(async (req) => {
     }
 
     const clientId = Deno.env.get("PAYPAL_CLIENT_ID");
-    const clientSecret = Deno.env.get("PAYPAL_SECRET_KEY");
-    if (!clientId || !clientSecret) {
-      logStep("ERROR: Missing PayPal credentials");
+    if (!clientId) {
+      logStep("ERROR: Missing PayPal Client ID");
       return new Response(
-        JSON.stringify({ error: "Missing PayPal credentials" }),
+        JSON.stringify({ error: "Missing PayPal Client ID" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Step 1: Get PayPal OAuth token
-    logStep("Getting PayPal OAuth token");
-    const auth = btoa(`${clientId}:${clientSecret}`);
-
-    const tokenResp = await fetch("https://api-m.paypal.com/v1/oauth2/token", {
-      method: "POST",
-      headers: {
-        "Authorization": `Basic ${auth}`,
-        "Content-Type": "application/x-www-form-urlencoded"
-      },
-      body: "grant_type=client_credentials"
-    });
-    
-    if (!tokenResp.ok) {
-      const errorText = await tokenResp.text();
-      logStep("PayPal token error", { status: tokenResp.status, statusText: tokenResp.statusText, body: errorText });
-      return new Response(
-        JSON.stringify({ 
-          error: "Could not get PayPal access token", 
-          details: `Status: ${tokenResp.status}, Text: ${errorText.substring(0, 100)}` 
-        }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-    
-    const tokenData = await tokenResp.json();
-    const accessToken = tokenData.access_token;
-    logStep("Obtained PayPal access token");
-
-    // Step 2: Create PayPal order
+    // Extract plan details
     const { price, name } = PLAN_PRICE_MAP[priceId];
-
-    logStep("Creating PayPal order", { price, name });
-    const baseUrl = req.headers.get("origin") ||
-      req.headers.get("referer")?.replace(/\/$/, "") ||
-      "https://tidylink.io";
-
-    const orderResp = await fetch("https://api-m.paypal.com/v2/checkout/orders", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${accessToken}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        intent: "CAPTURE",
-        purchase_units: [
-          {
-            amount: {
-              currency_code: "USD",
-              value: price,
-            },
-            description: name,
-            custom_id: `${clerkUserId}`,
-          }
-        ],
-        application_context: {
-          brand_name: "tidylink.io",
-          landing_page: "LOGIN",
-          user_action: "PAY_NOW",
-          shipping_preference: "NO_SHIPPING",
-          return_url: `${baseUrl}/dashboard?success=true&paypal=1`,
-          cancel_url: `${baseUrl}/pricing?canceled=true&paypal=1`
+    logStep("Creating PayPal order data", { price, name });
+    
+    // Return PayPal client ID and order details to the frontend
+    return new Response(
+      JSON.stringify({ 
+        clientId,
+        orderDetails: {
+          priceId,
+          value: price,
+          plan: name,
+          customId: clerkUserId
         }
       }),
-    });
-    
-    // Log all responses for debugging
-    const orderRespStatus = orderResp.status;
-    const orderRespBody = await orderResp.text();
-    let orderData;
-    
-    try {
-      orderData = JSON.parse(orderRespBody);
-      logStep("PayPal order API response", { status: orderRespStatus, data: orderData });
-    } catch (e) {
-      logStep("Failed to parse PayPal order response", { status: orderRespStatus, body: orderRespBody });
-      return new Response(
-        JSON.stringify({ 
-          error: "Invalid response from PayPal", 
-          details: `Status: ${orderRespStatus}, Body: ${orderRespBody.substring(0, 100)}` 
-        }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-    
-    if (!orderData.links) {
-      logStep("PayPal order API error", { orderData });
-      return new Response(
-        JSON.stringify({ 
-          error: "Failed to create PayPal order", 
-          details: orderData.error_description || orderData.message || "No approval link returned"
-        }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-    
-    const approveLink = orderData.links.find((l: any) => l.rel === "approve")?.href;
-    if (!approveLink) {
-      logStep("No approval URL in PayPal order", { orderData });
-      return new Response(
-        JSON.stringify({ error: "No approval URL returned from PayPal" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    logStep("Created PayPal order", { orderId: orderData.id, approveLink });
-
-    return new Response(
-      JSON.stringify({ url: approveLink, orderId: orderData.id }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
 
