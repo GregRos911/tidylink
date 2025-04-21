@@ -57,6 +57,7 @@ const CheckoutPage: React.FC = () => {
   const [plan, setPlan] = useState<Plan | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedCycle, setSelectedCycle] = useState("monthly");
+  const [planVariants, setPlanVariants] = useState<any[]>([]);
   const navigate = useNavigate();
   const { userId } = useAuth();
   const { user } = useUser();
@@ -70,21 +71,24 @@ const CheckoutPage: React.FC = () => {
       navigate("/pricing");
       return;
     }
-    setPlan(JSON.parse(planData));
+    
+    const parsedPlan = JSON.parse(planData);
+    setPlan(parsedPlan);
+    
+    // Get variants right away once we have a plan
+    const variants = getPlanVariants(parsedPlan);
+    setPlanVariants(variants);
+    
+    // Set default cycle
+    if (variants.length === 2) {
+      setSelectedCycle("annual");
+    } else if (variants.length > 0) {
+      setSelectedCycle(variants[0].id);
+    }
   }, [navigate]);
 
-  // Exit early if no plan is available
+  // If no plan is available, we render empty until redirect happens
   if (!plan) return null;
-
-  // Get available billing cycles for this plan
-  const planVariants = getPlanVariants(plan);
-  
-  // Set default cycle to "annual" if previously selected or only annual available
-  // IMPORTANT: This was causing the hooks ordering issue - moving this logic into useEffect
-  useEffect(() => {
-    if (planVariants.length === 2) setSelectedCycle("annual");
-    else if (planVariants.length > 0) setSelectedCycle(planVariants[0].id);
-  }, [plan?.name]);
 
   const selectedVariant = planVariants.find(v => v.id === selectedCycle) || planVariants[0];
 
