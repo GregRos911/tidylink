@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import PayPalButton from "@/components/payment/PayPalButton";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth, useUser } from "@clerk/clerk-react";
 
 interface Plan {
   name: string;
@@ -18,6 +19,8 @@ const CheckoutPage: React.FC = () => {
   const [plan, setPlan] = useState<Plan | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { userId } = useAuth();
+  const { user } = useUser();
 
   useEffect(() => {
     // Get the selected plan from localStorage
@@ -43,11 +46,20 @@ const CheckoutPage: React.FC = () => {
   const handleStripePayment = async () => {
     try {
       setIsLoading(true);
+      
+      if (!userId || !user?.primaryEmailAddress) {
+        toast.error("You must be signed in to make a payment.");
+        setIsLoading(false);
+        return;
+      }
+      
       // Call Edge Function to create Stripe Checkout session
       const { data, error } = await supabase.functions.invoke("create-checkout", {
         body: {
           priceId: plan.priceId,
           planName: plan.name,
+          clerkUserId: userId,
+          userEmail: user.primaryEmailAddress.emailAddress
         },
       });
 
@@ -119,4 +131,3 @@ const CheckoutPage: React.FC = () => {
 };
 
 export default CheckoutPage;
-

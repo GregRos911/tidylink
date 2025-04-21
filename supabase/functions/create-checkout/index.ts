@@ -22,7 +22,7 @@ serve(async (req) => {
   }
 
   try {
-    const { priceId, clerkUserId, userEmail } = await req.json();
+    const { priceId, clerkUserId, userEmail, planName } = await req.json();
     
     logStep("Request received", { priceId, clerkUserId, userEmail: userEmail ? `${userEmail.substring(0, 3)}...` : undefined });
     
