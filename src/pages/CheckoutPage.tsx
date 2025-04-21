@@ -21,9 +21,27 @@ const ANNUAL_SAVE_PERCENT = 20;
 
 // Helper to get annual plan info if available
 function getPlanVariants(plan: Plan) {
-  // Here, you could later pull these from your pricing data or props if you want to make it generic.
-  // For now, this is hardcoded to Growth Plan logic for demo — feel free to extend as needed.
-  if (plan.name === "Growth Plan") {
+  // Starter Plan
+  if (plan.name === "Starter Plan") {
+    return [
+      {
+        id: "monthly",
+        label: "Pay monthly",
+        price: "$5/mo",
+        priceId: plan.priceId,
+      },
+      {
+        id: "annual",
+        label: "Pay annually",
+        price: "$48/year",
+        rawAmount: 48,
+        priceId: "price_1RG7APKsMMugzAZwq6vWGzPl", // Annual Starter price ID (placeholder)
+        badge: `Save ${ANNUAL_SAVE_PERCENT}%`
+      }
+    ];
+  }
+  // Growth Plan
+  else if (plan.name === "Growth Plan") {
     return [
       {
         id: "monthly",
@@ -35,13 +53,33 @@ function getPlanVariants(plan: Plan) {
         id: "annual",
         label: "Pay annually",
         price: "$192/year",
-        rawAmount: 192, // Used as numeric value for payments
-        priceId: "price_1RG79rKsMMugzAZwlSoQptTJ", // 👈 fill this with your real Stripe annual price_id
+        rawAmount: 192,
+        priceId: "price_1RG79rKsMMugzAZwlSoQptTJ", // Growth Annual price ID
         badge: `Save ${ANNUAL_SAVE_PERCENT}%`
       }
     ];
-  } else {
-    // For other plans, just return current price info, you can expand as needed.
+  }
+  // Enterprise Plan
+  else if (plan.name === "Enterprise Plan") {
+    return [
+      {
+        id: "monthly",
+        label: "Pay monthly",
+        price: "$150/mo",
+        priceId: plan.priceId,
+      },
+      {
+        id: "annual",
+        label: "Pay annually",
+        price: "$1440/year",
+        rawAmount: 1440,
+        priceId: "price_1RG7BbKsMMugzAZwljjrP6Fv", // Enterprise Annual price ID (placeholder)
+        badge: `Save ${ANNUAL_SAVE_PERCENT}%`
+      }
+    ];
+  }
+  // Free Plan or any other plan
+  else {
     return [
       {
         id: "monthly",
