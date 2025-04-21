@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import PayPalButton from "@/components/payment/PayPalButton";
 
 interface Plan {
   name: string;
@@ -30,6 +31,13 @@ const CheckoutPage: React.FC = () => {
 
   if (!plan) return null;
 
+  // Extract loanable price string to number (ex: "$5/mo" => "5.00")
+  const priceNumeric = (() => {
+    // Find digits/decimals in price string
+    const match = plan.price.match(/[\d,.]+/);
+    return match ? match[0].replace(/,/g, "") : "0.00";
+  })();
+
   return (
     <div className="bg-gray-50 min-h-screen flex flex-col items-center justify-center py-8">
       <div className="w-full max-w-xl bg-white rounded-lg shadow-xl p-8 relative">
@@ -47,44 +55,44 @@ const CheckoutPage: React.FC = () => {
         <div className="bg-gray-100 p-4 rounded mb-6 text-xs">
           By clicking below, you agree to our Terms of Service and Privacy Policy.
         </div>
-        <div className="flex flex-col gap-3">
-          <Button 
-            className="flex items-center justify-center bg-yellow-400 hover:bg-yellow-500 text-black font-bold w-full py-3 rounded transition-colors text-lg"
-            onClick={() => {
-              setIsLoading(true);
-              // The PayPal handler would be invoked here.
-              toast.info("PayPal payment coming soon!");
-              setTimeout(() => setIsLoading(false), 1200);
-            }}
-            disabled={isLoading}
-          >
-            <img src="/lovable-uploads/3ab8c374-d373-49d0-9f33-c0818a3d2bc2.png" alt="PayPal" className="h-6 mr-2" />
-            Pay with PayPal
-          </Button>
-          <Button
-            className="flex items-center justify-center bg-[#635bff] hover:bg-[#3e33d1] text-white font-bold w-full py-3 rounded transition-colors text-lg"
-            onClick={async () => {
-              setIsLoading(true);
-              // The Stripe handler would be invoked here
-              try {
-                toast.success("Stripe payment coming soon!");
-              } finally {
-                setTimeout(() => setIsLoading(false), 1200);
-              }
-            }}
-            disabled={isLoading}
-          >
-            Pay with Stripe
-          </Button>
-          <Button
-            className="mt-2 w-full"
-            variant="outline"
-            onClick={() => navigate("/pricing")}
-            disabled={isLoading}
-          >
-            &larr; Back to Plans
-          </Button>
+        {/* Payment buttons */}
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center w-full">
+          <div className="w-full sm:w-1/2">
+            <PayPalButton
+              amount={priceNumeric}
+              onSuccess={() => {
+                toast.success("PayPal payment successful! (Demo)");
+                // Add real logic here!
+              }}
+              disabled={isLoading}
+            />
+          </div>
+          <div className="w-full sm:w-1/2">
+            <Button
+              className="flex items-center justify-center bg-[#635bff] hover:bg-[#3e33d1] text-white font-bold w-full py-3 rounded transition-colors text-lg"
+              onClick={async () => {
+                setIsLoading(true);
+                // The Stripe handler would be invoked here
+                try {
+                  toast.success("Stripe payment coming soon!");
+                } finally {
+                  setTimeout(() => setIsLoading(false), 1200);
+                }
+              }}
+              disabled={isLoading}
+            >
+              Pay with Stripe
+            </Button>
+          </div>
         </div>
+        <Button
+          className="mt-6 w-full"
+          variant="outline"
+          onClick={() => navigate("/pricing")}
+          disabled={isLoading}
+        >
+          &larr; Back to Plans
+        </Button>
       </div>
     </div>
   );
