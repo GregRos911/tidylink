@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -20,7 +19,6 @@ interface PricingPlansGridProps {
   plans: PricingPlan[];
   isLoading: string | null;
   handlePlanSelection: (plan: PricingPlan) => void;
-  handlePayPalSelection?: (plan: PricingPlan) => void;
 }
 
 const getAccountAgeInDays = (createdAt: number | string) => {
@@ -34,7 +32,6 @@ const PricingPlansGrid: React.FC<PricingPlansGridProps> = ({
   plans,
   isLoading,
   handlePlanSelection,
-  handlePayPalSelection,
 }) => {
   const { user } = useUser();
   const accountAge =
@@ -80,23 +77,6 @@ const PricingPlansGrid: React.FC<PricingPlansGridProps> = ({
                       ? 'Processing...'
                       : plan.buttonText}
                 </Button>
-                {/* PayPal Button: only show on paid plans */}
-                {!isFree && (
-                  <Button
-                    className="w-full mb-6"
-                    variant="outline"
-                    onClick={() => {
-                      if (handlePayPalSelection) {
-                        handlePayPalSelection(plan);
-                      } else {
-                        toast.error("PayPal payment is not available.");
-                      }
-                    }}
-                    disabled={isLoading === plan.name}
-                  >
-                    Pay with PayPal
-                  </Button>
-                )}
                 <div className="space-y-4">
                   <p className="font-medium">Plan includes:</p>
                   <ul className="space-y-3">
