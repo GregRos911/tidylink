@@ -63,11 +63,19 @@ serve(async (req) => {
       },
       body: "grant_type=client_credentials"
     });
+    
     if (!tokenResp.ok) {
-      const trace = await tokenResp.text();
-      logStep("PayPal token error", { trace });
-      throw new Error("Could not get PayPal access token");
+      const errorText = await tokenResp.text();
+      logStep("PayPal token error", { status: tokenResp.status, statusText: tokenResp.statusText, body: errorText });
+      return new Response(
+        JSON.stringify({ 
+          error: "Could not get PayPal access token", 
+          details: `Status: ${tokenResp.status}, Text: ${errorText.substring(0, 100)}` 
+        }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
+    
     const tokenData = await tokenResp.json();
     const accessToken = tokenData.access_token;
     logStep("Obtained PayPal access token");
@@ -96,9 +104,6 @@ serve(async (req) => {
             },
             description: name,
             custom_id: `${clerkUserId}`,
-            payee: {
-              email_address: userEmail,
-            },
           }
         ],
         application_context: {
@@ -111,15 +116,44 @@ serve(async (req) => {
         }
       }),
     });
-    const orderData = await orderResp.json();
+    
+    // Log all responses for debugging
+    const orderRespStatus = orderResp.status;
+    const orderRespBody = await orderResp.text();
+    let orderData;
+    
+    try {
+      orderData = JSON.parse(orderRespBody);
+      logStep("PayPal order API response", { status: orderRespStatus, data: orderData });
+    } catch (e) {
+      logStep("Failed to parse PayPal order response", { status: orderRespStatus, body: orderRespBody });
+      return new Response(
+        JSON.stringify({ 
+          error: "Invalid response from PayPal", 
+          details: `Status: ${orderRespStatus}, Body: ${orderRespBody.substring(0, 100)}` 
+        }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    
     if (!orderData.links) {
       logStep("PayPal order API error", { orderData });
-      throw new Error("Failed to create PayPal order");
+      return new Response(
+        JSON.stringify({ 
+          error: "Failed to create PayPal order", 
+          details: orderData.error_description || orderData.message || "No approval link returned"
+        }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
+    
     const approveLink = orderData.links.find((l: any) => l.rel === "approve")?.href;
     if (!approveLink) {
       logStep("No approval URL in PayPal order", { orderData });
-      throw new Error("No approval URL returned from PayPal");
+      return new Response(
+        JSON.stringify({ error: "No approval URL returned from PayPal" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     logStep("Created PayPal order", { orderId: orderData.id, approveLink });
@@ -130,9 +164,11 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    logStep("PayPal order error", { error: error.message || String(error) });
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    logStep("PayPal order error", { error: errorMessage });
+    
     return new Response(
-      JSON.stringify({ error: error.message || "PayPal order error" }),
+      JSON.stringify({ error: "PayPal order error", details: errorMessage }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
