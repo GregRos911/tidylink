@@ -10,14 +10,53 @@ import { useAuth, useUser } from "@clerk/clerk-react";
 interface Plan {
   name: string;
   priceId: string | null;
+  annualPriceId?: string | null;
   price: string;
+  annualPrice?: string;
   description: string;
   features: string[];
+}
+
+const ANNUAL_SAVE_PERCENT = 20;
+
+// Helper to get annual plan info if available
+function getPlanVariants(plan: Plan) {
+  // Here, you could later pull these from your pricing data or props if you want to make it generic.
+  // For now, this is hardcoded to Growth Plan logic for demo — feel free to extend as needed.
+  if (plan.name === "Growth Plan") {
+    return [
+      {
+        id: "monthly",
+        label: "Pay monthly",
+        price: "$20/mo",
+        priceId: plan.priceId,
+      },
+      {
+        id: "annual",
+        label: "Pay annually",
+        price: "$192/year",
+        rawAmount: 192, // Used as numeric value for payments
+        priceId: "price_1RG79rKsMMugzAZwlSoQptTJ", // 👈 fill this with your real Stripe annual price_id
+        badge: `Save ${ANNUAL_SAVE_PERCENT}%`
+      }
+    ];
+  } else {
+    // For other plans, just return current price info, you can expand as needed.
+    return [
+      {
+        id: "monthly",
+        label: `Pay monthly`,
+        price: plan.price,
+        priceId: plan.priceId,
+      }
+    ];
+  }
 }
 
 const CheckoutPage: React.FC = () => {
   const [plan, setPlan] = useState<Plan | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedCycle, setSelectedCycle] = useState("monthly");
   const navigate = useNavigate();
   const { userId } = useAuth();
   const { user } = useUser();
@@ -35,10 +74,21 @@ const CheckoutPage: React.FC = () => {
 
   if (!plan) return null;
 
-  // Extract loanable price string to number (ex: "$5/mo" => "5.00")
+  // Get available billing cycles for this plan
+  const planVariants = getPlanVariants(plan);
+
+  // Set default cycle to "annual" if previously selected or only annual available
+  useEffect(() => {
+    if (planVariants.length === 2) setSelectedCycle("annual");
+    else if (planVariants.length > 0) setSelectedCycle(planVariants[0].id);
+  // eslint-disable-next-line
+  }, [plan.name]);
+
+  const selectedVariant = planVariants.find(v => v.id === selectedCycle) || planVariants[0];
+
+  // Extract numeric price for PayPal
   const priceNumeric = (() => {
-    // Find digits/decimals in price string
-    const match = plan.price.match(/[\d,.]+/);
+    const match = selectedVariant.price.match(/[\d,.]+/);
     return match ? match[0].replace(/,/g, "") : "0.00";
   })();
 
@@ -46,23 +96,20 @@ const CheckoutPage: React.FC = () => {
   const handleStripePayment = async () => {
     try {
       setIsLoading(true);
-      
       if (!userId || !user?.primaryEmailAddress) {
         toast.error("You must be signed in to make a payment.");
         setIsLoading(false);
         return;
       }
-      
       // Call Edge Function to create Stripe Checkout session
       const { data, error } = await supabase.functions.invoke("create-checkout", {
         body: {
-          priceId: plan.priceId,
+          priceId: selectedVariant.priceId,
           planName: plan.name,
           clerkUserId: userId,
           userEmail: user.primaryEmailAddress.emailAddress
         },
       });
-
       if (error || !data?.url) {
         toast.error("Stripe payment failed to start.");
         setIsLoading(false);
@@ -78,9 +125,41 @@ const CheckoutPage: React.FC = () => {
   return (
     <div className="bg-gray-50 min-h-screen flex flex-col items-center justify-center py-8">
       <div className="w-full max-w-xl bg-white rounded-lg shadow-xl p-8 relative">
-        <h2 className="font-bold text-2xl mb-2">{plan.name}</h2>
-        <div className="text-xl mb-4 font-medium text-gray-700">{plan.price}</div>
-        <p className="mb-4 text-gray-600">{plan.description}</p>
+        <h2 className="font-bold text-2xl mb-1">{plan.name}</h2>
+        {/* Billing cycle selector */}
+        <div className="mb-5">
+          <div className="font-semibold mb-3">Billing cycle</div>
+          <div className="flex gap-4 w-full">
+            {planVariants.map(variant => (
+              <button
+                key={variant.id}
+                onClick={() => setSelectedCycle(variant.id)}
+                className={`
+                  flex-1 py-4 px-4 rounded-lg border transition 
+                  ${selectedCycle === variant.id
+                    ? "border-blue-600 ring-2 ring-blue-200 bg-blue-50"
+                    : "border-gray-300 bg-white hover:bg-gray-50"}
+                  flex flex-col items-start relative
+                `}
+                style={{ minWidth: 0 }}
+                disabled={isLoading}
+                type="button"
+              >
+                <div className="flex items-center gap-2 text-lg font-semibold">
+                  {variant.label}
+                  {variant.badge && (
+                    <span className="text-xs font-bold bg-green-100 text-green-700 rounded px-2 py-0.5 ml-2">
+                      {variant.badge}
+                    </span>
+                  )}
+                </div>
+                <div className="mt-1 text-2xl font-bold">{variant.price}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+        {/* Plan description/features */}
+        <div className="mb-4 text-gray-600">{plan.description}</div>
         <div className="mb-5">
           <ul className="list-disc pl-5 space-y-2">
             {plan.features.map((feature, idx) => (
