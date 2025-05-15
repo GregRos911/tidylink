@@ -37,4 +37,12 @@ MIT License
 ---
 
 Built with ❤️ by Gregory Rosenquist
+Copyright (c) 2025 Gregory Rosenquist
+
+All rights reserved.
+
+This code is provided for educational and demonstration purposes only. 
+You may not copy, distribute, modify, sublicense, or use this software 
+for any commercial or production purpose without express written permission 
+from the author.
 
