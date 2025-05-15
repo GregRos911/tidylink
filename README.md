@@ -1,43 +1,41 @@
 
-# Tidylink - Create short URL links & Generate QR codes
+# TidyLink
 
-## Project Overview
+TidyLink is an AI-powered URL shortener and link verification platform built with TypeScript, Clerk authentication, and Supabase as the backend. It enables users to create shortened links with a “verified” badge and manage them via a clean dashboard UI.
 
-Tidylink is a modern URL shortening and QR code generation platform built with:
+This project is currently in development and intended to showcase code structure, modern stack usage, and low-code AI integration for job applications and portfolio review.
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## ⚙️ Core Features
 
-## Getting Started
+- 🔐 Authentication via Clerk
+- 🔗 Create and manage clean, verified short links
+- 🧠 AI-generated page content (planned)
+- 📊 Usage tracking and analytics dashboard (in progress)
+- 🧩 Built using TypeScript + Tailwind CSS for maintainable and responsive code
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## 🧰 Tech Stack
 
-Follow these steps:
+- **Frontend:** React, TypeScript, Tailwind CSS  
+- **Backend:** Supabase (PostgreSQL)  
+- **Authentication:** Clerk  
+- **Architecture:** Component-based, low-code UI principles
 
-```sh
-# Step 1: Clone the repository
-git clone <YOUR_GIT_URL>
+## 📁 Code Overview
 
-# Step 2: Navigate to the project directory
-cd <YOUR_PROJECT_NAME>
+- `components/`: Reusable UI components  
+- `pages/`: Main route views (e.g., dashboard, login)  
+- `utils/`: Utility functions and Supabase/Clerk config  
+- `styles/`: Tailwind-based styling and global config
 
-# Step 3: Install dependencies
-npm i
+## 🙋‍♂️ Purpose
 
-# Step 4: Start the development server
-npm run dev
-```
+This project is not intended for installation at this time. It is shared publicly to demonstrate proficiency in full-stack development using modern tools, particularly in building low-code platforms and user-friendly dashboards.
 
-## Features
+## 📄 License
 
-- Create short links
-- Generate QR codes
-- Track link analytics
-- Manage campaigns
-- Custom domains
-- User authentication
-- Responsive design
+MIT License
+
+---
+
+Built with ❤️ by Gregory Rosenquist
 
