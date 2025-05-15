@@ -8,8 +8,7 @@ This project is currently in development and intended to showcase code structure
 ## ⚙️ Core Features
 
 - 🔐 Authentication via Clerk
-- 🔗 Create and manage clean, verified short links
-- 🧠 AI-generated page content (planned)
+- 🔗 Create and manage clean, verified short links and QR Codes
 - 📊 Usage tracking and analytics dashboard (in progress)
 - 🧩 Built using TypeScript + Tailwind CSS for maintainable and responsive code
 
@@ -29,7 +28,7 @@ This project is currently in development and intended to showcase code structure
 
 ## 🙋‍♂️ Purpose
 
-This project is not intended for installation at this time. It is shared publicly to demonstrate proficiency in full-stack development using modern tools, particularly in building low-code platforms and user-friendly dashboards.
+This project is not intended for installation at this time. It is shared publicly to demonstrate proficiency in full-stack development using modern tools, particularly in building low-code platforms and user-friendly dashboards.This is still development mode at this time. If you need access to the direct project, please reach out and I will provide the credentials for access.
 
 ## 📄 License
 
