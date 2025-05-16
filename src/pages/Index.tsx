@@ -3,7 +3,8 @@ import React, { useState } from 'react';
 import Nav from '@/components/Nav';
 import LinkShortener from '@/components/LinkShortener';
 import QRCodeGenerator from '@/components/QRCodeGenerator';
-import { Link as LinkIcon, QrCode, BarChart } from "lucide-react";
+import { Link as LinkIcon, QrCode, BarChart, Construction } from "lucide-react";
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 const Index: React.FC = () => {
   const [shortenedUrl, setShortenedUrl] = useState('');
@@ -11,6 +12,17 @@ const Index: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Nav />
+      
+      {/* Under Construction Alert */}
+      <div className="container mt-4">
+        <Alert className="border-2 border-yellow-400 bg-yellow-50">
+          <Construction className="h-5 w-5 text-yellow-600" />
+          <AlertTitle className="font-medium text-yellow-800">Under Construction</AlertTitle>
+          <AlertDescription className="text-yellow-700">
+            TidyLink is still being developed. We are working hard to launch soon with all features available!
+          </AlertDescription>
+        </Alert>
+      </div>
       
       <main className="flex-1">
         <section className="container py-12 md:py-20">
